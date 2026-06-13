@@ -363,12 +363,30 @@ function showBanner() {
 	banner.classList.remove('opacity-0', 'scale-105');
 }
 
+function fixLangRoutes() {
+    const match = window.location.pathname.match(/^\/(en|ja|ko)(\/|$)/);
+    const langPrefix = match ? match[1] : '';
+    if (!langPrefix) return;
+    
+    document.querySelectorAll('a[href]').forEach(a => {
+        // Skip links that are for language switching (they have data-no-swup or are inside lang-panel)
+        if (a.hasAttribute('data-no-swup') || a.closest('#lang-panel')) return;
+        
+        let href = a.getAttribute('href');
+        // If it's a local link and doesn't already have ANY language prefix
+        if (href && href.startsWith('/') && !href.match(/^\/(en|ja|ko)(\/|$)/)) {
+            a.setAttribute('href', `/${langPrefix}${href}`);
+        }
+    });
+}
+
 function init() {
 	// disableAnimation()()		// TODO
 	loadTheme();
 	loadHue();
 	initCustomScrollbar();
 	showBanner();
+	fixLangRoutes();
 }
 
 /* Load settings when entering the site */
@@ -404,8 +422,11 @@ const setup = () => {
 			navbar.classList.add('navbar-hidden')
 		}
 	})
-	window.swup.hooks.on('content:replace', initCustomScrollbar)
-	window.swup.hooks.on('visit:start', (visit: {to: {url: string}}) => {
+	window.swup.hooks.on('content:replace', () => {
+		initCustomScrollbar()
+		fixLangRoutes()
+	})
+	window.swup.hooks.on('visit:start', (visit: {to: {url: string}, scroll?: any}) => {
 		// change banner height immediately when a link is clicked
 		const bodyElement = document.querySelector('body')
 		if (pathsEqual(visit.to.url, url('/'))) {
@@ -413,6 +434,15 @@ const setup = () => {
 		} else {
 			bodyElement!.classList.remove('lg:is-home');
 		}
+
+        // Delegate scrolling entirely to Swup!
+        // Because CategoryTree now expands on the server (SSR), the layout is completely stable before Swup scrolls!
+        if (window.innerWidth < 1024) {
+            const isDocs = visit.to.url.includes('/docs') || visit.to.url.includes('/posts/docs');
+            if (isDocs && visit.scroll) {
+                visit.scroll.target = '#swup-mobile-scroll-target';
+            }
+        }
 
 		// increase the page height during page transition to prevent the scrolling animation from jumping
 		const heightExtend = document.getElementById('page-height-extend')
@@ -487,7 +517,9 @@ function scrollFunction() {
 		}
 		let threshold = window.innerHeight * (bannerHeight / 100) - NAVBAR_HEIGHT - MAIN_PANEL_EXCESS_HEIGHT - 16
 		if (document.body.scrollTop >= threshold || document.documentElement.scrollTop >= threshold) {
-			navbar.classList.add('navbar-hidden')
+			if (window.innerWidth >= 1024) {
+				navbar.classList.add('navbar-hidden')
+			}
 		} else {
 			navbar.classList.remove('navbar-hidden')
 		}

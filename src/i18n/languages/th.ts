@@ -35,4 +35,10 @@ export const th: Translation = {
 	[Key.author]: "ผู้เขียน",
 	[Key.publishedAt]: "เผยแพร่เมื่อ",
 	[Key.license]: "สัญญาอนุญาต",
+	[Key.colorFire]: "Flame",
+	[Key.colorOcean]: "Ocean",
+	[Key.colorLavender]: "Lavender",
+	[Key.colorMagenta]: "Magenta",
+	[Key.colorRose]: "Rose",
+	[Key.blog]: "Blog",
 };

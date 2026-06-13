@@ -6,6 +6,8 @@ export const zh_TW: Translation = {
 	[Key.about]: "關於",
 	[Key.archive]: "彙整",
 	[Key.search]: "搜尋",
+	[Key.friends]: "友情連結",
+	[Key.docs]: "教學",
 
 	[Key.tags]: "標籤",
 	[Key.categories]: "分類",
@@ -35,4 +37,10 @@ export const zh_TW: Translation = {
 	[Key.author]: "作者",
 	[Key.publishedAt]: "發佈於",
 	[Key.license]: "許可協議",
+	[Key.colorFire]: "烈焰",
+	[Key.colorOcean]: "滄海",
+	[Key.colorLavender]: "幽蘭",
+	[Key.colorMagenta]: "霓虹",
+	[Key.colorRose]: "玫瑰",
+	[Key.blog]: "部落格",
 };

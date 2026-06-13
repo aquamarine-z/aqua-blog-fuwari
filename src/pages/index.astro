@@ -1,0 +1,29 @@
+---
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+import { siteConfig } from "../config";
+---
+
+<MainGridLayout title="Home">
+    <div class="flex w-full rounded-[var(--radius)] overflow-hidden relative min-h-32 mb-4">
+        <div class="card-base z-10 px-9 py-6 relative w-full">
+            <div class="flex flex-col md:flex-row gap-6 items-center">
+                <div class="flex-1 flex flex-col gap-4">
+                    <h1 class="text-3xl font-bold text-[var(--primary)]">
+                        Welcome to {siteConfig.title}
+                    </h1>
+                    <p class="text-[var(--textColor)] opacity-80 leading-relaxed">
+                        This is your custom homepage. You can freely edit <code>src/pages/index.astro</code> to add anything you want here, like a welcome message, featured posts, or a personal portfolio. The main blog list has been moved to the <a href="/blog/" class="text-[var(--primary)] hover:underline font-medium">/blog</a> page.
+                    </p>
+                    <div class="flex gap-4 mt-2">
+                        <a href="/blog/" class="bg-[var(--primary)] text-white px-4 py-2 rounded-lg hover:brightness-110 transition-all font-bold">
+                            View Blog
+                        </a>
+                        <a href="/docs/" class="bg-[var(--btn-regular-bg)] text-[var(--btn-content)] px-4 py-2 rounded-lg hover:bg-[var(--btn-hover-bg)] transition-all font-bold">
+                            Read Docs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</MainGridLayout>

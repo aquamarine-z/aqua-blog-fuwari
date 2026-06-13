@@ -3,6 +3,7 @@ import { onMount } from "svelte";
 
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
+export let lang: string = "zh_CN";
 import { getPostUrlBySlug } from "../utils/url-utils";
 
 export let tags: string[];

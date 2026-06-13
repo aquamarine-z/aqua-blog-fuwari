@@ -4,11 +4,22 @@ import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
 import { getDefaultHue, getHue, setHue } from "@utils/setting-utils";
 
+export let lang: string = "en";
+
 let hue = getHue();
 const defaultHue = getDefaultHue();
 
-function resetHue() {
-	hue = getDefaultHue();
+const colorPalettes = [
+    { hue: 0, key: I18nKey.colorFire },
+    { hue: 180, key: I18nKey.colorOcean },
+    { hue: 250, key: I18nKey.colorLavender },
+    { hue: 300, key: I18nKey.colorMagenta },
+    { hue: 340, key: I18nKey.colorRose },
+];
+
+function selectHue(h: number) {
+	hue = h;
+	setHue(h);
 }
 
 $: if (hue || hue === 0) {
@@ -22,72 +33,29 @@ $: if (hue || hue === 0) {
             before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)]
             before:absolute before:-left-3 before:top-[0.33rem]"
         >
-            {i18n(I18nKey.themeColor)}
-            <button aria-label="Reset to Default" class="btn-regular w-7 h-7 rounded-md  active:scale-90 will-change-transform"
-                    class:opacity-0={hue === defaultHue} class:pointer-events-none={hue === defaultHue} on:click={resetHue}>
-                <div class="text-[var(--btn-content)]">
-                    <Icon icon="fa6-solid:arrow-rotate-left" class="text-[0.875rem]"></Icon>
-                </div>
-            </button>
-        </div>
-        <div class="flex gap-1">
-            <div id="hueValue" class="transition bg-[var(--btn-regular-bg)] w-10 h-7 rounded-md flex justify-center
-            font-bold text-sm items-center text-[var(--btn-content)]">
-                {hue}
-            </div>
+            {i18n(I18nKey.themeColor, lang)}
         </div>
     </div>
-    <div class="w-full h-6 px-1 bg-[oklch(0.80_0.10_0)] dark:bg-[oklch(0.70_0.10_0)] rounded select-none">
-        <input aria-label={i18n(I18nKey.themeColor)} type="range" min="0" max="360" bind:value={hue}
-               class="slider" id="colorSlider" step="5" style="width: 100%">
+    <div class="flex flex-col gap-2 w-full mt-4">
+        {#each colorPalettes as palette}
+            <button 
+                class="flex items-center w-full px-3 py-2 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/5 {hue === palette.hue ? 'bg-black/10 dark:bg-white/10' : ''}"
+                on:click={() => selectHue(palette.hue)}
+            >
+                <div class="w-5 h-5 rounded-full mr-3 shadow-sm border border-black/10 dark:border-white/10"
+                     style={`background-color: oklch(0.70 0.14 ${palette.hue})`}
+                ></div>
+                <span class="text-neutral-700 dark:text-neutral-300 font-medium text-sm">
+                    {i18n(palette.key, lang)}
+                </span>
+                {#if hue === palette.hue}
+                    <Icon icon="material-symbols:check-circle-rounded" class="ml-auto text-[var(--primary)] text-lg"></Icon>
+                {/if}
+            </button>
+        {/each}
     </div>
 </div>
 
-
 <style lang="stylus">
-    #display-setting
-      input[type="range"]
-        -webkit-appearance none
-        height 1.5rem
-        background-image var(--color-selection-bar)
-        transition background-image 0.15s ease-in-out
-
-        /* Input Thumb */
-        &::-webkit-slider-thumb
-          -webkit-appearance none
-          height 1rem
-          width 0.5rem
-          border-radius 0.125rem
-          background rgba(255, 255, 255, 0.7)
-          box-shadow none
-          &:hover
-            background rgba(255, 255, 255, 0.8)
-          &:active
-            background rgba(255, 255, 255, 0.6)
-
-        &::-moz-range-thumb
-          -webkit-appearance none
-          height 1rem
-          width 0.5rem
-          border-radius 0.125rem
-          border-width 0
-          background rgba(255, 255, 255, 0.7)
-          box-shadow none
-          &:hover
-            background rgba(255, 255, 255, 0.8)
-          &:active
-            background rgba(255, 255, 255, 0.6)
-
-        &::-ms-thumb
-          -webkit-appearance none
-          height 1rem
-          width 0.5rem
-          border-radius 0.125rem
-          background rgba(255, 255, 255, 0.7)
-          box-shadow none
-          &:hover
-            background rgba(255, 255, 255, 0.8)
-          &:active
-            background rgba(255, 255, 255, 0.6)
-
 </style>
+

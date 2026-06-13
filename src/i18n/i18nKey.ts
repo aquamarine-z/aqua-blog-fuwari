@@ -3,6 +3,8 @@ enum I18nKey {
 	about = "about",
 	archive = "archive",
 	search = "search",
+	friends = "friends",
+	docs = "docs",
 
 	tags = "tags",
 	categories = "categories",
@@ -32,6 +34,21 @@ enum I18nKey {
 	author = "author",
 	publishedAt = "publishedAt",
 	license = "license",
+colorFire = 'colorFire',
+colorOcean = 'colorOcean',
+colorLavender = 'colorLavender',
+colorMagenta = 'colorMagenta',
+colorRose = 'colorRose',
+	blog = 'blog',
+	tagFriend = 'tag.friend',
+	tagSchoolmate = 'tag.schoolmate',
+	tagTeacher = 'tag.teacher',
+	tagLover = 'tag.lover',
+	tagFamily = 'tag.family',
+	tagSelf = 'tag.self',
+	tagFrontend = 'tag.frontend',
+	tagBackend = 'tag.backend',
+	tagReact = 'tag.react',
 }
 
 export default I18nKey;

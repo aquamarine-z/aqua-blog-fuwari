@@ -2,27 +2,29 @@ import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const ja: Translation = {
-	[Key.home]: "Home",
-	[Key.about]: "About",
-	[Key.archive]: "Archive",
+	[Key.home]: "ホーム",
+	[Key.about]: "概要",
+	[Key.archive]: "アーカイブ",
 	[Key.search]: "検索",
+	[Key.friends]: "リンク",
+	[Key.docs]: "ドキュメント",
 
 	[Key.tags]: "タグ",
-	[Key.categories]: "カテゴリ",
-	[Key.recentPosts]: "最近の投稿",
+	[Key.categories]: "カテゴリー",
+	[Key.recentPosts]: "最近の記事",
 
 	[Key.comments]: "コメント",
 
-	[Key.untitled]: "タイトルなし",
-	[Key.uncategorized]: "カテゴリなし",
+	[Key.untitled]: "無題",
+	[Key.uncategorized]: "未分类",
 	[Key.noTags]: "タグなし",
 
 	[Key.wordCount]: "文字",
 	[Key.wordsCount]: "文字",
 	[Key.minuteCount]: "分",
 	[Key.minutesCount]: "分",
-	[Key.postCount]: "件の投稿",
-	[Key.postsCount]: "件の投稿",
+	[Key.postCount]: "件の記事",
+	[Key.postsCount]: "件の記事",
 
 	[Key.themeColor]: "テーマカラー",
 
@@ -30,9 +32,24 @@ export const ja: Translation = {
 	[Key.darkMode]: "ダーク",
 	[Key.systemMode]: "システム",
 
-	[Key.more]: "もっと",
+	[Key.more]: "もっと見る",
 
 	[Key.author]: "作者",
 	[Key.publishedAt]: "公開日",
 	[Key.license]: "ライセンス",
+	[Key.colorFire]: "紅蓮",
+	[Key.colorOcean]: "水色",
+	[Key.colorLavender]: "群青",
+	[Key.colorMagenta]: "紫苑",
+	[Key.colorRose]: "桜色",
+	[Key.blog]: "ブログ",
+	[Key.tagFriend]: "友達",
+	[Key.tagSchoolmate]: "同級生",
+	[Key.tagTeacher]: "先生",
+	[Key.tagLover]: "恋人",
+	[Key.tagFamily]: "家族",
+	[Key.tagSelf]: "自分",
+	[Key.tagFrontend]: "フロントエンド",
+	[Key.tagBackend]: "バックエンド",
+	[Key.tagReact]: "React",
 };

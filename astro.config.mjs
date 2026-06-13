@@ -1,3 +1,5 @@
+import mdx from "@astrojs/mdx";
+import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import svelte from "@astrojs/svelte";
 import tailwind from "@astrojs/tailwind";
@@ -29,6 +31,19 @@ export default defineConfig({
 	site: "https://fuwari.vercel.app/",
 	base: "/",
 	trailingSlash: "always",
+	redirects: {
+		'/docs': '/posts/docs/intro/',
+		'/en/docs': '/en/posts/docs/intro/',
+		'/ja/docs': '/ja/posts/docs/intro/',
+		'/ko/docs': '/ko/posts/docs/intro/',
+	},
+	i18n: {
+		defaultLocale: "zh_CN",
+		locales: ["zh_CN", "en", "ja", "ko"],
+		routing: {
+			prefixDefaultLocale: false,
+		},
+	},
 	integrations: [
 		tailwind({
 			nesting: true,
@@ -38,7 +53,7 @@ export default defineConfig({
 			animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
 			// the default value `transition-` cause transition delay
 			// when the Tailwind class `transition-all` is used
-			containers: ["main", "#toc"],
+			containers: ["main", "#toc", "#sidebar", "#sidebar-bottom"],
 			smoothScrolling: true,
 			cache: true,
 			preload: true,
@@ -100,6 +115,8 @@ export default defineConfig({
 			}
 		}),
         svelte(),
+		react(),
+		mdx(),
 		sitemap(),
 	],
 	markdown: {

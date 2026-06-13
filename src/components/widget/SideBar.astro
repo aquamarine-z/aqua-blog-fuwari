@@ -10,13 +10,16 @@ interface Props {
 }
 
 const className = Astro.props.class;
+const isDocs = Astro.url.pathname.startsWith('/docs') || 
+               Astro.url.pathname.startsWith('/en/docs') || 
+               Astro.url.pathname.includes('/posts/docs');
 ---
 <div id="sidebar" class:list={[className, "w-full"]}>
-    <div class="flex flex-col w-full gap-4 mb-4">
+    <div class:list={["flex flex-col w-full gap-4 mb-4", {"hidden lg:flex": isDocs}]}>
         <Profile></Profile>
     </div>
     <div id="sidebar-sticky" class="transition-all duration-700 flex flex-col w-full gap-4 top-4 sticky top-4">
-        <Categories class="onload-animation" style="animation-delay: 150ms"></Categories>
-        <Tag class="onload-animation" style="animation-delay: 200ms"></Tag>
+        <Categories class="onload-animation" style="animation-delay: 150ms" isDocs={isDocs}></Categories>
+        <Tag class:list={["onload-animation", {"hidden lg:block": isDocs}]} style="animation-delay: 200ms" isDocs={isDocs}></Tag>
     </div>
 </div>

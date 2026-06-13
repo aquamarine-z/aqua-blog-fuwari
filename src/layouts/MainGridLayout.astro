@@ -7,6 +7,8 @@ import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 import ImageWrapper from "../components/misc/ImageWrapper.astro";
 import TOC from "../components/widget/TOC.astro";
+import Profile from "../components/widget/Profile.astro";
+import Tag from "../components/widget/Tags.astro";
 import { siteConfig } from "../config";
 import {
 	BANNER_HEIGHT,
@@ -39,14 +41,18 @@ const hasBannerLink = !!siteConfig.banner.credit.url;
 const mainPanelTop = siteConfig.banner.enable
 	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
 	: "5.5rem";
+
+const isDocs = Astro.url.pathname.startsWith('/docs') || 
+               Astro.url.pathname.startsWith('/en/docs') || 
+               Astro.url.pathname.includes('/posts/docs');
 ---
 
 <Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle}>
 
 <!-- Navbar -->
 <slot slot="head" name="head"></slot>
-<div id="top-row" class="z-50 pointer-events-none relative transition-all duration-700 max-w-[var(--page-width)] px-0 md:px-4 mx-auto" class:list={[""]}>
-    <div id="navbar-wrapper" class="pointer-events-auto sticky top-0 transition-all">
+<div id="top-row" class="z-50 pointer-events-none sticky top-0 transition-all duration-700 max-w-[var(--page-width)] px-0 md:px-4 mx-auto" class:list={[""]}>
+    <div id="navbar-wrapper" class="pointer-events-auto transition-all">
         <Navbar></Navbar>
     </div>
 </div>
@@ -80,9 +86,10 @@ const mainPanelTop = siteConfig.banner.enable
             </a>}
 
 
-            <SideBar class="mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings}></SideBar>
+            <SideBar class={`mb-4 ${isDocs ? 'row-start-1 row-end-2' : 'row-start-2 row-end-3'} col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation`} headings={headings}></SideBar>
 
-            <main id="swup-container" class="transition-swup-fade col-span-2 lg:col-span-1 overflow-hidden">
+            <main id="swup-container" style="scroll-margin-top: 80px;" class={`transition-swup-fade relative col-span-2 lg:col-span-1 overflow-hidden min-h-screen ${isDocs ? 'row-start-2 row-end-3 lg:row-start-1 lg:row-end-2' : ''}`}>
+                <div id="swup-mobile-scroll-target" class="absolute -top-20 pointer-events-none"></div>
                 <div id="content-wrapper" class="onload-animation">
                     <!-- the overflow-hidden here prevent long text break the layout-->
                     <!-- make id different from windows.swup global property -->
@@ -92,6 +99,13 @@ const mainPanelTop = siteConfig.banner.enable
                     </div>
                 </div>
             </main>
+
+            <div id="sidebar-bottom" class={`col-span-2 row-start-3 row-end-4 lg:hidden w-full flex flex-col gap-4 ${isDocs ? '' : 'hidden'}`}>
+                <div class="flex flex-col w-full gap-4 mb-4">
+                    <Profile></Profile>
+                </div>
+                <Tag class="onload-animation" style="animation-delay: 200ms" isDocs={isDocs}></Tag>
+            </div>
 
             <div class="footer col-span-2 onload-animation block lg:hidden">
                 <Footer></Footer>

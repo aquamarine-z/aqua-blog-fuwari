@@ -35,4 +35,10 @@ export const id: Translation = {
 	[Key.author]: "Penulis",
 	[Key.publishedAt]: "Diterbitkan pada",
 	[Key.license]: "Lisensi",
+	[Key.colorFire]: "Flame",
+	[Key.colorOcean]: "Ocean",
+	[Key.colorLavender]: "Lavender",
+	[Key.colorMagenta]: "Magenta",
+	[Key.colorRose]: "Rose",
+	[Key.blog]: "Blog",
 };

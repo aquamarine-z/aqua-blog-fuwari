@@ -45,14 +45,24 @@ if (r < page.lastPage - 2) pages.push(HIDDEN);
 if (r === page.lastPage - 2) pages.push(page.lastPage - 1);
 if (r < page.lastPage) pages.push(page.lastPage);
 
+let baseUrl = '';
+if (page.currentPage === 1) {
+    baseUrl = page.url.current;
+} else {
+    // page.url.current could be /blog/2/ or /blog/2
+    baseUrl = page.url.current.replace(new RegExp(`/${page.currentPage}/?$`), '/');
+}
+// Ensure baseUrl ends with a slash
+if (!baseUrl.endsWith('/')) baseUrl += '/';
+
 const getPageUrl = (p: number) => {
-	if (p === 1) return "/";
-	return `/${p}/`;
+	if (p === 1) return baseUrl;
+	return `${baseUrl}${p}/`;
 };
 ---
 
 <div class:list={[className, "flex flex-row gap-3 justify-center"]} style={style}>
-    <a href={page.url.prev || ""} aria-label={page.url.prev ? "Previous Page" : null}
+    <a href={page.url.prev ? url(page.url.prev) : ""} aria-label={page.url.prev ? "Previous Page" : null}
        class:list={["btn-card overflow-hidden rounded-lg text-[var(--primary)] w-11 h-11",
            {"disabled": page.url.prev == undefined}
        ]}
@@ -74,7 +84,7 @@ const getPageUrl = (p: number) => {
             >{p}</a>
         })}
     </div>
-    <a href={page.url.next || ""} aria-label={page.url.next ? "Next Page" : null}
+    <a href={page.url.next ? url(page.url.next) : ""} aria-label={page.url.next ? "Next Page" : null}
        class:list={["btn-card overflow-hidden rounded-lg text-[var(--primary)] w-11 h-11",
            {"disabled": page.url.next == undefined}
        ]}

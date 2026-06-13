@@ -1,0 +1,1 @@
+export const Button = () => { return <button>[Button Placeholder]</button>; };

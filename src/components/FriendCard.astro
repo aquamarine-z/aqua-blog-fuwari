@@ -1,0 +1,67 @@
+---
+import { Icon } from "astro-icon/components";
+import { i18n } from "../i18n/translation";
+import I18nKey from "../i18n/i18nKey";
+
+export interface Friend {
+    name: string;
+    avatar: string;
+    labels: string[];
+    links: { name: string; icon?: string; link: string }[];
+}
+
+interface Props {
+    friend: Friend;
+}
+
+const { friend } = Astro.props;
+
+// Determine colors for labels based on the old labelDefaultColors mapping
+const labelColors: Record<string, string> = {
+    "tag.friend": "bg-[oklch(0.85_0.15_160)]",
+    "tag.schoolmate": "bg-[oklch(0.80_0.12_250)]",
+    "tag.teacher": "bg-[oklch(0.90_0.20_100)]",
+    "tag.lover": "bg-[oklch(0.85_0.15_330)]",
+    "tag.family": "bg-[oklch(0.85_0.15_140)]",
+    "tag.self": "bg-[oklch(0.80_0.18_300)]",
+    "tag.frontend": "bg-[oklch(0.85_0.10_200)]",
+    "tag.backend": "bg-[oklch(0.85_0.10_40)]",
+    "tag.react": "bg-[oklch(0.85_0.15_240)]",
+    "common": "bg-[oklch(0.85_0.05_200)] text-black/80",
+};
+
+// Use specific icons based on link name
+const getIconName = (name: string) => {
+    const lower = name.toLowerCase();
+    if (lower.includes('github')) return 'fa6-brands:github';
+    if (lower.includes('blog')) return 'fa6-solid:blog';
+    if (lower.includes('line')) return 'fa6-brands:line';
+    return 'material-symbols:link-rounded';
+};
+---
+
+<div class="card-base p-6 hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden group">
+    <div class="flex items-center gap-6 mb-4">
+        <img src={friend.avatar} alt={friend.name} class="w-16 h-16 rounded-full shadow-lg ring-2 ring-[var(--primary)]/20" />
+        <div>
+            <h3 class="text-xl font-bold text-black/90 dark:text-white/90">{friend.name}</h3>
+            <div class="flex flex-wrap gap-2 mt-2">
+                {friend.labels.map(label => (
+                    <span class={`text-xs px-2 py-1 rounded-md font-medium text-black/80 ${labelColors[label] || labelColors.common}`}>
+                        {i18n(label as I18nKey, Astro.currentLocale)}
+                    </span>
+                ))}
+            </div>
+        </div>
+    </div>
+    
+    <div class="flex flex-col gap-2 mt-4 pt-4 border-t border-[var(--line-divider)] border-dashed">
+        {friend.links.map(link => (
+            <a href={link.link} target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--primary)]/10 transition-colors group/link text-black/75 dark:text-white/75 hover:text-[var(--primary)]">
+                <Icon name={getIconName(link.name)} class="text-xl" />
+                <span class="font-medium text-sm">{link.name}</span>
+                <Icon name="material-symbols:arrow-outward-rounded" class="text-sm ml-auto opacity-0 group-hover/link:opacity-100 transition-opacity" />
+            </a>
+        ))}
+    </div>
+</div>

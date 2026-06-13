@@ -1,0 +1,46 @@
+@tailwind utilities;
+/* shadcn/ui CSS Variables - Light & Dark theme tokens */
+:root {
+  --shadcn-background: 0 0% 100%;
+  --shadcn-foreground: 224 71% 4%;
+  --shadcn-card: 0 0% 100%;
+  --shadcn-card-foreground: 224 71% 4%;
+  --shadcn-popover: 0 0% 100%;
+  --shadcn-popover-foreground: 224 71% 4%;
+  --shadcn-primary: 224 71% 45%;
+  --shadcn-primary-foreground: 210 20% 98%;
+  --shadcn-secondary: 220 14% 96%;
+  --shadcn-secondary-foreground: 224 71% 4%;
+  --shadcn-muted: 220 14% 96%;
+  --shadcn-muted-foreground: 220 9% 46%;
+  --shadcn-accent: 220 14% 96%;
+  --shadcn-accent-foreground: 224 71% 4%;
+  --shadcn-destructive: 0 84% 60%;
+  --shadcn-destructive-foreground: 210 20% 98%;
+  --shadcn-border: 220 13% 91%;
+  --shadcn-input: 220 13% 91%;
+  --shadcn-ring: 224 71% 45%;
+}
+
+.dark {
+  --shadcn-background: 224 71% 4%;
+  --shadcn-foreground: 210 20% 98%;
+  --shadcn-card: 224 71% 4%;
+  --shadcn-card-foreground: 210 20% 98%;
+  --shadcn-popover: 224 71% 4%;
+  --shadcn-popover-foreground: 210 20% 98%;
+  --shadcn-primary: 210 20% 98%;
+  --shadcn-primary-foreground: 224 71% 4%;
+  --shadcn-secondary: 215 28% 17%;
+  --shadcn-secondary-foreground: 210 20% 98%;
+  --shadcn-muted: 215 28% 17%;
+  --shadcn-muted-foreground: 217 11% 65%;
+  --shadcn-accent: 215 28% 17%;
+  --shadcn-accent-foreground: 210 20% 98%;
+  --shadcn-destructive: 0 63% 31%;
+  --shadcn-destructive-foreground: 210 20% 98%;
+  --shadcn-border: 215 28% 17%;
+  --shadcn-input: 215 28% 17%;
+  --shadcn-ring: 216 12% 84%;
+}
+

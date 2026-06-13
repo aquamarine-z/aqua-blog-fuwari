@@ -35,4 +35,10 @@ export const es: Translation = {
 	[Key.author]: "Autor",
 	[Key.publishedAt]: "Publicado el",
 	[Key.license]: "Licencia",
+	[Key.colorFire]: "Flame",
+	[Key.colorOcean]: "Ocean",
+	[Key.colorLavender]: "Lavender",
+	[Key.colorMagenta]: "Magenta",
+	[Key.colorRose]: "Rose",
+	[Key.blog]: "Blog",
 };
