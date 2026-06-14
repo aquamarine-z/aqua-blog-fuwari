@@ -116,7 +116,9 @@ export default defineConfig({
 		}),
         svelte(),
 		react(),
-		mdx(),
+		mdx({
+			jsxImportSource: "react",
+		}),
 		sitemap(),
 	],
 	markdown: {
