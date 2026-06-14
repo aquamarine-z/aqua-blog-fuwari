@@ -141,7 +141,7 @@ const isDocs = Astro.url.pathname.startsWith('/docs') ||
 <div id="mobile-toc-container" class="block lg:hidden transition-swup-fade">
     {siteConfig.toc.enable && headings && headings.length > 0 && <mobile-toc class="fixed bottom-6 right-6 z-50" style="touch-action: none;">
         <!-- Popup -->
-        <div class="popup hidden absolute bottom-14 right-0 w-64 bg-[var(--card-bg)] shadow-none border-[2px] border-[var(--line-divider)] rounded-xl z-50 toc-scroll-container max-h-[60vh] overflow-y-auto hide-scrollbar">
+        <div class="popup opacity-0 scale-90 pointer-events-none absolute bottom-14 right-0 w-64 bg-[var(--card-bg)] shadow-none border-[2px] border-[var(--line-divider)] rounded-xl z-50 toc-scroll-container max-h-[60vh] overflow-y-auto hide-scrollbar origin-bottom-right transition-all duration-300" style="transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);">
             <div class="p-4">
                 <TOC headings={headings}></TOC>
             </div>
@@ -166,6 +166,21 @@ const isDocs = Astro.url.pathname.startsWith('/docs') ||
             let startX = 0, startY = 0;
             let initialX = 0, initialY = 0;
             let hasMoved = false;
+            let isOpen = false;
+
+            const updateBoundary = () => {
+                if (this.style.position === 'fixed') {
+                    const rect = this.getBoundingClientRect();
+                    const maxX = window.innerWidth - rect.width;
+                    const maxY = window.innerHeight - rect.height;
+                    let newX = Math.max(0, Math.min(rect.left, maxX));
+                    let newY = Math.max(0, Math.min(rect.top, maxY));
+                    this.style.left = `${newX}px`;
+                    this.style.top = `${newY}px`;
+                }
+            };
+
+            window.addEventListener('resize', updateBoundary);
 
             const onPointerDown = (e) => {
                 isDragging = true;
@@ -210,24 +225,36 @@ const isDocs = Astro.url.pathname.startsWith('/docs') ||
                 btn.releasePointerCapture(e.pointerId);
                 
                 if (!hasMoved) {
-                    popup.classList.toggle('hidden');
-                    if (!popup.classList.contains('hidden')) {
+                    isOpen = !isOpen;
+                    if (isOpen) {
                         const rect = this.getBoundingClientRect();
+                        let originY = 'bottom';
+                        let originX = 'right';
+                        
                         if (rect.top < 300) {
                             popup.style.bottom = 'auto';
                             popup.style.top = '3.5rem';
+                            originY = 'top';
                         } else {
                             popup.style.bottom = '3.5rem';
                             popup.style.top = 'auto';
+                            originY = 'bottom';
                         }
                         
                         if (rect.left < 150) {
                             popup.style.right = 'auto';
                             popup.style.left = '0';
+                            originX = 'left';
                         } else {
                             popup.style.right = '0';
                             popup.style.left = 'auto';
+                            originX = 'right';
                         }
+                        
+                        popup.style.transformOrigin = `${originY} ${originX}`;
+                        popup.classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
+                    } else {
+                        popup.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
                     }
                 }
             };
@@ -238,8 +265,9 @@ const isDocs = Astro.url.pathname.startsWith('/docs') ||
             btn.addEventListener('pointercancel', onPointerUp);
 
             document.addEventListener('click', (e) => {
-                if (!this.contains(e.target)) {
-                    popup.classList.add('hidden');
+                if (!this.contains(e.target) && isOpen) {
+                    isOpen = false;
+                    popup.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
                 }
             });
         }

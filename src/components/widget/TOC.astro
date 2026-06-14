@@ -201,15 +201,24 @@ class TableOfContents extends HTMLElement {
     };
 
     connectedCallback() {
-        // wait for the onload animation to finish, which makes the `getBoundingClientRect` return correct values
+        let initialized = false;
+        const init = () => {
+            if (initialized) return;
+            initialized = true;
+            this.init();
+        };
+
         const element = document.querySelector('.prose');
         if (element) {
-            element.addEventListener('animationend', () => {
-                this.init();
-            }, { once: true });
-        } else {
-            console.debug('Animation element not found');
+            const animations = element.getAnimations();
+            if (animations && animations.length > 0) {
+                Promise.all(animations.map(a => a.finished)).then(init).catch(init);
+            } else {
+                element.addEventListener('animationend', init, { once: true });
+            }
         }
+        // Fallback: always init after 500ms max to prevent getting stuck
+        setTimeout(init, 500);
     };
 
     init() {
