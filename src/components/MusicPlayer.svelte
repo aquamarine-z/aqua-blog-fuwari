@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { musicStore } from '../store/musicStore';
+  import { musicStore } from '../stores/musicStore';
   import Icon from '@iconify/svelte';
 
   let isPlaying = musicStore.getState().isPlaying;

@@ -26,7 +26,10 @@ function flattenTreeSlugs(items: CategoryTreeType[]): string[] {
 	items.forEach(item => {
 		if (item.type === 'file' && item.slug) {
 			slugs.push(item.slug);
-		} else if (item.children) {
+		} else if (item.type === 'folder' && item.children) {
+			if (item.slug) {
+				slugs.push(item.slug);
+			}
 			slugs.push(...flattenTreeSlugs(item.children));
 		}
 	});
@@ -45,6 +48,7 @@ export async function getSortedPosts(filterType: 'blog' | 'docs' | 'all' = 'blog
 	if (filterType === 'docs') {
 		const tree = await getCategoryTree('docs');
 		const orderedSlugs = flattenTreeSlugs(tree); 
+		sorted = sorted.filter(post => orderedSlugs.includes(post.slug));
 		sorted.sort((a, b) => {
 			const idxA = orderedSlugs.indexOf(a.slug);
 			const idxB = orderedSlugs.indexOf(b.slug);
@@ -156,6 +160,7 @@ export async function getCategoryList(filterType: 'blog' | 'docs' | 'all' = 'blo
 export type CategoryTreeType = {
 	type: 'folder' | 'file';
 	name: string;
+	folderName?: string;
 	url?: string;
 	slug?: string;
 	sidebar_position?: number;
@@ -182,9 +187,9 @@ export async function getCategoryTree(filterType: 'blog' | 'docs' | 'all' = 'blo
 		let parentFolder: CategoryTreeType | null = null;
 		
 		for (const folderName of parts) {
-			let folder = currentLevel.find(item => item.type === 'folder' && item.name === folderName);
+			let folder = currentLevel.find(item => item.type === 'folder' && item.folderName === folderName);
 			if (!folder) {
-				folder = { type: 'folder', name: folderName, children: [] };
+				folder = { type: 'folder', name: folderName, folderName: folderName, children: [] };
 				currentLevel.push(folder);
 			}
 			parentFolder = folder;
@@ -192,27 +197,57 @@ export async function getCategoryTree(filterType: 'blog' | 'docs' | 'all' = 'blo
 		}
 		
 		if (filterType === 'docs' && post.id.match(/index\.(md|mdx)$/i) && parentFolder) {
-			parentFolder.url = `/posts/${post.slug}/`;
+			if (post.data.is_article) {
+				parentFolder.url = `/posts/${post.slug}/`;
+				parentFolder.slug = post.slug;
+			}
+			if (post.data.sidebar_position !== undefined) {
+				parentFolder.sidebar_position = post.data.sidebar_position;
+			}
+			parentFolder.name = post.data.title;
+		} else {
+			currentLevel.push({
+				type: 'file',
+				name: post.data.title,
+				slug: post.slug,
+				url: `/posts/${post.slug}/`,
+				sidebar_position: post.data.sidebar_position,
+			});
 		}
-		
-		currentLevel.push({
-			type: 'file',
-			name: post.data.title,
-			slug: post.slug,
-			url: `/posts/${post.slug}/`,
-			sidebar_position: post.data.sidebar_position,
-		});
 	});
 
+	function postProcessTree(items: CategoryTreeType[]) {
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i];
+			if (item.type === 'folder' && item.children) {
+				postProcessTree(item.children);
+				if (item.children.length === 0 && item.url) {
+					item.type = 'file';
+					delete item.children;
+				}
+			}
+		}
+	}
+	postProcessTree(rootItems);
+
 	function sortTree(items: CategoryTreeType[]) {
+		const positions = new Set<number>();
+		for (const item of items) {
+			if (item.sidebar_position !== undefined) {
+				if (positions.has(item.sidebar_position)) {
+					throw new Error(`Duplicate sidebar_position ${item.sidebar_position} found at the same level! Please ensure each sidebar_position is unique within its directory.`);
+				}
+				positions.add(item.sidebar_position);
+			}
+		}
+
 		items.sort((a, b) => {
+			const posA = a.sidebar_position ?? Number.MAX_SAFE_INTEGER;
+			const posB = b.sidebar_position ?? Number.MAX_SAFE_INTEGER;
+			if (posA !== posB) return posA - posB;
+
 			if (a.type !== b.type) {
 				return a.type === 'folder' ? -1 : 1;
-			}
-			if (a.type === 'file' && b.type === 'file') {
-				const posA = a.sidebar_position ?? Number.MAX_SAFE_INTEGER;
-				const posB = b.sidebar_position ?? Number.MAX_SAFE_INTEGER;
-				if (posA !== posB) return posA - posB;
 			}
 			return a.name.localeCompare(b.name);
 		});

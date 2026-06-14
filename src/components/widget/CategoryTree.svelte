@@ -46,7 +46,7 @@
         let expanded = {};
         for (const node of nodes) {
             if (node.type === 'folder' && isNodeActive(node)) {
-                expanded[node.name] = true;
+                expanded[node.folderName || node.name] = true;
                 if (node.children) {
                     const childrenExpanded = expandActive(node.children);
                     expanded = { ...expanded, ...childrenExpanded };
@@ -59,10 +59,11 @@
     // Initialize synchronously so it renders correctly on the server (SSR), preventing layout shifts on client!
     let expandedCategories = expandActive(categories);
 
-    function toggleCategory(name) {
+    function toggleCategory(node) {
+        const key = node.folderName || node.name;
         expandedCategories = {
             ...expandedCategories,
-            [name]: !expandedCategories[name]
+            [key]: !expandedCategories[key]
         };
     }
 
@@ -75,24 +76,36 @@
     {#each categories as node}
         {#if node.type === 'folder'}
             <div class="category-node">
-                <svelte:element
-                    this={node.url ? 'a' : 'button'}
-                    href={node.url ? getUrl(node.url) : undefined}
+                <div
                     class="category-header"
-                    style={node.url ? "text-decoration: none;" : ""}
-                    class:expanded={expandedCategories[node.name]}
+                    class:expanded={expandedCategories[node.folderName || node.name]}
                     class:active={isNodeActive(node)}
-                    on:click={() => toggleCategory(node.name)}
                 >
-                    <span class="category-chevron" class:rotated={expandedCategories[node.name]}>
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </span>
-                    <span class="category-name">{node.name}</span>
-                </svelte:element>
+                    <button 
+                        class="category-chevron-btn" 
+                        on:click|stopPropagation={() => toggleCategory(node)}
+                        aria-label="Toggle"
+                    >
+                        <span class="category-chevron" class:rotated={expandedCategories[node.folderName || node.name]}>
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                <path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                    </button>
+                    <svelte:element
+                        this={node.url ? 'a' : 'button'}
+                        href={node.url ? getUrl(node.url) : undefined}
+                        class="category-name-btn"
+                        style={node.url ? "text-decoration: none;" : ""}
+                        on:click={() => {
+                            if (!node.url) toggleCategory(node);
+                        }}
+                    >
+                        <span class="category-name">{node.name}</span>
+                    </svelte:element>
+                </div>
 
-                {#if expandedCategories[node.name] && node.children}
+                {#if expandedCategories[node.folderName || node.name] && node.children}
                     <div class="category-children">
                         <svelte:self categories={node.children} lang={lang} currentUrl={currentUrl} />
                     </div>
@@ -138,6 +151,32 @@
         font-size: 0.9rem;
         font-weight: 600;
         text-align: left;
+    }
+
+    .category-chevron-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: inherit;
+    }
+
+    .category-name-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        font: inherit;
+        color: inherit;
+        flex: 1;
+        text-align: left;
+        display: flex;
+        align-items: center;
     }
 
     :global(.dark) .category-header {
