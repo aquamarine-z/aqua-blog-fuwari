@@ -71,10 +71,10 @@ const jsonLd = {
             </div>
 
             <!-- title -->
-            <div class="relative onload-animation flex justify-between items-center mb-3">
+            <div class="relative onload-animation">
                 <div
                     data-pagefind-body data-pagefind-weight="10" data-pagefind-meta="title"
-                    class="transition block font-bold
+                    class="transition w-full block font-bold mb-3
                     text-3xl md:text-[2.25rem]/[2.75rem]
                     text-black/90 dark:text-white/90
                     md:before:w-1 before:h-5 before:rounded-md before:bg-[var(--primary)]
@@ -82,17 +82,6 @@ const jsonLd = {
                 ">
                     {entry.data.title}
                 </div>
-                {headings.length > 0 && <mobile-toc class="block lg:hidden relative">
-                    <button class="btn-plain h-10 w-10 rounded-lg flex items-center justify-center active:scale-95 transition-all">
-                        <Icon name="material-symbols:menu-book-outline-rounded" class="text-[1.5rem]"></Icon>
-                    </button>
-                    <!-- Popup -->
-                    <div class="popup hidden absolute right-0 top-12 w-64 bg-[var(--card-bg)] shadow-xl border border-[var(--line-divider)] rounded-xl z-50 toc-scroll-container max-h-[60vh] overflow-y-auto hide-scrollbar">
-                        <div class="p-4">
-                            <TOC headings={headings}></TOC>
-                        </div>
-                    </div>
-                </mobile-toc>}
             </div>
 
             <!-- metadata -->
@@ -145,6 +134,18 @@ const jsonLd = {
         </a>
     </div>
 
+    {headings.length > 0 && <mobile-toc class="block lg:hidden fixed bottom-6 right-6 z-50" style="touch-action: none;">
+        <!-- Popup -->
+        <div class="popup hidden absolute bottom-14 right-0 w-64 bg-[var(--card-bg)] shadow-none border-[2px] border-[var(--line-divider)] rounded-xl z-50 toc-scroll-container max-h-[60vh] overflow-y-auto hide-scrollbar">
+            <div class="p-4">
+                <TOC headings={headings}></TOC>
+            </div>
+        </div>
+        <!-- Button -->
+        <button class="w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-all cursor-move touch-none bg-[var(--card-bg)] shadow-none border-[2px] border-[var(--line-divider)] text-[var(--primary)]">
+            <Icon name="material-symbols:menu-book-outline-rounded" class="text-[1.5rem]"></Icon>
+        </button>
+    </mobile-toc>}
 </MainGridLayout>
 
 <script>
@@ -152,17 +153,88 @@ const jsonLd = {
         connectedCallback() {
             const btn = this.querySelector('button');
             const popup = this.querySelector('.popup');
-            if (btn && popup) {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
+            if (!btn || !popup) return;
+            
+            let isDragging = false;
+            let startX = 0, startY = 0;
+            let initialX = 0, initialY = 0;
+            let hasMoved = false;
+
+            const onPointerDown = (e: PointerEvent) => {
+                isDragging = true;
+                hasMoved = false;
+                startX = e.clientX;
+                startY = e.clientY;
+                const rect = this.getBoundingClientRect();
+                initialX = rect.left;
+                initialY = rect.top;
+                
+                this.style.right = 'auto';
+                this.style.bottom = 'auto';
+                this.style.left = `${initialX}px`;
+                this.style.top = `${initialY}px`;
+                this.style.position = 'fixed';
+                
+                btn.setPointerCapture(e.pointerId);
+            };
+
+            const onPointerMove = (e: PointerEvent) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                
+                if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                    hasMoved = true;
+                }
+                
+                const newX = initialX + dx;
+                const newY = initialY + dy;
+                
+                const maxX = window.innerWidth - this.offsetWidth;
+                const maxY = window.innerHeight - this.offsetHeight;
+                
+                this.style.left = `${Math.max(0, Math.min(newX, maxX))}px`;
+                this.style.top = `${Math.max(0, Math.min(newY, maxY))}px`;
+            };
+
+            const onPointerUp = (e: PointerEvent) => {
+                if (!isDragging) return;
+                isDragging = false;
+                btn.releasePointerCapture(e.pointerId);
+                
+                if (!hasMoved) {
                     popup.classList.toggle('hidden');
-                });
-                document.addEventListener('click', (e) => {
-                    if (!this.contains(e.target as Node)) {
-                        popup.classList.add('hidden');
+                    if (!popup.classList.contains('hidden')) {
+                        const rect = this.getBoundingClientRect();
+                        if (rect.top < 300) {
+                            (popup as HTMLElement).style.bottom = 'auto';
+                            (popup as HTMLElement).style.top = '3.5rem';
+                        } else {
+                            (popup as HTMLElement).style.bottom = '3.5rem';
+                            (popup as HTMLElement).style.top = 'auto';
+                        }
+                        
+                        if (rect.left < 150) {
+                            (popup as HTMLElement).style.right = 'auto';
+                            (popup as HTMLElement).style.left = '0';
+                        } else {
+                            (popup as HTMLElement).style.right = '0';
+                            (popup as HTMLElement).style.left = 'auto';
+                        }
                     }
-                });
-            }
+                }
+            };
+
+            btn.addEventListener('pointerdown', onPointerDown as EventListener);
+            btn.addEventListener('pointermove', onPointerMove as EventListener);
+            btn.addEventListener('pointerup', onPointerUp as EventListener);
+            btn.addEventListener('pointercancel', onPointerUp as EventListener);
+
+            document.addEventListener('click', (e) => {
+                if (!this.contains(e.target as Node)) {
+                    popup.classList.add('hidden');
+                }
+            });
         }
     }
     if (!customElements.get('mobile-toc')) {
