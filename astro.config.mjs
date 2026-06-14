@@ -114,11 +114,9 @@ export default defineConfig({
 				showCopyToClipboardButton: false,
 			}
 		}),
+        react(),
         svelte(),
-		react(),
-		mdx({
-			jsxImportSource: "react",
-		}),
+        mdx(),
 		sitemap(),
 	],
 	markdown: {

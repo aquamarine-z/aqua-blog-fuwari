@@ -1,7 +1,7 @@
 ---
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
-import { getCategoryList, getCategoryTree } from "../../utils/content-utils";
+import { getBlogCategoryList, getDocsCategoryTree } from "../../utils/content-utils";
 import ButtonLink from "../control/ButtonLink.astro";
 import WidgetLayout from "./WidgetLayout.astro";
 import CategoryTree from "./CategoryTree.svelte";
@@ -18,9 +18,9 @@ const isDocs = Astro.props.isDocs;
 let categories = [];
 let categoryTree = [];
 if (isDocs) {
-	categoryTree = await getCategoryTree('docs');
+	categoryTree = await getDocsCategoryTree();
 } else {
-	categories = await getCategoryList('blog');
+	categories = await getBlogCategoryList();
 }
 
 const COLLAPSED_HEIGHT = "7.5rem";

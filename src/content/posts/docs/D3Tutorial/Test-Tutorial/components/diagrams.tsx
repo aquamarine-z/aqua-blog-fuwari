@@ -41,4 +41,4 @@ function UpdateTest(){
         </>
     )
 }
-export default { PlayableTest ,UpdateTest};
+export { PlayableTest, UpdateTest };

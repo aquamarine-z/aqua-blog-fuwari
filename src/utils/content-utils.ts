@@ -21,6 +21,10 @@ async function getRawSortedPosts(filterType: 'blog' | 'docs' | 'all' = 'blog') {
 	return sorted;
 }
 
+async function getRawSortedBlogPosts() { return getRawSortedPosts('blog'); }
+async function getRawSortedDocsPosts() { return getRawSortedPosts('docs'); }
+async function getRawSortedAllPosts() { return getRawSortedPosts('all'); }
+
 // --------------------------------------------------------
 // Tree Utility Functions
 // --------------------------------------------------------
@@ -93,27 +97,8 @@ export function sortTree(items: CategoryTreeType[]) {
 // Post Retrieval & Processing
 // --------------------------------------------------------
 
-
-export async function getSortedPosts(filterType: 'blog' | 'docs' | 'all' = 'blog') {
-	if (filterType === 'all') {
-		const blogPosts = await getSortedPosts('blog');
-		const docsPosts = await getSortedPosts('docs');
-		return [...blogPosts, ...docsPosts];
-	}
-
-	let sorted = await getRawSortedPosts(filterType);
-
-	if (filterType === 'docs') {
-		const tree = await getCategoryTree('docs');
-		const orderedSlugs = flattenTreeSlugs(tree); 
-		sorted = sorted.filter(post => orderedSlugs.includes(post.slug));
-		sorted.sort((a, b) => {
-			const idxA = orderedSlugs.indexOf(a.slug);
-			const idxB = orderedSlugs.indexOf(b.slug);
-			return idxA - idxB;
-		});
-	}
-
+export async function getSortedBlogPosts() {
+	let sorted = await getRawSortedBlogPosts();
 	for (let i = 1; i < sorted.length; i++) {
 		sorted[i].data.nextSlug = sorted[i - 1].slug;
 		sorted[i].data.nextTitle = sorted[i - 1].data.title;
@@ -122,30 +107,59 @@ export async function getSortedPosts(filterType: 'blog' | 'docs' | 'all' = 'blog
 		sorted[i].data.prevSlug = sorted[i + 1].slug;
 		sorted[i].data.prevTitle = sorted[i + 1].data.title;
 	}
-
 	return sorted;
 }
+
+export async function getSortedDocsPosts() {
+	let sorted = await getRawSortedDocsPosts();
+	const tree = await getDocsCategoryTree();
+	const orderedSlugs = flattenTreeSlugs(tree); 
+	sorted = sorted.filter(post => orderedSlugs.includes(post.slug));
+	sorted.sort((a, b) => {
+		const idxA = orderedSlugs.indexOf(a.slug);
+		const idxB = orderedSlugs.indexOf(b.slug);
+		return idxA - idxB;
+	});
+	for (let i = 1; i < sorted.length; i++) {
+		sorted[i].data.nextSlug = sorted[i - 1].slug;
+		sorted[i].data.nextTitle = sorted[i - 1].data.title;
+	}
+	for (let i = 0; i < sorted.length - 1; i++) {
+		sorted[i].data.prevSlug = sorted[i + 1].slug;
+		sorted[i].data.prevTitle = sorted[i + 1].data.title;
+	}
+	return sorted;
+}
+
+export async function getAllSortedPosts() {
+	const blogPosts = await getSortedBlogPosts();
+	const docsPosts = await getSortedDocsPosts();
+	return [...blogPosts, ...docsPosts];
+}
+
 export type PostForList = {
 	slug: string;
 	data: CollectionEntry<"posts">["data"];
 };
-export async function getSortedPostsList(filterType: 'blog' | 'docs' | 'all' = 'blog'): Promise<PostForList[]> {
-	const sortedFullPosts = await getRawSortedPosts(filterType);
 
-	// delete post.body
-	const sortedPostsList = sortedFullPosts.map((post) => ({
-		slug: post.slug,
-		data: post.data,
-	}));
-
-	return sortedPostsList;
+export async function getSortedBlogPostsList(): Promise<PostForList[]> {
+	const sortedFullPosts = await getRawSortedBlogPosts();
+	return sortedFullPosts.map((post) => ({ slug: post.slug, data: post.data }));
 }
-export type Tag = {
-	name: string;
-	count: number;
-};
 
-export async function getTagList(filterType: 'blog' | 'docs' | 'all' = 'blog'): Promise<Tag[]> {
+export async function getSortedDocsPostsList(): Promise<PostForList[]> {
+	const sortedFullPosts = await getRawSortedDocsPosts();
+	return sortedFullPosts.map((post) => ({ slug: post.slug, data: post.data }));
+}
+
+export async function getAllSortedPostsList(): Promise<PostForList[]> {
+	const sortedFullPosts = await getRawSortedAllPosts();
+	return sortedFullPosts.map((post) => ({ slug: post.slug, data: post.data }));
+}
+
+export type Tag = { name: string; count: number; };
+
+async function getBaseTagList(filterType: 'blog' | 'docs' | 'all') {
 	const allBlogPosts = await getCollection<"posts">("posts", ({ data, id }) => {
 		const isProd = import.meta.env.PROD ? data.draft !== true : true;
 		const isDocs = id.startsWith('docs/') || id.startsWith('docs\\');
@@ -162,7 +176,6 @@ export async function getTagList(filterType: 'blog' | 'docs' | 'all' = 'blog'): 
 		});
 	});
 
-	// sort tags
 	const keys: string[] = Object.keys(countMap).sort((a, b) => {
 		return a.toLowerCase().localeCompare(b.toLowerCase());
 	});
@@ -170,13 +183,13 @@ export async function getTagList(filterType: 'blog' | 'docs' | 'all' = 'blog'): 
 	return keys.map((key) => ({ name: key, count: countMap[key] }));
 }
 
-export type Category = {
-	name: string;
-	count: number;
-	url: string;
-};
+export async function getBlogTagList(): Promise<Tag[]> { return getBaseTagList('blog'); }
+export async function getDocsTagList(): Promise<Tag[]> { return getBaseTagList('docs'); }
+export async function getAllTagList(): Promise<Tag[]> { return getBaseTagList('all'); }
 
-export async function getCategoryList(filterType: 'blog' | 'docs' | 'all' = 'blog'): Promise<Category[]> {
+export type Category = { name: string; count: number; url: string; };
+
+async function getBaseCategoryList(filterType: 'blog' | 'docs' | 'all') {
 	const allBlogPosts = await getCollection<"posts">("posts", ({ data, id }) => {
 		const isProd = import.meta.env.PROD ? data.draft !== true : true;
 		const isDocs = id.startsWith('docs/') || id.startsWith('docs\\');
@@ -192,11 +205,7 @@ export async function getCategoryList(filterType: 'blog' | 'docs' | 'all' = 'blo
 			return;
 		}
 
-		const categoryName =
-			typeof post.data.category === "string"
-				? post.data.category.trim()
-				: String(post.data.category).trim();
-
+		const categoryName = typeof post.data.category === "string" ? post.data.category.trim() : String(post.data.category).trim();
 		count[categoryName] = count[categoryName] ? count[categoryName] + 1 : 1;
 	});
 
@@ -215,7 +224,11 @@ export async function getCategoryList(filterType: 'blog' | 'docs' | 'all' = 'blo
 	return ret;
 }
 
-export async function getCategoryTree(filterType: 'blog' | 'docs' | 'all' = 'blog'): Promise<CategoryTreeType[]> {
+export async function getBlogCategoryList(): Promise<Category[]> { return getBaseCategoryList('blog'); }
+export async function getDocsCategoryList(): Promise<Category[]> { return getBaseCategoryList('docs'); }
+export async function getAllCategoryList(): Promise<Category[]> { return getBaseCategoryList('all'); }
+
+async function getBaseCategoryTree(filterType: 'blog' | 'docs' | 'all') {
 	const allPosts = await getRawSortedPosts(filterType);
 	
 	const rootItems: CategoryTreeType[] = [];
@@ -269,3 +282,7 @@ export async function getCategoryTree(filterType: 'blog' | 'docs' | 'all' = 'blo
 	
 	return rootItems;
 }
+
+export async function getBlogCategoryTree(): Promise<CategoryTreeType[]> { return getBaseCategoryTree('blog'); }
+export async function getDocsCategoryTree(): Promise<CategoryTreeType[]> { return getBaseCategoryTree('docs'); }
+export async function getAllCategoryTree(): Promise<CategoryTreeType[]> { return getBaseCategoryTree('all'); }

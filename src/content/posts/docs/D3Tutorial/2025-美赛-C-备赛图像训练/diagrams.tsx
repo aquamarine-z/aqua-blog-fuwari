@@ -1,9 +1,9 @@
 import {VisualizationDisplay} from "@components/VisualizationDisplay/VisualizationDisplay";
 import * as d3 from "d3";
 
-export default {
+
     //一般的折线图
-    Diagram1: () => {
+    export const Diagram1 = () => {
         const height = 1080
         const width = 1920
         const padding = 200
@@ -60,9 +60,9 @@ export default {
                     .attr("stroke", "blue")
                     .attr("stroke-width", 2)
             }}/>)
-    },
+}
     //这个图不知道叫什么 效果见示例...
-    Diagram2: () => {
+    export const Diagram2 = () => {
         const height = 1080
         const width = 1920
         const padding = 200
@@ -111,9 +111,9 @@ export default {
             d3.select(svg).append("text").attr("x", width / 2).attr("y", height - padding / 2 + 75).attr("text-anchor", "middle").text("x value").style("font-size", "24px")
             d3.select(svg).append("text").attr("x", padding / 2 - 40).attr("y", height / 2 - 50).attr("text-anchor", "middle").attr("transform", `rotate(-90, ${padding / 2}, ${height / 2})`).text("y value").style("font-size", "24px")
         }}/>
-    },
+}
     //带格子的折线图
-    Diagram3: () => {
+    export const Diagram3 = () => {
         const height = 1080
         const width = 1920
         const padding = 200
@@ -159,9 +159,9 @@ export default {
                 .attr("stroke-width", 5)
 
         }}/>
-    },
+}
     //箱线图
-    Diagram4: () => {
+    export const Diagram4 = () => {
         const height = 1080
         const width = 1920
         const padding = 200
@@ -221,9 +221,9 @@ export default {
             drawBox(1, "blue")
             drawBox(2, "green")
         }}/>
-    },
+}
     //散点图矩阵
-    Diagram5: () => {
+    export const Diagram5 = () => {
         const height = 1920
         const width = 1920
         const padding = 300
@@ -336,9 +336,9 @@ export default {
             d3.select(svg).append("g").attr("class", "xAxisTop").attr("transform", `translate(0,${padding})`).call(xAxisTop)
             d3.select(svg).append("g").attr("class", "yAxisRight").attr("transform", `translate(${width - padding},0)`).call(yAxisRight)
         }}/>
-    },
+}
     //颜色+散点图矩阵
-    Diagram6: () => {
+    export const Diagram6 = () => {
         const height = 1920
         const width = 1920
         const padding = 200
@@ -391,5 +391,4 @@ export default {
                 d3.select(svg).append("g").attr("class", "color-axis").attr("transform", `translate(${width + 100},0)`).call(colorAxis)
                 d3.selectAll(".color-axis text").style("font-size", "24px");
             }}/>)
-    },
 }

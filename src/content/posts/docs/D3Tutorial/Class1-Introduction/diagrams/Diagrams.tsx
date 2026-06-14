@@ -324,7 +324,7 @@ function Diagram17({children}: { children: any }) {
     </VisualizationDisplay>
 }
 
-export default {
+export {
     Diagram1,
     DiagramRect,
     DiagramCircle,

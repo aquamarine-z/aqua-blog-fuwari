@@ -25,7 +25,7 @@ import TechShowcase from '../../components/react/TechShowcase.tsx'
 
 下面的所有组件都是 **真实可交互** 的 React 组件，通过 MDX 直接嵌入到这篇博客帖子中：
 
-<TechShowcase client:load />
+<TechShowcase client:only="react" />
 
 ## 🏗️ 技术架构
 
@@ -38,7 +38,7 @@ import TechShowcase from '../../components/react/TechShowcase.tsx'
 import TechShowcase from '../../components/react/TechShowcase.tsx'
 
 // 使用 client:load 指令使其在客户端可交互
-<TechShowcase client:load />
+<TechShowcase client:only="react" />
 ```
 
 ### Zustand Store 示例
@@ -107,3 +107,4 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 3. ✅ **shadcn/ui 组件库** — Button、Card、Badge、Tabs、Switch、Progress、Accordion 等
 4. ✅ **Zustand 状态管理** — 轻量级全局状态，无需 Provider
 5. ✅ **Tailwind CSS 增强** — 配合 shadcn/ui 的设计 Token 系统
+

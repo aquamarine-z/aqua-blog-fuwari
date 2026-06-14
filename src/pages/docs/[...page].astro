@@ -4,10 +4,10 @@ import Pagination from "../../components/control/Pagination.astro";
 import PostPage from "../../components/PostPage.astro";
 import { PAGE_SIZE } from "../../constants/constants";
 import MainGridLayout from "../../layouts/MainGridLayout.astro";
-import { getSortedPosts } from "../../utils/content-utils";
+import { getSortedDocsPosts } from "../../utils/content-utils";
 
 export const getStaticPaths = (async ({ paginate }) => {
-	const allDocsPosts = await getSortedPosts('docs');
+	const allDocsPosts = await getSortedDocsPosts();
 	return paginate(allDocsPosts, { pageSize: PAGE_SIZE });
 }) satisfies GetStaticPaths;
 
