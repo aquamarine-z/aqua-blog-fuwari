@@ -138,7 +138,7 @@ const isDocs = Astro.url.pathname.startsWith('/docs') ||
 </div>
 
 <!-- Mobile TOC floating button -->
-<div id="mobile-toc-container" class="block lg:hidden transition-swup-fade">
+<div id="mobile-toc-container" class="block 2xl:hidden transition-swup-fade">
     {siteConfig.toc.enable && headings && headings.length > 0 && <mobile-toc class="fixed bottom-6 right-6 z-50" style="touch-action: none;">
         <!-- Popup -->
         <div class="popup opacity-0 scale-90 pointer-events-none absolute bottom-14 right-0 w-64 bg-[var(--card-bg)] shadow-none border-[2px] border-[var(--line-divider)] rounded-xl z-50 toc-scroll-container max-h-[60vh] overflow-y-auto hide-scrollbar origin-bottom-right transition-all duration-300" style="transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);">
