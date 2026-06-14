@@ -1,4 +1,4 @@
-import {kataganaWord, KataganaWord, word, Word} from "@components/WordsDisplay/WordsDisplay";
+import { kataganaWord, word, type KataganaWord, type Word } from "@components/WordsDisplay/WordsDisplay";
 
 export default {
     words: [

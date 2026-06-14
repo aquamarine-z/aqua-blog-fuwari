@@ -13,6 +13,7 @@ import ImageWrapper from "../../components/misc/ImageWrapper.astro";
 import PostMetadata from "../../components/PostMeta.astro";
 import { profileConfig, siteConfig } from "../../config";
 import { formatDateToYYYYMMDD } from "../../utils/date-utils";
+import TOC from "@components/widget/TOC.astro";
 
 export async function getStaticPaths() {
 	const blogEntries = await getSortedPosts('all');
@@ -70,10 +71,10 @@ const jsonLd = {
             </div>
 
             <!-- title -->
-            <div class="relative onload-animation">
+            <div class="relative onload-animation flex justify-between items-center mb-3">
                 <div
                     data-pagefind-body data-pagefind-weight="10" data-pagefind-meta="title"
-                    class="transition w-full block font-bold mb-3
+                    class="transition block font-bold
                     text-3xl md:text-[2.25rem]/[2.75rem]
                     text-black/90 dark:text-white/90
                     md:before:w-1 before:h-5 before:rounded-md before:bg-[var(--primary)]
@@ -81,6 +82,17 @@ const jsonLd = {
                 ">
                     {entry.data.title}
                 </div>
+                {headings.length > 0 && <mobile-toc class="block lg:hidden relative">
+                    <button class="btn-plain h-10 w-10 rounded-lg flex items-center justify-center active:scale-95 transition-all">
+                        <Icon name="material-symbols:menu-book-outline-rounded" class="text-[1.5rem]"></Icon>
+                    </button>
+                    <!-- Popup -->
+                    <div class="popup hidden absolute right-0 top-12 w-64 bg-[var(--card-bg)] shadow-xl border border-[var(--line-divider)] rounded-xl z-50 toc-scroll-container max-h-[60vh] overflow-y-auto hide-scrollbar">
+                        <div class="p-4">
+                            <TOC headings={headings}></TOC>
+                        </div>
+                    </div>
+                </mobile-toc>}
             </div>
 
             <!-- metadata -->
@@ -135,3 +147,25 @@ const jsonLd = {
 
 </MainGridLayout>
 
+<script>
+    class MobileToc extends HTMLElement {
+        connectedCallback() {
+            const btn = this.querySelector('button');
+            const popup = this.querySelector('.popup');
+            if (btn && popup) {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    popup.classList.toggle('hidden');
+                });
+                document.addEventListener('click', (e) => {
+                    if (!this.contains(e.target as Node)) {
+                        popup.classList.add('hidden');
+                    }
+                });
+            }
+        }
+    }
+    if (!customElements.get('mobile-toc')) {
+        customElements.define('mobile-toc', MobileToc);
+    }
+</script>

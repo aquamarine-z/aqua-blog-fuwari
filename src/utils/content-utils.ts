@@ -21,7 +21,21 @@ async function getRawSortedPosts(filterType: 'blog' | 'docs' | 'all' = 'blog') {
 	return sorted;
 }
 
-function flattenTreeSlugs(items: CategoryTreeType[]): string[] {
+// --------------------------------------------------------
+// Tree Utility Functions
+// --------------------------------------------------------
+
+export type CategoryTreeType = {
+	type: 'folder' | 'file';
+	name: string;
+	folderName?: string;
+	url?: string;
+	slug?: string;
+	sidebar_position?: number;
+	children?: CategoryTreeType[];
+};
+
+export function flattenTreeSlugs(items: CategoryTreeType[]): string[] {
 	let slugs: string[] = [];
 	items.forEach(item => {
 		if (item.type === 'file' && item.slug) {
@@ -35,6 +49,50 @@ function flattenTreeSlugs(items: CategoryTreeType[]): string[] {
 	});
 	return slugs;
 }
+
+export function postProcessTree(items: CategoryTreeType[]) {
+	for (let i = 0; i < items.length; i++) {
+		const item = items[i];
+		if (item.type === 'folder' && item.children) {
+			postProcessTree(item.children);
+			if (item.children.length === 0 && item.url) {
+				item.type = 'file';
+				delete item.children;
+			}
+		}
+	}
+}
+
+export function sortTree(items: CategoryTreeType[]) {
+	const positions = new Set<number>();
+	for (const item of items) {
+		if (item.sidebar_position !== undefined) {
+			if (positions.has(item.sidebar_position)) {
+				throw new Error(`Duplicate sidebar_position ${item.sidebar_position} found at the same level! Please ensure each sidebar_position is unique within its directory.`);
+			}
+			positions.add(item.sidebar_position);
+		}
+	}
+
+	items.sort((a, b) => {
+		const posA = a.sidebar_position ?? Number.MAX_SAFE_INTEGER;
+		const posB = b.sidebar_position ?? Number.MAX_SAFE_INTEGER;
+		if (posA !== posB) return posA - posB;
+
+		if (a.type !== b.type) {
+			return a.type === 'folder' ? -1 : 1;
+		}
+		return a.name.localeCompare(b.name);
+	});
+	items.forEach(item => {
+		if (item.children) sortTree(item.children);
+	});
+}
+
+// --------------------------------------------------------
+// Post Retrieval & Processing
+// --------------------------------------------------------
+
 
 export async function getSortedPosts(filterType: 'blog' | 'docs' | 'all' = 'blog') {
 	if (filterType === 'all') {
@@ -157,16 +215,6 @@ export async function getCategoryList(filterType: 'blog' | 'docs' | 'all' = 'blo
 	return ret;
 }
 
-export type CategoryTreeType = {
-	type: 'folder' | 'file';
-	name: string;
-	folderName?: string;
-	url?: string;
-	slug?: string;
-	sidebar_position?: number;
-	children?: CategoryTreeType[];
-};
-
 export async function getCategoryTree(filterType: 'blog' | 'docs' | 'all' = 'blog'): Promise<CategoryTreeType[]> {
 	const allPosts = await getRawSortedPosts(filterType);
 	
@@ -216,45 +264,7 @@ export async function getCategoryTree(filterType: 'blog' | 'docs' | 'all' = 'blo
 		}
 	});
 
-	function postProcessTree(items: CategoryTreeType[]) {
-		for (let i = 0; i < items.length; i++) {
-			const item = items[i];
-			if (item.type === 'folder' && item.children) {
-				postProcessTree(item.children);
-				if (item.children.length === 0 && item.url) {
-					item.type = 'file';
-					delete item.children;
-				}
-			}
-		}
-	}
 	postProcessTree(rootItems);
-
-	function sortTree(items: CategoryTreeType[]) {
-		const positions = new Set<number>();
-		for (const item of items) {
-			if (item.sidebar_position !== undefined) {
-				if (positions.has(item.sidebar_position)) {
-					throw new Error(`Duplicate sidebar_position ${item.sidebar_position} found at the same level! Please ensure each sidebar_position is unique within its directory.`);
-				}
-				positions.add(item.sidebar_position);
-			}
-		}
-
-		items.sort((a, b) => {
-			const posA = a.sidebar_position ?? Number.MAX_SAFE_INTEGER;
-			const posB = b.sidebar_position ?? Number.MAX_SAFE_INTEGER;
-			if (posA !== posB) return posA - posB;
-
-			if (a.type !== b.type) {
-				return a.type === 'folder' ? -1 : 1;
-			}
-			return a.name.localeCompare(b.name);
-		});
-		items.forEach(item => {
-			if (item.children) sortTree(item.children);
-		});
-	}
 	sortTree(rootItems);
 	
 	return rootItems;
