@@ -3,7 +3,8 @@ import path from 'path';
 
 const oldBlogDir = path.resolve('L:/TypeScript Projects/aqua-blog-temp/blog');
 const oldDocsDir = path.resolve('L:/TypeScript Projects/aqua-blog-temp/docs');
-const newPostsDir = path.resolve('L:/TypeScript Projects/aqua-blog-fuwari/src/content/posts');
+const newBlogDir = path.resolve('L:/TypeScript Projects/aqua-blog-fuwari/src/content/blog');
+const newDocsDir = path.resolve('L:/TypeScript Projects/aqua-blog-fuwari/src/content/docs');
 
 function parseFrontmatter(content) {
     const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -92,7 +93,7 @@ draft: false
 lang: "zh_CN"
 ---
 `;
-            const destDir = path.join(newPostsDir, categoryName === 'Docs' ? 'docs' : 'migrated');
+            const destDir = categoryName === 'Docs' ? newDocsDir : path.join(newBlogDir, 'migrated');
             if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
             
             const destPath = path.join(destDir, safeFileName);
@@ -100,7 +101,7 @@ lang: "zh_CN"
             console.log(`Migrated: ${destPath}`);
         } else if (item.name.endsWith('.png') || item.name.endsWith('.jpg') || item.name.endsWith('.jpeg')) {
             // Copy images too
-            const destDir = path.join(newPostsDir, categoryName === 'Docs' ? 'docs' : 'migrated');
+            const destDir = categoryName === 'Docs' ? newDocsDir : path.join(newBlogDir, 'migrated');
             if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
             fs.copyFileSync(path.join(currentDir, item.name), path.join(destDir, item.name));
         }

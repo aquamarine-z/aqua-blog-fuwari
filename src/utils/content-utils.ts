@@ -4,26 +4,41 @@ import { i18n } from "@i18n/translation";
 import { getCategoryUrl } from "@utils/url-utils.ts";
 
 // Retrieve posts and sort them by publication date
-async function getRawSortedPosts(filterType: 'blog' | 'docs' | 'all' = 'blog') {
-	const allBlogPosts = await getCollection("posts", ({ data, id }) => {
-		const isProd = import.meta.env.PROD ? data.draft !== true : true;
-		const isDocs = id.startsWith('docs/') || id.startsWith('docs\\');
-		if (filterType === 'blog') return isProd && !isDocs;
-		if (filterType === 'docs') return isProd && isDocs;
-		return isProd;
+export async function getRawSortedBlogPosts() {
+	const allBlogPosts = await getCollection("blog", ({ data }) => {
+		return import.meta.env.PROD ? data.draft !== true : true;
 	});
-
-	const sorted = allBlogPosts.sort((a, b) => {
+	return allBlogPosts.sort((a, b) => {
 		const dateA = new Date(a.data.published);
 		const dateB = new Date(b.data.published);
 		return dateA > dateB ? -1 : 1;
 	});
+}
+
+export async function getRawSortedDocsPosts() {
+	const allDocsPosts = await getCollection("docs", ({ data }) => {
+		return import.meta.env.PROD ? data.draft !== true : true;
+	});
+	const sorted = allDocsPosts.sort((a, b) => {
+		const dateA = new Date(a.data.published);
+		const dateB = new Date(b.data.published);
+		return dateA > dateB ? -1 : 1;
+	});
+	for (const post of sorted) {
+		post.slug = `docs/${post.slug}`;
+	}
 	return sorted;
 }
 
-async function getRawSortedBlogPosts() { return getRawSortedPosts('blog'); }
-async function getRawSortedDocsPosts() { return getRawSortedPosts('docs'); }
-async function getRawSortedAllPosts() { return getRawSortedPosts('all'); }
+export async function getRawSortedAllPosts() {
+	const blogPosts = await getRawSortedBlogPosts();
+	const docsPosts = await getRawSortedDocsPosts();
+	return [...blogPosts, ...docsPosts].sort((a, b) => {
+		const dateA = new Date(a.data.published);
+		const dateB = new Date(b.data.published);
+		return dateA > dateB ? -1 : 1;
+	});
+}
 
 // --------------------------------------------------------
 // Tree Utility Functions
@@ -98,7 +113,7 @@ export function sortTree(items: CategoryTreeType[]) {
 // --------------------------------------------------------
 
 export async function getSortedBlogPosts() {
-	let sorted = await getRawSortedBlogPosts();
+	const sorted = await getRawSortedBlogPosts();
 	for (let i = 1; i < sorted.length; i++) {
 		sorted[i].data.nextSlug = sorted[i - 1].slug;
 		sorted[i].data.nextTitle = sorted[i - 1].data.title;
@@ -139,7 +154,7 @@ export async function getAllSortedPosts() {
 
 export type PostForList = {
 	slug: string;
-	data: CollectionEntry<"posts">["data"];
+	data: CollectionEntry<"blog">["data"] | CollectionEntry<"docs">["data"];
 };
 
 export async function getSortedBlogPostsList(): Promise<PostForList[]> {
@@ -159,90 +174,144 @@ export async function getAllSortedPostsList(): Promise<PostForList[]> {
 
 export type Tag = { name: string; count: number; };
 
-async function getBaseTagList(filterType: 'blog' | 'docs' | 'all') {
-	const allBlogPosts = await getCollection<"posts">("posts", ({ data, id }) => {
-		const isProd = import.meta.env.PROD ? data.draft !== true : true;
-		const isDocs = id.startsWith('docs/') || id.startsWith('docs\\');
-		if (filterType === 'blog') return isProd && !isDocs;
-		if (filterType === 'docs') return isProd && isDocs;
-		return isProd;
+export async function getBlogTagList(): Promise<Tag[]> {
+	const allBlogPosts = await getCollection("blog", ({ data }) => {
+		return import.meta.env.PROD ? data.draft !== true : true;
 	});
-
 	const countMap: { [key: string]: number } = {};
-	allBlogPosts.forEach((post: { data: { tags: string[] } }) => {
+	allBlogPosts.forEach((post) => {
 		post.data.tags.forEach((tag: string) => {
 			if (!countMap[tag]) countMap[tag] = 0;
 			countMap[tag]++;
 		});
 	});
-
-	const keys: string[] = Object.keys(countMap).sort((a, b) => {
-		return a.toLowerCase().localeCompare(b.toLowerCase());
-	});
-
+	const keys: string[] = Object.keys(countMap).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 	return keys.map((key) => ({ name: key, count: countMap[key] }));
 }
 
-export async function getBlogTagList(): Promise<Tag[]> { return getBaseTagList('blog'); }
-export async function getDocsTagList(): Promise<Tag[]> { return getBaseTagList('docs'); }
-export async function getAllTagList(): Promise<Tag[]> { return getBaseTagList('all'); }
+export async function getDocsTagList(): Promise<Tag[]> {
+	const allDocsPosts = await getCollection("docs", ({ data }) => {
+		return import.meta.env.PROD ? data.draft !== true : true;
+	});
+	const countMap: { [key: string]: number } = {};
+	allDocsPosts.forEach((post) => {
+		post.data.tags.forEach((tag: string) => {
+			if (!countMap[tag]) countMap[tag] = 0;
+			countMap[tag]++;
+		});
+	});
+	const keys: string[] = Object.keys(countMap).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+	return keys.map((key) => ({ name: key, count: countMap[key] }));
+}
+
+export async function getAllTagList(): Promise<Tag[]> {
+	const blogTags = await getBlogTagList();
+	const docsTags = await getDocsTagList();
+	const countMap: { [key: string]: number } = {};
+	for (const tag of [...blogTags, ...docsTags]) {
+		countMap[tag.name] = (countMap[tag.name] || 0) + tag.count;
+	}
+	const keys: string[] = Object.keys(countMap).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+	return keys.map((key) => ({ name: key, count: countMap[key] }));
+}
 
 export type Category = { name: string; count: number; url: string; };
 
-async function getBaseCategoryList(filterType: 'blog' | 'docs' | 'all') {
-	const allBlogPosts = await getCollection<"posts">("posts", ({ data, id }) => {
-		const isProd = import.meta.env.PROD ? data.draft !== true : true;
-		const isDocs = id.startsWith('docs/') || id.startsWith('docs\\');
-		if (filterType === 'blog') return isProd && !isDocs;
-		if (filterType === 'docs') return isProd && isDocs;
-		return isProd;
+export async function getBlogCategoryList(): Promise<Category[]> {
+	const allBlogPosts = await getCollection("blog", ({ data }) => {
+		return import.meta.env.PROD ? data.draft !== true : true;
 	});
 	const count: { [key: string]: number } = {};
-	allBlogPosts.forEach((post: { data: { category: string | null } }) => {
+	allBlogPosts.forEach((post) => {
 		if (!post.data.category) {
 			const ucKey = i18n(I18nKey.uncategorized);
 			count[ucKey] = count[ucKey] ? count[ucKey] + 1 : 1;
 			return;
 		}
-
 		const categoryName = typeof post.data.category === "string" ? post.data.category.trim() : String(post.data.category).trim();
 		count[categoryName] = count[categoryName] ? count[categoryName] + 1 : 1;
 	});
-
-	const lst = Object.keys(count).sort((a, b) => {
-		return a.toLowerCase().localeCompare(b.toLowerCase());
-	});
-
-	const ret: Category[] = [];
-	for (const c of lst) {
-		ret.push({
-			name: c,
-			count: count[c],
-			url: filterType === 'docs' ? `/docs/archive/?category=${encodeURIComponent(c.trim())}` : getCategoryUrl(c),
-		});
-	}
-	return ret;
+	const lst = Object.keys(count).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+	return lst.map((c) => ({
+		name: c,
+		count: count[c],
+		url: getCategoryUrl(c),
+	}));
 }
 
-export async function getBlogCategoryList(): Promise<Category[]> { return getBaseCategoryList('blog'); }
-export async function getDocsCategoryList(): Promise<Category[]> { return getBaseCategoryList('docs'); }
-export async function getAllCategoryList(): Promise<Category[]> { return getBaseCategoryList('all'); }
-
-async function getBaseCategoryTree(filterType: 'blog' | 'docs' | 'all') {
-	const allPosts = await getRawSortedPosts(filterType);
-	
-	const rootItems: CategoryTreeType[] = [];
-	
-	allPosts.forEach((post) => {
-		let parts: string[] = [];
-		if (filterType === 'docs') {
-			parts = post.id.split(/[\/\\]/);
-			parts.shift(); // remove "docs"
-			parts.pop(); // remove filename
-		} else {
-			const cat = post.data.category ? String(post.data.category).trim() : i18n(I18nKey.uncategorized);
-			parts = [cat];
+export async function getDocsCategoryList(): Promise<Category[]> {
+	const allDocsPosts = await getCollection("docs", ({ data }) => {
+		return import.meta.env.PROD ? data.draft !== true : true;
+	});
+	const count: { [key: string]: number } = {};
+	allDocsPosts.forEach((post) => {
+		if (!post.data.category) {
+			const ucKey = i18n(I18nKey.uncategorized);
+			count[ucKey] = count[ucKey] ? count[ucKey] + 1 : 1;
+			return;
 		}
+		const categoryName = typeof post.data.category === "string" ? post.data.category.trim() : String(post.data.category).trim();
+		count[categoryName] = count[categoryName] ? count[categoryName] + 1 : 1;
+	});
+	const lst = Object.keys(count).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+	return lst.map((c) => ({
+		name: c,
+		count: count[c],
+		url: `/docs/archive/?category=${encodeURIComponent(c.trim())}`,
+	}));
+}
+
+export async function getAllCategoryList(): Promise<Category[]> {
+	const blogCats = await getBlogCategoryList();
+	const docsCats = await getDocsCategoryList();
+	const countMap: { [key: string]: { count: number, url: string } } = {};
+	for (const cat of [...blogCats, ...docsCats]) {
+		if (!countMap[cat.name]) {
+			countMap[cat.name] = { count: cat.count, url: cat.url };
+		} else {
+			countMap[cat.name].count += cat.count;
+		}
+	}
+	const keys: string[] = Object.keys(countMap).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+	return keys.map((key) => ({ name: key, count: countMap[key].count, url: countMap[key].url }));
+}
+
+export async function getBlogCategoryTree(): Promise<CategoryTreeType[]> {
+	const allPosts = await getRawSortedBlogPosts();
+	const rootItems: CategoryTreeType[] = [];
+	allPosts.forEach((post) => {
+		const cat = post.data.category ? String(post.data.category).trim() : i18n(I18nKey.uncategorized);
+		const parts = [cat];
+		let currentLevel = rootItems;
+		let parentFolder: CategoryTreeType | null = null;
+		for (const folderName of parts) {
+			let folder = currentLevel.find(item => item.type === 'folder' && item.folderName === folderName);
+			if (!folder) {
+				folder = { type: 'folder', name: folderName, folderName: folderName, children: [] };
+				currentLevel.push(folder);
+			}
+			parentFolder = folder;
+			currentLevel = folder.children!;
+		}
+		currentLevel.push({
+			type: 'file',
+			name: post.data.title,
+			slug: post.slug,
+			url: `/posts/${post.slug}/`,
+			sidebar_position: post.data.sidebar_position,
+		});
+	});
+	postProcessTree(rootItems);
+	sortTree(rootItems);
+	return rootItems;
+}
+
+export async function getDocsCategoryTree(): Promise<CategoryTreeType[]> {
+	const allPosts = await getRawSortedDocsPosts();
+	const rootItems: CategoryTreeType[] = [];
+	allPosts.forEach((post) => {
+		const parts = post.id.split(/[\/\\]/);
+		parts.pop(); // remove filename
 		
 		let currentLevel = rootItems;
 		let parentFolder: CategoryTreeType | null = null;
@@ -257,9 +326,9 @@ async function getBaseCategoryTree(filterType: 'blog' | 'docs' | 'all') {
 			currentLevel = folder.children!;
 		}
 		
-		if (filterType === 'docs' && post.id.match(/index\.(md|mdx)$/i) && parentFolder) {
+		if (post.id.match(/index\.(md|mdx)$/i) && parentFolder) {
 			if (post.data.is_article) {
-				parentFolder.url = `/posts/${post.slug}/`;
+				parentFolder.url = `/${post.slug}/`;
 				parentFolder.slug = post.slug;
 			}
 			if (post.data.sidebar_position !== undefined) {
@@ -271,18 +340,19 @@ async function getBaseCategoryTree(filterType: 'blog' | 'docs' | 'all') {
 				type: 'file',
 				name: post.data.title,
 				slug: post.slug,
-				url: `/posts/${post.slug}/`,
+				url: `/${post.slug}/`,
 				sidebar_position: post.data.sidebar_position,
 			});
 		}
 	});
-
+	
 	postProcessTree(rootItems);
 	sortTree(rootItems);
-	
 	return rootItems;
 }
 
-export async function getBlogCategoryTree(): Promise<CategoryTreeType[]> { return getBaseCategoryTree('blog'); }
-export async function getDocsCategoryTree(): Promise<CategoryTreeType[]> { return getBaseCategoryTree('docs'); }
-export async function getAllCategoryTree(): Promise<CategoryTreeType[]> { return getBaseCategoryTree('all'); }
+export async function getAllCategoryTree(): Promise<CategoryTreeType[]> {
+	const blogTree = await getBlogCategoryTree();
+	const docsTree = await getDocsCategoryTree();
+	return [...blogTree, ...docsTree];
+}

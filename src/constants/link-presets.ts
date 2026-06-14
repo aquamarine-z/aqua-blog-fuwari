@@ -30,7 +30,7 @@ export const LinkPresets: { [key in LinkPreset]: NavBarLink & { i18nKey?: I18nKe
 	[LinkPreset.Docs]: {
 		name: "", // placeholder
 		i18nKey: I18nKey.docs,
-		url: "/posts/docs/intro/",
+		url: "/docs/intro/",
 		icon: "material-symbols:menu-book-outline-rounded"
 	},
 	[LinkPreset.Blog]: {

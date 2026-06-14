@@ -32,10 +32,10 @@ export default defineConfig({
 	base: "/",
 	trailingSlash: "always",
 	redirects: {
-		'/docs': '/posts/docs/intro/',
-		'/en/docs': '/en/posts/docs/intro/',
-		'/ja/docs': '/ja/posts/docs/intro/',
-		'/ko/docs': '/ko/posts/docs/intro/',
+		'/docs': '/docs/intro/',
+		'/en/docs': '/en/docs/intro/',
+		'/ja/docs': '/ja/docs/intro/',
+		'/ko/docs': '/ko/docs/intro/',
 	},
 	i18n: {
 		defaultLocale: "zh_CN",
