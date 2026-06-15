@@ -1,34 +1,201 @@
 ---
 import { getLangPaths } from '@utils/i18n-utils';
+import { i18n } from "@i18n/translation";
+import I18nKey from "@i18n/i18nKey";
 export function getStaticPaths() {
     return getLangPaths();
 }
 
 import MainGridLayout from "../../layouts/MainGridLayout.astro";
-import { siteConfig } from "../../config";
+import { siteConfig, profileConfig } from "../../config";
+import { Icon } from "astro-icon/components";
+import ImageWrapper from "../../components/misc/ImageWrapper.astro";
+import { url } from "../../utils/url-utils";
+
+const lang = Astro.currentLocale || siteConfig.lang;
+
+// Translations for the homepage
+const t = {
+    zh_CN: {
+        title: "Hi, 我是 Aquamarine",
+        subtitle: "前端开发者 & 语言爱好者",
+        description: "我专注于 <strong>前端设计</strong>，使用 <strong>React</strong> 和 <strong>Vue</strong> 构建美观且交互丰富的 Web 应用。在编程之外，我也对小语种学习充满热情。我拥有 <strong>日语 N1</strong> 和 <strong>韩语 TOPIK 6</strong> 证书，喜欢探索技术与语言学的交叉领域。",
+        readBlog: "阅读博客",
+        viewDocs: "查看文档",
+        techStack: "技术栈",
+        techDesc: "热爱现代 Web 开发。使用最新工具构建响应式、无障碍且高性能的用户界面。",
+        languages: "语言能力",
+        langDesc: "语言学习是我的爱好。我喜欢通过语言探索不同的文化，并将其应用到我的日常生活中。",
+        native: "中文 (母语)",
+        english: "英语 (专业)",
+        japanese: "日语 (JLPT N1)",
+        korean: "韩语 (TOPIK 6)",
+        design: "前端设计"
+    },
+    en: {
+        title: "Hi, I'm Aquamarine",
+        subtitle: "Frontend Developer & Language Enthusiast",
+        description: "I specialize in <strong>Frontend Design</strong>, creating beautiful and interactive web applications using <strong>React</strong> and <strong>Vue</strong>. Beyond coding, I'm passionate about foreign language learning. I hold certifications in <strong>Japanese (JLPT N1)</strong> and <strong>Korean (TOPIK 6)</strong>, and I love exploring the intersection of technology and linguistics.",
+        readBlog: "Read Blog",
+        viewDocs: "View Docs",
+        techStack: "Tech Stack",
+        techDesc: "Passionate about modern web development. Building responsive, accessible, and performant user interfaces with the latest tools.",
+        languages: "Languages",
+        langDesc: "Language learning is my hobby. I enjoy exploring different cultures through their languages and applying linguistics to my development workflow.",
+        native: "Chinese (Native)",
+        english: "English (Professional)",
+        japanese: "Japanese (JLPT N1)",
+        korean: "Korean (TOPIK 6)",
+        design: "Frontend Design"
+    },
+    ja: {
+        title: "こんにちは、Aquamarine です",
+        subtitle: "フロントエンドエンジニア & 語学愛好家",
+        description: "<strong>React</strong>と<strong>Vue</strong>を使用して、美しくインタラクティブなWebアプリケーションを構築する<strong>フロントエンド設計</strong>を専門としています。コーディング以外にも、外国語学習に情熱を注いでいます。<strong>日本語 (JLPT N1)</strong>と<strong>韓国語 (TOPIK 6)</strong>の資格を持っており、技術と語学の交差点を探求するのが好きです。",
+        readBlog: "ブログを読む",
+        viewDocs: "ドキュメント",
+        techStack: "技術スタック",
+        techDesc: "モダンなWeb開発に情熱を持っています。最新のツールを使用して、レスポンシブでアクセシビリティが高く、パフォーマンスに優れたUIを構築します。",
+        languages: "言語",
+        langDesc: "語学学習は私の趣味です。言語を通じて異文化を探求し、開発ワークフローに応用することを楽しんでいます。",
+        native: "中国語 (母語)",
+        english: "英語 (ビジネス)",
+        japanese: "日本語 (JLPT N1)",
+        korean: "韓国語 (TOPIK 6)",
+        design: "フロントエンド設計"
+    },
+    ko: {
+        title: "안녕하세요, Aquamarine 입니다",
+        subtitle: "프론트엔드 개발자 & 언어 애호가",
+        description: "<strong>React</strong>와 <strong>Vue</strong>를 사용하여 아름답고 인터랙티브한 웹 애플리케이션을 구축하는 <strong>프론트엔드 디자인</strong>을 전문으로 합니다. 코딩 외에도 외국어 학습에 열정을 가지고 있습니다. <strong>일본어(JLPT N1)</strong>와 <strong>한국어(TOPIK 6)</strong> 자격증을 보유하고 있으며, 기술과 언어학의 교차점을 탐구하는 것을 좋아합니다.",
+        readBlog: "블로그 읽기",
+        viewDocs: "문서 보기",
+        techStack: "기술 스택",
+        techDesc: "모던 웹 개발에 열정을 가지고 있습니다. 최신 도구를 사용하여 반응형이고 접근성이 뛰어나며 성능이 우수한 UI를 구축합니다.",
+        languages: "언어",
+        langDesc: "어학 학습은 제 취미입니다. 언어를 통해 다양한 문화를 탐구하고 개발 워크플로우에 적용하는 것을 즐깁니다.",
+        native: "중국어 (모국어)",
+        english: "영어 (비즈니스)",
+        japanese: "일본어 (JLPT N1)",
+        korean: "한국어 (TOPIK 6)",
+        design: "프론트엔드 디자인"
+    },
+    fr: {
+        title: "Bonjour, je suis Aquamarine",
+        subtitle: "Développeur Frontend & Passionné de Langues",
+        description: "Je me spécialise dans le <strong>Design Frontend</strong>, créant de belles applications web interactives avec <strong>React</strong> et <strong>Vue</strong>. Au-delà du code, je suis passionné par l'apprentissage des langues étrangères. Je détiens des certifications en <strong>Japonais (JLPT N1)</strong> et en <strong>Coréen (TOPIK 6)</strong>.",
+        readBlog: "Lire le Blog",
+        viewDocs: "Voir les Docs",
+        techStack: "Technologies",
+        techDesc: "Passionné par le développement web moderne. Création d'interfaces utilisateur réactives, accessibles et performantes.",
+        languages: "Langues",
+        langDesc: "L'apprentissage des langues est mon hobby. J'aime explorer différentes cultures à travers leurs langues.",
+        native: "Chinois (Maternel)",
+        english: "Anglais (Professionnel)",
+        japanese: "Japonais (JLPT N1)",
+        korean: "Coréen (TOPIK 6)",
+        design: "Design Frontend"
+    }
+};
+
+const currentT = t[lang as keyof typeof t] || t.zh_CN;
 ---
 
 <MainGridLayout title="Home">
-    <div class="flex w-full rounded-[var(--radius)] overflow-hidden relative min-h-32 mb-4">
-        <div class="card-base z-10 px-9 py-6 relative w-full">
-            <div class="flex flex-col md:flex-row gap-6 items-center">
-                <div class="flex-1 flex flex-col gap-4">
-                    <h1 class="text-3xl font-bold text-[var(--primary)]">
-                        Welcome to {siteConfig.title}
-                    </h1>
-                    <p class="text-[var(--textColor)] opacity-80 leading-relaxed">
-                        This is your custom homepage. You can freely edit <code>src/pages/[...lang]/index.astro</code> to add anything you want here, like a welcome message, featured posts, or a personal portfolio. The main blog list has been moved to the <a href={Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/blog/` : "/blog/"} class="text-[var(--primary)] hover:underline font-medium">/blog</a> page.
-                    </p>
-                    <div class="flex gap-4 mt-2">
-                        <a href={Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/blog/` : "/blog/"} class="bg-[var(--primary)] text-white px-4 py-2 rounded-lg hover:brightness-110 transition-all font-bold">
-                            View Blog
-                        </a>
-                        <a href={Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/docs/` : "/docs/"} class="bg-[var(--btn-regular-bg)] text-[var(--btn-content)] px-4 py-2 rounded-lg hover:bg-[var(--btn-hover-bg)] transition-all font-bold">
-                            Read Docs
-                        </a>
+    <div class="flex w-full rounded-[var(--radius)] overflow-hidden relative mb-6">
+        <div class="card-base z-10 px-6 py-10 md:px-12 md:py-16 relative w-full flex flex-col md:flex-row gap-8 md:gap-12 items-center md:items-start transition-all">
+            <div class="w-36 h-36 md:w-52 md:h-52 shrink-0 rounded-full overflow-hidden border-[6px] border-[var(--primary)]/20 shadow-xl shadow-[var(--primary)]/10 hover:scale-105 hover:border-[var(--primary)]/40 transition-all duration-300">
+                <ImageWrapper src={profileConfig.avatar || '/favicon.svg'} alt="Avatar" class="w-full h-full object-cover" />
+            </div>
+            
+            <div class="flex-1 flex flex-col items-center md:items-start gap-5 text-center md:text-left mt-2">
+                <h1 class="text-3xl md:text-5xl font-bold text-[var(--primary)] tracking-tight">
+                    {currentT.title} <span class="wave-emoji inline-block origin-bottom-right hover:animate-wiggle cursor-default">👋</span>
+                </h1>
+                
+                <h2 class="text-xl md:text-2xl font-semibold text-[var(--textColor)] opacity-90">
+                    {currentT.subtitle}
+                </h2>
+                
+                <p class="text-base md:text-lg text-[var(--textColor)] opacity-80 leading-relaxed max-w-2xl" set:html={currentT.description}>
+                </p>
+                
+                <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-2">
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 hover:-translate-y-0.5 transition-all font-medium cursor-default">
+                        <Icon name="fa6-brands:react" class="text-xl" /> React
                     </div>
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 hover:-translate-y-0.5 transition-all font-medium cursor-default">
+                        <Icon name="fa6-brands:vuejs" class="text-xl" /> Vue
+                    </div>
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 hover:-translate-y-0.5 transition-all font-medium cursor-default">
+                        <Icon name="material-symbols:palette-outline" class="text-xl" /> {currentT.design}
+                    </div>
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 hover:-translate-y-0.5 transition-all font-medium cursor-default">
+                        <Icon name="material-symbols:translate-rounded" class="text-xl" /> JLPT N1 & TOPIK 6
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-4 mt-6 w-full justify-center md:justify-start">
+                    <a href={Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/blog/` : "/blog/"} class="bg-[var(--primary)] text-white px-6 py-3.5 rounded-xl hover:brightness-110 hover:-translate-y-1 shadow-lg shadow-[var(--primary)]/30 active:scale-95 transition-all font-bold flex items-center gap-2 text-lg">
+                        <Icon name="material-symbols:article-outline-rounded" class="text-xl" />
+                        {currentT.readBlog}
+                    </a>
+                    <a href={Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/docs/` : "/docs/"} class="bg-[var(--btn-regular-bg)] text-[var(--btn-content)] px-6 py-3.5 rounded-xl hover:bg-[var(--btn-hover-bg)] hover:-translate-y-1 shadow-md active:scale-95 transition-all font-bold flex items-center gap-2 text-lg">
+                        <Icon name="material-symbols:menu-book-outline-rounded" class="text-xl" />
+                        {currentT.viewDocs}
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card-base p-8 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
+            <h3 class="text-2xl font-bold mb-5 flex items-center gap-3 text-[var(--primary)]">
+                <div class="p-2 rounded-lg bg-[var(--primary)]/10 group-hover:bg-[var(--primary)]/20 transition-colors">
+                    <Icon name="material-symbols:code-blocks-outline-rounded" class="text-2xl" />
+                </div>
+                {currentT.techStack}
+            </h3>
+            <p class="text-[var(--textColor)] opacity-80 mb-5 leading-relaxed">
+                {currentT.techDesc}
+            </p>
+            <ul class="space-y-2 text-[var(--textColor)] opacity-80">
+                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> React, Vue.js, Svelte</li>
+                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> Tailwind CSS, SCSS</li>
+                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> TypeScript, Node.js</li>
+                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> Astro, Next.js, Nuxt</li>
+            </ul>
+        </div>
+        
+        <div class="card-base p-8 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
+            <h3 class="text-2xl font-bold mb-5 flex items-center gap-3 text-[var(--primary)]">
+                <div class="p-2 rounded-lg bg-[var(--primary)]/10 group-hover:bg-[var(--primary)]/20 transition-colors">
+                    <Icon name="material-symbols:translate-rounded" class="text-2xl" />
+                </div>
+                {currentT.languages}
+            </h3>
+            <p class="text-[var(--textColor)] opacity-80 mb-5 leading-relaxed">
+                {currentT.langDesc}
+            </p>
+            <ul class="space-y-2 text-[var(--textColor)] opacity-80">
+                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {currentT.native}</li>
+                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {currentT.english}</li>
+                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {currentT.japanese}</li>
+                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {currentT.korean}</li>
+            </ul>
+        </div>
+    </div>
 </MainGridLayout>
+
+<style>
+@keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-20deg); }
+    50% { transform: rotate(20deg); }
+    75% { transform: rotate(-10deg); }
+}
+.hover\:animate-wiggle:hover {
+    animation: wiggle 1s ease-in-out infinite;
+}
+</style>
