@@ -124,7 +124,7 @@ if (type === 'article' && entry) {
 ---
 
 {type === 'list' && page ? (
-	<MainGridLayout title="Docs">
+	<MainGridLayout title={i18n(I18nKey.docs, Astro.currentLocale)}>
 		<PostPage page={page}></PostPage>
 		<Pagination class="mx-auto onload-animation" page={page} style={`animation-delay: calc(var(--content-delay) + ${(page.data.length)*50}ms)`}></Pagination>
 	</MainGridLayout>

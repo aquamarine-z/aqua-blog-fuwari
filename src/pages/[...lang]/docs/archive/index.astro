@@ -13,6 +13,6 @@ import { getSortedDocsPostsList } from "../../../../utils/content-utils";
 const sortedPostsList = await getSortedDocsPostsList();
 ---
 
-<MainGridLayout title="Docs Archive">
+<MainGridLayout title={`${i18n(I18nKey.archive, Astro.currentLocale)} - ${i18n(I18nKey.docs, Astro.currentLocale)}`}>
     <ArchivePanel sortedPosts={sortedPostsList} client:only="svelte" lang={Astro.currentLocale}></ArchivePanel>
 </MainGridLayout>

@@ -101,7 +101,7 @@ const t = {
 const currentT = t[lang as keyof typeof t] || t.zh_CN;
 ---
 
-<MainGridLayout title="Home">
+<MainGridLayout title={i18n(I18nKey.home, Astro.currentLocale)}>
     <div class="flex w-full rounded-[var(--radius)] overflow-hidden relative mb-6">
         <div class="card-base z-10 px-6 py-10 md:px-12 md:py-16 relative w-full flex flex-col md:flex-row gap-8 md:gap-12 items-center md:items-start transition-all">
             <div class="w-36 h-36 md:w-52 md:h-52 shrink-0 rounded-full overflow-hidden border-[6px] border-[var(--primary)]/20 shadow-xl shadow-[var(--primary)]/10 hover:scale-105 hover:border-[var(--primary)]/40 transition-all duration-300">

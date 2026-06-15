@@ -12,11 +12,9 @@ import {zh_CN} from "./languages/zh_CN";
 import {zh_TW} from "./languages/zh_TW";
 import {fr} from "./languages/fr";
 
-export type Translation = {
+export type Translation = Partial<{
     [K in I18nKey]: string;
-};
-
-const defaultTranslation = en;
+}>;
 
 const map: { [key: string]: Translation } = {
     es: es,
@@ -41,11 +39,23 @@ const map: { [key: string]: Translation } = {
     fr_fr: fr,
 };
 
-export function getTranslation(lang: string): Translation {
-    return map[lang.toLowerCase()] || defaultTranslation;
+export function getTranslation(lang: string): Translation | undefined {
+    return map[lang.toLowerCase()];
 }
 
 export function i18n(key: I18nKey, lang?: string): string {
-    const currentLang = lang || siteConfig.lang || "en";
-    return getTranslation(currentLang)[key];
+    const currentLang = lang || siteConfig.lang || "zh_CN";
+    const translation = getTranslation(currentLang);
+    let value = translation ? translation[key] : undefined;
+
+    if (!value) {
+        const mainTranslation = getTranslation(siteConfig.lang);
+        value = mainTranslation ? mainTranslation[key] : undefined;
+    }
+
+    if (!value) {
+        throw new Error(`i18n key '${key}' not found in main language ('${siteConfig.lang}')`);
+    }
+
+    return value;
 }
