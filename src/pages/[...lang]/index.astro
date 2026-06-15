@@ -113,11 +113,11 @@ const currentT = t[lang as keyof typeof t] || t.zh_CN;
                     {currentT.title} <span class="wave-emoji inline-block origin-bottom-right hover:animate-wiggle cursor-default">👋</span>
                 </h1>
                 
-                <h2 class="text-xl md:text-2xl font-semibold text-[var(--textColor)] opacity-90">
+                <h2 class="text-xl md:text-2xl font-semibold text-90">
                     {currentT.subtitle}
                 </h2>
                 
-                <p class="text-base md:text-lg text-[var(--textColor)] opacity-80 leading-relaxed max-w-2xl" set:html={currentT.description}>
+                <p class="text-base md:text-lg text-75 leading-relaxed max-w-2xl" set:html={currentT.description}>
                 </p>
                 
                 <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-2">
@@ -157,10 +157,10 @@ const currentT = t[lang as keyof typeof t] || t.zh_CN;
                 </div>
                 {currentT.techStack}
             </h3>
-            <p class="text-[var(--textColor)] opacity-80 mb-5 leading-relaxed">
+            <p class="text-75 mb-5 leading-relaxed">
                 {currentT.techDesc}
             </p>
-            <ul class="space-y-2 text-[var(--textColor)] opacity-80">
+            <ul class="space-y-2 text-75">
                 <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> React, Vue.js, Svelte</li>
                 <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> Tailwind CSS, SCSS</li>
                 <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> TypeScript, Node.js</li>
@@ -175,10 +175,10 @@ const currentT = t[lang as keyof typeof t] || t.zh_CN;
                 </div>
                 {currentT.languages}
             </h3>
-            <p class="text-[var(--textColor)] opacity-80 mb-5 leading-relaxed">
+            <p class="text-75 mb-5 leading-relaxed">
                 {currentT.langDesc}
             </p>
-            <ul class="space-y-2 text-[var(--textColor)] opacity-80">
+            <ul class="space-y-2 text-75">
                 <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {currentT.native}</li>
                 <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {currentT.english}</li>
                 <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {currentT.japanese}</li>
