@@ -136,13 +136,15 @@ const currentT = t[lang as keyof typeof t] || t.zh_CN;
                 </div>
 
                 <div class="flex flex-wrap gap-4 mt-6 w-full justify-center md:justify-start">
-                    <a href={Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/blog/` : "/blog/"} class="bg-[var(--primary)] text-white px-6 py-3.5 rounded-xl hover:brightness-110 hover:-translate-y-1 shadow-lg shadow-[var(--primary)]/30 active:scale-95 transition-all font-bold flex items-center gap-2 text-lg">
+                    <a href={Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/blog/` : "/blog/"} class="group bg-[var(--primary)] text-white px-6 py-3.5 rounded-xl hover:brightness-110 shadow-lg shadow-[var(--primary)]/30 active:scale-95 transition-all font-bold flex items-center gap-2 text-lg">
                         <Icon name="material-symbols:article-outline-rounded" class="text-xl" />
                         {currentT.readBlog}
+                        <Icon name="material-symbols:arrow-forward-rounded" class="text-xl transition-transform group-hover:translate-x-1" />
                     </a>
-                    <a href={Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/docs/` : "/docs/"} class="bg-[var(--btn-regular-bg)] text-[var(--btn-content)] px-6 py-3.5 rounded-xl hover:bg-[var(--btn-hover-bg)] hover:-translate-y-1 shadow-md active:scale-95 transition-all font-bold flex items-center gap-2 text-lg">
+                    <a href={Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/docs/` : "/docs/"} class="group bg-[var(--btn-regular-bg)] text-[var(--btn-content)] px-6 py-3.5 rounded-xl hover:bg-[var(--btn-hover-bg)] shadow-md active:scale-95 transition-all font-bold flex items-center gap-2 text-lg">
                         <Icon name="material-symbols:menu-book-outline-rounded" class="text-xl" />
                         {currentT.viewDocs}
+                        <Icon name="material-symbols:arrow-forward-rounded" class="text-xl transition-transform group-hover:translate-x-1" />
                     </a>
                 </div>
             </div>
