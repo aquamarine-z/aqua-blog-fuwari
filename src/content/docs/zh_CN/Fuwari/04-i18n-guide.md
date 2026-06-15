@@ -2,7 +2,7 @@
 title: '全方位多语言国际化'
 published: 2026-06-15
 description: 'I18n 详细介绍，揭秘多语言站点的隔离机制与优雅降级'
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # 全方位多语言 (i18n)

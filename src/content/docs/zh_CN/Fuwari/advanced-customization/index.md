@@ -2,7 +2,7 @@
 title: '🛠️ 深度定制'
 published: 2026-06-15
 description: 'Fuwari 博客深度定制化方案与高级玩法'
-sidebar_position: 6
+sidebar_position: 7
 is_article: true
 ---
 

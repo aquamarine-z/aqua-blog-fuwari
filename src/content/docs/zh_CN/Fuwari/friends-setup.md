@@ -4,7 +4,7 @@ published: 2026-06-15
 description: 详细讲解如何配置和修改 Fuwari 博客的友情链接（Friends）系统
 tags: [指南, 友情链接]
 category: Fuwari使用指南
-sidebar_position: 5
+sidebar_position: 6
 ---
 
 # 友情链接设置指南

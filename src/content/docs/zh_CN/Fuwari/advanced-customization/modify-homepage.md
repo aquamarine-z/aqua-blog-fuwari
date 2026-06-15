@@ -2,7 +2,7 @@
 title: "定制与修改主页"
 published: 2026-06-15
 description: "详细讲解如何找到主页的源代码，修改主页的欢迎语、文案以及核心 HTML/Tailwind 布局结构。"
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # 定制与修改主页

@@ -2,7 +2,7 @@
 title: 'Post 与 Spec 的文件结构详解'
 published: 2026-06-15
 description: '详述 Post 和 Spec 的区别，以及底层 API 如何加载并安全降级渲染单页'
-sidebar_position: 3
+sidebar_position: 4
 ---
 
 # Post 和 Spec 的战略定位

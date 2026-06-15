@@ -2,7 +2,7 @@
 title: 'Docs 文件结构与高级控制'
 published: 2026-06-15
 description: '详解 Docs 目录下的文件结构机制、排序逻辑、单文件目录的降维打击以及多语言(i18n)映射原理。'
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 # Docs 文件结构与高级控制

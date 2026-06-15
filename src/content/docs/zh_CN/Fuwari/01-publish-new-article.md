@@ -2,7 +2,7 @@
 title: '优雅发布新的文章'
 published: 2026-06-15
 description: '了解如何在 Fuwari 中发布新文章及其高级配置选项'
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 # 优雅发布新的文章
