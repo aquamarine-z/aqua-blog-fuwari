@@ -1,0 +1,68 @@
+---
+title: "核心技术栈全解析"
+published: 2026-06-15
+description: "深入了解构建本博客的核心技术栈：从 Astro, React, Zustand 到 Shadcn UI 和 Tailwind CSS。"
+sidebar_position: 0
+---
+
+import GithubRepo from './GithubRepo.tsx';
+
+# 核心技术栈全解析
+
+为了让你能够更加自如地对本项目进行深度定制和二次开发，本指南将为你梳理项目中正在使用的关键技术及其具体职责。
+
+本博客基于出色的 Astro 框架，并默认集成了多种前沿的 Web 开发工具。
+
+---
+
+## 1. 核心前端框架：Astro & React & Svelte
+
+整个项目的底层由 **Astro** 驱动。Astro 的零 JS（Zero-JS by default）架构是博客能够保持极速加载的核心原因。
+
+但在某些需要动态交互的地方，我们不可避免地需要使用 UI 框架：
+- **Svelte**：Fuwari 模板原生大量使用了 Svelte（例如顶部的导航条、全局的日夜间模式切换开关、搜索弹窗以及底部的音乐播放器）。它体积小巧、性能优异。
+- **React**：我们在深度定制过程中，引入了 React 生态。这是因为 React 拥有最庞大的组件库生态（例如后面会提到的 Shadcn UI），极其适合开发复杂的互动界面。
+
+> [!TIP]
+> **想用你自己的框架？**
+> 得益于 Astro 强大的群岛架构（Astro Islands），你不必拘泥于此。如果你是一个纯粹的 Vue 开发者，你完全可以运行 `npx astro add vue`，然后在代码里直接混写 `.vue` 组件！这不会和已有的 React / Svelte 产生任何冲突。
+
+<GithubRepo repo="withastro/astro" client:load />
+
+---
+
+## 2. 状态管理：Zustand
+
+在多个跨框架、跨组件的“孤岛”之间传递数据是一件麻烦事。比如：音乐播放器是一个 Svelte 组件，但如果你想在一个 React 组件里控制音乐的播放和暂停，该怎么办？
+
+我们选择了 **Zustand**，它是一个极小且极快的状态管理库。
+
+**它的职责**：
+在本项目中，像音乐播放器的当前状态（`isPlaying`）、全局的某些持久化配置，都通过 Zustand 进行集中管理。任何框架（Astro, React, Svelte）都可以非常轻松地订阅和修改它的状态。
+
+<GithubRepo repo="pmndrs/zustand" client:load />
+
+---
+
+## 3. 样式引擎：Tailwind CSS
+
+再也不需要写冗长且容易冲突的 `.css` 文件了！
+
+**它的职责**：
+项目里几乎 99% 的界面样式，全是由 **Tailwind CSS** 构建的。不仅是颜色和间距，连所有的深浅色模式（Dark Mode）适配、响应式设计（各种 `md:`, `lg:` 断点）都离不开它的原子类。
+你会在代码中看到大量的 `class="flex items-center text-primary dark:text-white"`，这就是 Tailwind 的魅力。
+
+<GithubRepo repo="tailwindlabs/tailwindcss" client:load />
+
+---
+
+## 4. 无头 UI 组件库：Shadcn UI & Radix
+
+对于诸如按钮、弹窗、下拉菜单这些复杂的交互组件，从零手写是极其耗时的，而且往往无法兼顾无障碍访问（Accessibility）。
+
+**它的职责**：
+我们引入了 **Shadcn UI**（基于 **Radix UI** 无头组件构建）。它与传统的组件库不同，它没有隐藏在 `node_modules` 里的黑盒代码。它的所有源码（如你在上一个测试中所见的 `button.tsx`）都是**直接复制**到你的 `src/components/shadcn/` 目录中的。
+
+这意味着你可以深入它的每一行源码，利用 Tailwind 随意修改它的圆角、颜色、动画，甚至将它魔改成完全符合你个人审美的独特控件。
+
+<GithubRepo repo="shadcn-ui/ui" client:load />
