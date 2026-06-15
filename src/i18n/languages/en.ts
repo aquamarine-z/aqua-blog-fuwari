@@ -52,5 +52,7 @@ export const en: Translation = {
     [Key.tagFrontend]: "Frontend",
     [Key.tagBackend]: "Backend",
     [Key.tagReact]: "React",
+    [Key.fallbackToMainLang]: 'This article has no translation for the current language. Falling back to the main language.',
+    [Key.noTranslationSwitchTo]: 'This article does not exist in the current language. Please switch to an available language: ',
 };
 

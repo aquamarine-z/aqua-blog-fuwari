@@ -10,8 +10,7 @@ interface Props {
 }
 
 const className = Astro.props.class;
-const isDocs = Astro.url.pathname.startsWith('/docs') || 
-               Astro.url.pathname.startsWith('/en/docs') || 
+const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(Astro.url.pathname) || 
                Astro.url.pathname.includes('/posts/docs');
 ---
 <div id="sidebar" class:list={[className, "w-full"]}>

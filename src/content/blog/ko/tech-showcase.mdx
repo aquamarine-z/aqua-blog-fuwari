@@ -1,0 +1,116 @@
+---
+title: React + shadcn/ui + Zustand 기술 스택 디스플레이
+published: 2026-06-13T00:00:00.000Z
+description: 'Astro 블로그에서 React, shadcn/ui, Tailwind CSS 및 Zustand를 통합하는 전체 데모'
+tags:
+  - 반응하다
+  - shadcn/ui
+  - 상태
+  - 순풍CSS
+  - 아스트로
+category: 기술
+draft: false
+lang: ko
+---
+
+import TechShowcase from '../../../components/react/TechShowcase.tsx'
+
+## 🚀 技术栈介绍
+
+本文展示了如何在 Astro (Fuwari) 博客中成功集成以下现代前端技术栈：
+
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| **React** | 19.x | UI 组件框架 |
+| **Tailwind CSS** | 3.x | 实用优先的 CSS 框架 |
+| **shadcn/ui** | latest | 基于 Radix UI 的组件库 |
+| **Zustand** | 5.x | 轻量级状态管理 |
+| **Astro MDX** | 4.x | 在 Markdown 中使用 JSX 组件 |
+
+## ✨ 实时组件演示
+
+下面的所有组件都是 **真实可交互** 的 React 组件，通过 MDX 直接嵌入到这篇博客帖子中：
+
+<TechShowcase client:only="react" />
+
+## 🏗️ 技术架构
+
+### MDX 集成
+
+这篇文章本身就是一个 `.mdx` 文件，它允许我们在 Markdown 中直接导入和使用 React 组件：
+
+```tsx
+// 在 MDX 中导入 React 组件
+import TechShowcase from '../../../components/react/TechShowcase.tsx'
+
+// 使用 client:load 指令使其在客户端可交互
+<TechShowcase client:only="react" />
+```
+
+### Zustand Store 示例
+
+```typescript
+// src/stores/taskStore.ts
+import { create } from 'zustand'
+
+const useTaskStore = create((set, get) => ({
+  tasks: [],
+  addTask: (title, priority) =>
+    set((state) => ({
+      tasks: [...state.tasks, { id: Date.now(), title, priority, completed: false }],
+    })),
+  toggleTask: (id) =>
+    set((state) => ({
+      tasks: state.tasks.map((t) => t.id === id ? { ...t, completed: !t.completed } : t),
+    })),
+  getStats: () => {
+    const { tasks } = get()
+    return {
+      total: tasks.length,
+      completed: tasks.filter((t) => t.completed).length,
+    }
+  },
+}))
+```
+
+### shadcn/ui 组件使用
+
+```tsx
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
+// 按钮变体
+<Button variant="default" client:load>Default</Button>
+<Button variant="destructive" client:load>Destructive</Button>
+<Button variant="outline" client:load>Outline</Button>
+<Button variant="ghost" client:load>Ghost</Button>
+```
+
+## 📦 引入的依赖
+
+本次集成新增了以下依赖包：
+
+- `@astrojs/react` — Astro 的 React 集成
+- `@astrojs/mdx` — Astro 的 MDX 支持
+- `react` + `react-dom` — React 核心库
+- `zustand` — 状态管理
+- `class-variance-authority` — 组件变体管理 (CVA)
+- `clsx` + `tailwind-merge` — 类名工具函数
+- `lucide-react` — 图标库
+- `@radix-ui/*` — 无障碍 UI 原语
+
+> [!TIP]
+> shadcn/ui 的组件代码直接存在于项目中 (`src/components/ui/`)，你可以自由定制样式和行为，无需等待上游更新。
+
+## 🎯 总结
+
+通过这次集成，我们的 Astro 博客现在具备了：
+
+1. ✅ **React 组件支持** — 可以在 Astro 页面和 MDX 文章中使用 React
+2. ✅ **MDX 写作** — 可以在 Markdown 中嵌入可交互的 React 组件
+3. ✅ **shadcn/ui 组件库** — Button、Card、Badge、Tabs、Switch、Progress、Accordion 等
+4. ✅ **Zustand 状态管理** — 轻量级全局状态，无需 Provider
+5. ✅ **Tailwind CSS 增强** — 配合 shadcn/ui 的设计 Token 系统
+

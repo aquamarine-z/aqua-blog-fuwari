@@ -52,4 +52,6 @@ export const zh_CN: Translation = {
     [Key.tagFrontend]: "前端",
     [Key.tagBackend]: "后端爱好者",
     [Key.tagReact]: "React",
+    [Key.fallbackToMainLang]: '该文章暂无当前语言翻译，回退显示主语言内容。',
+    [Key.noTranslationSwitchTo]: '该文章在此语言下不存在，请切换到存在的语言浏览：',
 };

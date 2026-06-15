@@ -49,6 +49,8 @@ enum I18nKey {
     tagFrontend = 'tag.frontend',
     tagBackend = 'tag.backend',
     tagReact = 'tag.react',
+    fallbackToMainLang = 'fallbackToMainLang',
+    noTranslationSwitchTo = 'noTranslationSwitchTo',
 }
 
 export default I18nKey;

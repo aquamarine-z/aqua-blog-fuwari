@@ -52,4 +52,6 @@ export const ja: Translation = {
     [Key.tagFrontend]: "フロントエンド",
     [Key.tagBackend]: "バックエンド",
     [Key.tagReact]: "React",
+    [Key.fallbackToMainLang]: 'この記事は現在の言語に翻訳されていません。メイン言語で表示しています。',
+    [Key.noTranslationSwitchTo]: 'この記事は現在の言語には存在しません。利用可能な言語に切り替えてください：',
 };

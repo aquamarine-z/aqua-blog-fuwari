@@ -1,5 +1,6 @@
 <script>
     import { onMount } from 'svelte';
+    import { siteConfig } from '../../config';
 
     export let categories = [];
     export let lang = 'zh_CN';
@@ -7,8 +8,15 @@
 
     function getUrl(url) {
         if (!url) return '';
-        if (lang && lang !== 'zh_CN' && url.startsWith('/') && !url.match(/^\/(en|ja|ko)(\/|$)/)) {
-            return `/${lang}${url}`;
+        const mainLang = siteConfig.lang || 'zh_CN';
+        if (lang && lang !== mainLang && url.startsWith('/')) {
+            const langsPattern = (siteConfig.languages || ["zh_CN", "en", "ja", "ko"])
+                .filter(l => l !== mainLang)
+                .join('|');
+            const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`);
+            if (!url.match(regex)) {
+                return `/${lang}${url}`;
+            }
         }
         return url;
     }

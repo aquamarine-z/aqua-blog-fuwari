@@ -142,6 +142,10 @@ const bannerOffset =
 			'page-width': `${PAGE_WIDTH}rem`,
 		}}></style>  <!-- defines global css variables. This will be applied to <html> <body> and some other elements idk why -->
 
+		<script is:inline define:vars={{ supportedLangs: siteConfig.languages || ["zh_CN", "en", "ja", "ko"], mainLang: siteConfig.lang }}>
+			window.supportedLangs = supportedLangs;
+			window.mainLang = mainLang;
+		</script>
 
 		<slot name="head"></slot>
 
@@ -364,7 +368,11 @@ function showBanner() {
 }
 
 function fixLangRoutes() {
-    const match = window.location.pathname.match(/^\/(en|ja|ko)(\/|$)/);
+    // Note: The `window.supportedLangs` is injected below
+    const langs = window.supportedLangs || ['en', 'ja', 'ko'];
+    const langsPattern = langs.join('|');
+    const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`);
+    const match = window.location.pathname.match(regex);
     const langPrefix = match ? match[1] : '';
     if (!langPrefix) return;
     
@@ -374,7 +382,7 @@ function fixLangRoutes() {
         
         let href = a.getAttribute('href');
         // If it's a local link and doesn't already have ANY language prefix
-        if (href && href.startsWith('/') && !href.match(/^\/(en|ja|ko)(\/|$)/)) {
+        if (href && href.startsWith('/') && !href.match(regex)) {
             a.setAttribute('href', `/${langPrefix}${href}`);
         }
     });
@@ -425,6 +433,11 @@ const setup = () => {
 	window.swup.hooks.on('content:replace', () => {
 		initCustomScrollbar()
 		fixLangRoutes()
+		showBanner();
+		// Dispatch astro events to trigger hydration for client:only components
+		window.dispatchEvent(new Event('astro:only'));
+		window.dispatchEvent(new Event('astro:load'));
+		window.dispatchEvent(new Event('astro:idle'));
 	})
 	window.swup.hooks.on('visit:start', (visit: {to: {url: string}, scroll?: any}) => {
 		// change banner height immediately when a link is clicked
@@ -438,7 +451,7 @@ const setup = () => {
         // Delegate scrolling entirely to Swup!
         // Because CategoryTree now expands on the server (SSR), the layout is completely stable before Swup scrolls!
         if (window.innerWidth < 1024) {
-            const isDocs = visit.to.url.includes('/docs') || visit.to.url.includes('/posts/docs');
+            const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(visit.to.url) || visit.to.url.includes('/posts/docs');
             if (isDocs && visit.scroll) {
                 visit.scroll.target = '#swup-mobile-scroll-target';
             }

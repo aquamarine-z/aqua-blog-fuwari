@@ -42,8 +42,7 @@ const mainPanelTop = siteConfig.banner.enable
 	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
 	: "5.5rem";
 
-const isDocs = Astro.url.pathname.startsWith('/docs') || 
-               Astro.url.pathname.startsWith('/en/docs') || 
+const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(Astro.url.pathname) || 
                Astro.url.pathname.includes('/posts/docs');
 ---
 

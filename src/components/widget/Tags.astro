@@ -16,7 +16,7 @@ const className = Astro.props.class;
 const style = Astro.props.style;
 const isDocs = Astro.props.isDocs;
 
-const tags = isDocs ? await getDocsTagList() : await getBlogTagList();
+const tags = isDocs ? await getDocsTagList(Astro.currentLocale) : await getBlogTagList(Astro.currentLocale);
 
 const COLLAPSED_HEIGHT = "7.5rem";
 const COLLAPSE_THRESHOLD = 5;

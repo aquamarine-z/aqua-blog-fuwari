@@ -17,7 +17,7 @@ import remarkDirective from "remark-directive"; /* Handle directives */
 import remarkGithubAdmonitionsToDirectives from "remark-github-admonitions-to-directives";
 import remarkMath from "remark-math";
 import remarkSectionize from "remark-sectionize";
-import { expressiveCodeConfig } from "./src/config.ts";
+import { expressiveCodeConfig, siteConfig } from "./src/config.ts";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
 import { AdmonitionComponent } from "./src/plugins/rehype-component-admonition.mjs";
 import { GithubCardComponent } from "./src/plugins/rehype-component-github-card.mjs";
@@ -38,8 +38,8 @@ export default defineConfig({
 		'/ko/docs': '/ko/docs/intro/',
 	},
 	i18n: {
-		defaultLocale: "zh_CN",
-		locales: ["zh_CN", "en", "ja", "ko"],
+		defaultLocale: siteConfig.lang,
+		locales: siteConfig.languages || ["zh_CN", "en", "ja", "ko"],
 		routing: {
 			prefixDefaultLocale: false,
 		},

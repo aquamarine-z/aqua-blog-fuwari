@@ -52,4 +52,6 @@ export const ko: Translation = {
     [Key.tagFrontend]: "프론트엔드",
     [Key.tagBackend]: "백엔드",
     [Key.tagReact]: "React",
+    [Key.fallbackToMainLang]: '이 기사는 현재 언어로 번역되지 않았습니다. 기본 언어로 표시됩니다.',
+    [Key.noTranslationSwitchTo]: '이 기사는 현재 언어에 존재하지 않습니다. 사용 가능한 언어로 전환하십시오：',
 };

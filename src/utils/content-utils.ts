@@ -2,42 +2,152 @@ import { type CollectionEntry, getCollection } from "astro:content";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { getCategoryUrl } from "@utils/url-utils.ts";
+import { siteConfig } from "../config";
+
+const LANG_PREFIXES = (siteConfig.languages || ['en', 'ja', 'ko'])
+    .filter(l => l !== siteConfig.lang)
+    .map(l => `${l}/`);
+
+function filterByLang(slug: string, lang?: string) {
+	if (!lang || lang === siteConfig.lang) {
+		return !LANG_PREFIXES.some(prefix => slug.startsWith(prefix));
+	}
+	return slug.startsWith(`${lang}/`);
+}
+
+function getBaseSlug(slug: string): string {
+    for (const prefix of LANG_PREFIXES) {
+        if (slug.startsWith(prefix)) return slug.substring(prefix.length);
+    }
+    return slug;
+}
+
+function getPostLang(slug: string): string {
+    for (const prefix of LANG_PREFIXES) {
+        if (slug.startsWith(prefix)) return prefix.replace('/', '');
+    }
+    return siteConfig.lang;
+}
+
+export type TranslatedPost<T extends "blog" | "docs"> = CollectionEntry<T> & {
+    isFallback?: boolean;
+    availableLangs?: string[];
+    originalLang?: string;
+};
 
 // Retrieve posts and sort them by publication date
-export async function getRawSortedBlogPosts() {
+export async function getRawSortedBlogPosts(lang?: string): Promise<TranslatedPost<"blog">[]> {
 	const allBlogPosts = await getCollection("blog", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
-	return allBlogPosts.sort((a, b) => {
+	
+    const groups: Record<string, CollectionEntry<"blog">[]> = {};
+    for (const post of allBlogPosts) {
+        const base = getBaseSlug(post.slug);
+        if (!groups[base]) groups[base] = [];
+        groups[base].push(post);
+    }
+
+    const requestedLang = lang || siteConfig.lang;
+    const processed: TranslatedPost<"blog">[] = [];
+
+    for (const base in groups) {
+        const versions = groups[base];
+        const availableLangs = versions.map(v => getPostLang(v.slug));
+        
+        let bestPost = versions.find(v => getPostLang(v.slug) === requestedLang);
+        let isFallback = false;
+        
+        if (!bestPost) {
+            bestPost = versions.find(v => getPostLang(v.slug) === siteConfig.lang);
+            isFallback = true;
+        }
+        if (!bestPost) {
+            bestPost = versions[0];
+            isFallback = true;
+        }
+
+        processed.push({
+            ...bestPost,
+            data: { ...bestPost.data },
+            slug: base as CollectionEntry<"blog">["slug"],
+            isFallback,
+            availableLangs,
+            originalLang: getPostLang(bestPost.slug)
+        });
+    }
+
+	const sorted = processed.sort((a, b) => {
 		const dateA = new Date(a.data.published);
 		const dateB = new Date(b.data.published);
 		return dateA > dateB ? -1 : 1;
 	});
+	return sorted;
 }
 
-export async function getRawSortedDocsPosts() {
+export async function getRawSortedDocsPosts(lang?: string): Promise<TranslatedPost<"docs">[]> {
 	const allDocsPosts = await getCollection("docs", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
-	const sorted = allDocsPosts.sort((a, b) => {
+	
+    const groups: Record<string, CollectionEntry<"docs">[]> = {};
+    for (const post of allDocsPosts) {
+        const base = getBaseSlug(post.slug);
+        if (!groups[base]) groups[base] = [];
+        groups[base].push(post);
+    }
+
+    const requestedLang = lang || siteConfig.lang;
+    const processed: TranslatedPost<"docs">[] = [];
+
+    for (const base in groups) {
+        const versions = groups[base];
+        const availableLangs = versions.map(v => getPostLang(v.slug));
+        
+        let bestPost = versions.find(v => getPostLang(v.slug) === requestedLang);
+        let isFallback = false;
+        
+        if (!bestPost) {
+            bestPost = versions.find(v => getPostLang(v.slug) === siteConfig.lang);
+            isFallback = true;
+        }
+        if (!bestPost) {
+            bestPost = versions[0];
+            isFallback = true;
+        }
+
+        processed.push({
+            ...bestPost,
+            data: { ...bestPost.data },
+            slug: base as CollectionEntry<"docs">["slug"],
+            isFallback,
+            availableLangs,
+            originalLang: getPostLang(bestPost.slug)
+        });
+    }
+
+	const sorted = processed.sort((a, b) => {
 		const dateA = new Date(a.data.published);
 		const dateB = new Date(b.data.published);
 		return dateA > dateB ? -1 : 1;
 	});
 	for (const post of sorted) {
-		post.slug = `docs/${post.slug}`;
+		if (!post.slug.startsWith("docs/")) {
+			post.slug = `docs/${post.slug}` as CollectionEntry<"docs">["slug"];
+		}
 	}
 	return sorted;
 }
 
-export async function getRawSortedAllPosts() {
-	const blogPosts = await getRawSortedBlogPosts();
-	const docsPosts = await getRawSortedDocsPosts();
-	return [...blogPosts, ...docsPosts].sort((a, b) => {
+export async function getRawSortedAllPosts(lang?: string) {
+	const blogPosts = await getRawSortedBlogPosts(lang);
+	const docsPosts = await getRawSortedDocsPosts(lang);
+	const sorted = [...blogPosts, ...docsPosts].sort((a, b) => {
 		const dateA = new Date(a.data.published);
 		const dateB = new Date(b.data.published);
 		return dateA > dateB ? -1 : 1;
 	});
+	return sorted;
 }
 
 // --------------------------------------------------------
@@ -69,38 +179,19 @@ export function flattenTreeSlugs(items: CategoryTreeType[]): string[] {
 	return slugs;
 }
 
-export function postProcessTree(items: CategoryTreeType[]) {
-	for (let i = 0; i < items.length; i++) {
-		const item = items[i];
-		if (item.type === 'folder' && item.children) {
-			postProcessTree(item.children);
-			if (item.children.length === 0 && item.url) {
-				item.type = 'file';
-				delete item.children;
-			}
-		}
-	}
-}
-
-export function sortTree(items: CategoryTreeType[]) {
-	const positions = new Set<number>();
-	for (const item of items) {
-		if (item.sidebar_position !== undefined) {
-			if (positions.has(item.sidebar_position)) {
-				throw new Error(`Duplicate sidebar_position ${item.sidebar_position} found at the same level! Please ensure each sidebar_position is unique within its directory.`);
-			}
-			positions.add(item.sidebar_position);
-		}
-	}
-
+function sortTree(items: CategoryTreeType[]) {
 	items.sort((a, b) => {
-		const posA = a.sidebar_position ?? Number.MAX_SAFE_INTEGER;
-		const posB = b.sidebar_position ?? Number.MAX_SAFE_INTEGER;
-		if (posA !== posB) return posA - posB;
-
-		if (a.type !== b.type) {
-			return a.type === 'folder' ? -1 : 1;
+		if (a.sidebar_position !== undefined && b.sidebar_position !== undefined) {
+			if (a.sidebar_position !== b.sidebar_position) {
+				return a.sidebar_position - b.sidebar_position;
+			}
+		} else if (a.sidebar_position !== undefined) {
+			return -1;
+		} else if (b.sidebar_position !== undefined) {
+			return 1;
 		}
+		
+		if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
 		return a.name.localeCompare(b.name);
 	});
 	items.forEach(item => {
@@ -108,76 +199,56 @@ export function sortTree(items: CategoryTreeType[]) {
 	});
 }
 
-// --------------------------------------------------------
-// Post Retrieval & Processing
-// --------------------------------------------------------
-
-export async function getSortedBlogPosts() {
-	const sorted = await getRawSortedBlogPosts();
-	for (let i = 1; i < sorted.length; i++) {
-		sorted[i].data.nextSlug = sorted[i - 1].slug;
-		sorted[i].data.nextTitle = sorted[i - 1].data.title;
+function postProcessTree(items: CategoryTreeType[]) {
+	for (let i = items.length - 1; i >= 0; i--) {
+		const item = items[i];
+		if (item.type === 'folder') {
+			if (item.children && item.children.length > 0) {
+				postProcessTree(item.children);
+			}
+			
+			// Re-evaluate after children processing
+			if (!item.children || item.children.length === 0) {
+				if (item.url) {
+					// Empty folder but has a URL -> convert to file
+					item.type = 'file';
+					delete item.children;
+				} else {
+					// Truly empty, remove
+					items.splice(i, 1);
+				}
+			}
+		}
 	}
-	for (let i = 0; i < sorted.length - 1; i++) {
-		sorted[i].data.prevSlug = sorted[i + 1].slug;
-		sorted[i].data.prevTitle = sorted[i + 1].data.title;
-	}
-	return sorted;
-}
-
-export async function getSortedDocsPosts() {
-	let sorted = await getRawSortedDocsPosts();
-	const tree = await getDocsCategoryTree();
-	const orderedSlugs = flattenTreeSlugs(tree); 
-	sorted = sorted.filter(post => orderedSlugs.includes(post.slug));
-	sorted.sort((a, b) => {
-		const idxA = orderedSlugs.indexOf(a.slug);
-		const idxB = orderedSlugs.indexOf(b.slug);
-		return idxA - idxB;
-	});
-	for (let i = 1; i < sorted.length; i++) {
-		sorted[i].data.nextSlug = sorted[i - 1].slug;
-		sorted[i].data.nextTitle = sorted[i - 1].data.title;
-	}
-	for (let i = 0; i < sorted.length - 1; i++) {
-		sorted[i].data.prevSlug = sorted[i + 1].slug;
-		sorted[i].data.prevTitle = sorted[i + 1].data.title;
-	}
-	return sorted;
-}
-
-export async function getAllSortedPosts() {
-	const blogPosts = await getSortedBlogPosts();
-	const docsPosts = await getSortedDocsPosts();
-	return [...blogPosts, ...docsPosts];
 }
 
 export type PostForList = {
 	slug: string;
 	data: CollectionEntry<"blog">["data"] | CollectionEntry<"docs">["data"];
+    isFallback?: boolean;
+    availableLangs?: string[];
+    originalLang?: string;
 };
 
-export async function getSortedBlogPostsList(): Promise<PostForList[]> {
-	const sortedFullPosts = await getRawSortedBlogPosts();
-	return sortedFullPosts.map((post) => ({ slug: post.slug, data: post.data }));
+export async function getSortedBlogPostsList(lang?: string): Promise<PostForList[]> {
+	const sortedFullPosts = await getRawSortedBlogPosts(lang);
+	return sortedFullPosts.map((post) => ({ slug: post.slug, data: post.data, isFallback: post.isFallback, availableLangs: post.availableLangs, originalLang: post.originalLang }));
 }
 
-export async function getSortedDocsPostsList(): Promise<PostForList[]> {
-	const sortedFullPosts = await getRawSortedDocsPosts();
-	return sortedFullPosts.map((post) => ({ slug: post.slug, data: post.data }));
+export async function getSortedDocsPostsList(lang?: string): Promise<PostForList[]> {
+	const sortedFullPosts = await getRawSortedDocsPosts(lang);
+	return sortedFullPosts.map((post) => ({ slug: post.slug, data: post.data, isFallback: post.isFallback, availableLangs: post.availableLangs, originalLang: post.originalLang }));
 }
 
-export async function getAllSortedPostsList(): Promise<PostForList[]> {
-	const sortedFullPosts = await getRawSortedAllPosts();
-	return sortedFullPosts.map((post) => ({ slug: post.slug, data: post.data }));
+export async function getAllSortedPostsList(lang?: string): Promise<PostForList[]> {
+	const sortedFullPosts = await getRawSortedAllPosts(lang);
+	return sortedFullPosts.map((post) => ({ slug: post.slug, data: post.data, isFallback: post.isFallback, availableLangs: post.availableLangs, originalLang: post.originalLang }));
 }
 
 export type Tag = { name: string; count: number; };
 
-export async function getBlogTagList(): Promise<Tag[]> {
-	const allBlogPosts = await getCollection("blog", ({ data }) => {
-		return import.meta.env.PROD ? data.draft !== true : true;
-	});
+export async function getBlogTagList(lang?: string): Promise<Tag[]> {
+	const allBlogPosts = await getRawSortedBlogPosts(lang);
 	const countMap: { [key: string]: number } = {};
 	allBlogPosts.forEach((post) => {
 		post.data.tags.forEach((tag: string) => {
@@ -189,10 +260,8 @@ export async function getBlogTagList(): Promise<Tag[]> {
 	return keys.map((key) => ({ name: key, count: countMap[key] }));
 }
 
-export async function getDocsTagList(): Promise<Tag[]> {
-	const allDocsPosts = await getCollection("docs", ({ data }) => {
-		return import.meta.env.PROD ? data.draft !== true : true;
-	});
+export async function getDocsTagList(lang?: string): Promise<Tag[]> {
+	const allDocsPosts = await getRawSortedDocsPosts(lang);
 	const countMap: { [key: string]: number } = {};
 	allDocsPosts.forEach((post) => {
 		post.data.tags.forEach((tag: string) => {
@@ -204,9 +273,9 @@ export async function getDocsTagList(): Promise<Tag[]> {
 	return keys.map((key) => ({ name: key, count: countMap[key] }));
 }
 
-export async function getAllTagList(): Promise<Tag[]> {
-	const blogTags = await getBlogTagList();
-	const docsTags = await getDocsTagList();
+export async function getAllTagList(lang?: string): Promise<Tag[]> {
+	const blogTags = await getBlogTagList(lang);
+	const docsTags = await getDocsTagList(lang);
 	const countMap: { [key: string]: number } = {};
 	for (const tag of [...blogTags, ...docsTags]) {
 		countMap[tag.name] = (countMap[tag.name] || 0) + tag.count;
@@ -217,10 +286,8 @@ export async function getAllTagList(): Promise<Tag[]> {
 
 export type Category = { name: string; count: number; url: string; };
 
-export async function getBlogCategoryList(): Promise<Category[]> {
-	const allBlogPosts = await getCollection("blog", ({ data }) => {
-		return import.meta.env.PROD ? data.draft !== true : true;
-	});
+export async function getBlogCategoryList(lang?: string): Promise<Category[]> {
+	const allBlogPosts = await getRawSortedBlogPosts(lang);
 	const count: { [key: string]: number } = {};
 	allBlogPosts.forEach((post) => {
 		if (!post.data.category) {
@@ -239,10 +306,8 @@ export async function getBlogCategoryList(): Promise<Category[]> {
 	}));
 }
 
-export async function getDocsCategoryList(): Promise<Category[]> {
-	const allDocsPosts = await getCollection("docs", ({ data }) => {
-		return import.meta.env.PROD ? data.draft !== true : true;
-	});
+export async function getDocsCategoryList(lang?: string): Promise<Category[]> {
+	const allDocsPosts = await getRawSortedDocsPosts(lang);
 	const count: { [key: string]: number } = {};
 	allDocsPosts.forEach((post) => {
 		if (!post.data.category) {
@@ -261,9 +326,9 @@ export async function getDocsCategoryList(): Promise<Category[]> {
 	}));
 }
 
-export async function getAllCategoryList(): Promise<Category[]> {
-	const blogCats = await getBlogCategoryList();
-	const docsCats = await getDocsCategoryList();
+export async function getAllCategoryList(lang?: string): Promise<Category[]> {
+	const blogCats = await getBlogCategoryList(lang);
+	const docsCats = await getDocsCategoryList(lang);
 	const countMap: { [key: string]: { count: number, url: string } } = {};
 	for (const cat of [...blogCats, ...docsCats]) {
 		if (!countMap[cat.name]) {
@@ -276,14 +341,19 @@ export async function getAllCategoryList(): Promise<Category[]> {
 	return keys.map((key) => ({ name: key, count: countMap[key].count, url: countMap[key].url }));
 }
 
-export async function getBlogCategoryTree(): Promise<CategoryTreeType[]> {
-	const allPosts = await getRawSortedBlogPosts();
+export async function getBlogCategoryTree(lang?: string): Promise<CategoryTreeType[]> {
+	const allPosts = await getRawSortedBlogPosts(lang);
 	const rootItems: CategoryTreeType[] = [];
 	allPosts.forEach((post) => {
-		const cat = post.data.category ? String(post.data.category).trim() : i18n(I18nKey.uncategorized);
-		const parts = [cat];
+		const parts = post.id.split(/[\/\\]/);
+		if (post.originalLang && post.originalLang !== siteConfig.lang && parts[0] === post.originalLang) {
+			parts.shift();
+		}
+		parts.pop(); // remove filename
+		
 		let currentLevel = rootItems;
 		let parentFolder: CategoryTreeType | null = null;
+		
 		for (const folderName of parts) {
 			let folder = currentLevel.find(item => item.type === 'folder' && item.folderName === folderName);
 			if (!folder) {
@@ -293,24 +363,39 @@ export async function getBlogCategoryTree(): Promise<CategoryTreeType[]> {
 			parentFolder = folder;
 			currentLevel = folder.children!;
 		}
-		currentLevel.push({
-			type: 'file',
-			name: post.data.title,
-			slug: post.slug,
-			url: `/posts/${post.slug}/`,
-			sidebar_position: post.data.sidebar_position,
-		});
+		
+		if (post.id.match(/index\.(md|mdx)$/i) && parentFolder) {
+			parentFolder.url = `/posts/${post.slug}/`;
+			parentFolder.slug = post.slug;
+			if (post.data.sidebar_position !== undefined) {
+				parentFolder.sidebar_position = post.data.sidebar_position;
+			}
+			parentFolder.name = post.data.title;
+		} else {
+			currentLevel.push({
+				type: 'file',
+				name: post.data.title,
+				slug: post.slug,
+				url: `/posts/${post.slug}/`,
+				sidebar_position: post.data.sidebar_position,
+			});
+		}
 	});
 	postProcessTree(rootItems);
 	sortTree(rootItems);
 	return rootItems;
 }
 
-export async function getDocsCategoryTree(): Promise<CategoryTreeType[]> {
-	const allPosts = await getRawSortedDocsPosts();
+export async function getDocsCategoryTree(lang?: string): Promise<CategoryTreeType[]> {
+	const allPosts = await getRawSortedDocsPosts(lang);
 	const rootItems: CategoryTreeType[] = [];
 	allPosts.forEach((post) => {
+		// Wait, previously this used post.id, but now we should use original post.id from fallback?
+		// No, we strip lang prefix from post.id manually to get correct structure!
 		const parts = post.id.split(/[\/\\]/);
+		if (post.originalLang && post.originalLang !== siteConfig.lang && parts[0] === post.originalLang) {
+			parts.shift();
+		}
 		parts.pop(); // remove filename
 		
 		let currentLevel = rootItems;
@@ -351,8 +436,12 @@ export async function getDocsCategoryTree(): Promise<CategoryTreeType[]> {
 	return rootItems;
 }
 
-export async function getAllCategoryTree(): Promise<CategoryTreeType[]> {
-	const blogTree = await getBlogCategoryTree();
-	const docsTree = await getDocsCategoryTree();
+export async function getAllCategoryTree(lang?: string): Promise<CategoryTreeType[]> {
+	const blogTree = await getBlogCategoryTree(lang);
+	const docsTree = await getDocsCategoryTree(lang);
 	return [...blogTree, ...docsTree];
 }
+
+export const getSortedBlogPosts = getRawSortedBlogPosts;
+export const getSortedDocsPosts = getRawSortedDocsPosts;
+export const getAllSortedPosts = getRawSortedAllPosts;
