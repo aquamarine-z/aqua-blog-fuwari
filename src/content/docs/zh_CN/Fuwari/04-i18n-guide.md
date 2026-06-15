@@ -25,3 +25,62 @@ sidebar_position: 4
 > "The requested language is not available. Showing the default language version."
 
 同时，提示框内会高亮列出该文章真正支持的语言标签（且标签会根据亮暗模式智能切换文字颜色 `text-white / text-black`），引导访客点击切换到正确的阅读环境，避免陷入阅读死角。
+
+## 主语言系统与路由魔法
+
+在 Fuwari 中，有一个非常重要的概念叫 **主语言 (Main Language)**。
+
+### 什么是主语言？如何设置？
+主语言代表了你这个网站最核心、最默认的面向受众群体的语言。
+你可以在 `src/config.ts` 中通过修改 `siteConfig` 轻松设置主语言，同时通过 `languages` 数组开启你想要支持的其它语言：
+
+```typescript
+export const siteConfig: SiteConfig = {
+    // ...
+    lang: "zh_CN", // 将中文设为主语言
+    languages: ["en", "ja", "ko"], // 声明支持的其它语言
+    // ...
+}
+```
+
+### 主语言与其他语言的区别
+1. **内容降级兜底**：当你在其它语言环境中访问了未翻译的组件、未翻译的文章、或者未翻译的自定义 Tag 时，系统会默认退回到主语言抓取对应内容进行兜底展示（Fallback 策略）。
+2. **路由前缀自动消隐**：这是主语言系统的一大魔法！对于主语言来说，它的路由会自动去掉语言路径。
+   - 比如你将主语言设置为 `zh_CN`，你在访问中文“关于”页面时，网址会干净利落地显示为：`https://你的域名/about/`。
+   - 而当你切换到其它外语（如英语 `en` 或日语 `ja`）时，它们的网址则会规范地带上前缀：`https://你的域名/en/about/` 或 `https://你的域名/ja/about/`。
+这种设计既保持了主页面 URL 的优雅与简短，又对搜索引擎 (SEO) 极其友好。
+
+## 标签与字典：如何补充 i18n Tag？
+
+除了文章内容，网站中还有大量的固定文字、按钮提示以及友链标签（Tag）需要被翻译。
+
+### 1. 注册新的 I18n Key
+当你需要新增一个可以被翻译的词条时（例如在深层定制中加入了一个叫 `tag.schoolmate` 的新 Tag），你需要先在 `src/i18n/i18nKey.ts` 中注册它：
+```typescript
+enum I18nKey {
+    // ...
+    tagSchoolmate = 'tag.schoolmate', // 注册新键值
+}
+```
+
+### 2. 在语言字典中补充翻译
+注册完毕后，进入 `src/i18n/languages/` 目录，分别在对应的语言文件中补充翻译。
+**最重要的是：你必须在你的主语言文件（例如 `zh_CN.ts`）中补充它！**
+```typescript
+import I18nKey from "../i18nKey";
+import type { Translation } from "../translation";
+
+export const zh_CN: Translation = {
+    // ...
+    [I18nKey.tagSchoolmate]: "同学",
+};
+```
+只要主语言配置了翻译，即便你忘记在 `en.ts` 或 `ja.ts` 中编写对应的翻译，系统也只会降级显示主语言的词条，绝不会造成页面崩溃。
+
+## 如何新建语言支持？
+
+如果你想支持系统默认未配置的全新语言（例如德语 `de`），仅需三步：
+
+1. **类型声明**：在 `src/types/config.ts` 中的 `SiteConfig` 类型的 `lang` 联合类型里，加入新的语言标识（如 `"de"`）。
+2. **字典创建**：在 `src/i18n/languages/` 目录下新建 `de.ts`，并照猫画虎将 `zh_CN.ts` 里的所有字段用德文翻译一遍导出。
+3. **注册字典**：打开 `src/i18n/translation.ts`，在最上方的语言映射字典表（通常是一个 Record 对象或 map）中，引入你的 `de.ts` 并将其绑定到对应的 `'de'` 键值上。最后在 `src/config.ts` 的 `languages` 数组中加上 `"de"` 即可大功告成！
