@@ -4,6 +4,7 @@ import type {
 	NavBarConfig,
 	ProfileConfig,
 	SiteConfig,
+	Friend,
 } from "./types/config";
 import { LinkPreset } from "./types/config";
 
@@ -79,3 +80,59 @@ export const expressiveCodeConfig: ExpressiveCodeConfig = {
 	// Please select a dark theme, as this blog theme currently only supports dark background color
 	theme: "github-dark",
 };
+
+export const friendsConfig: Friend[] = [
+    {
+        name: "Aquamarine",
+        avatar: "https://github.com/aquamarine-z.png",
+        labels: ['tag.self', "tag.frontend", "tag.backend", 'tag.react'],
+        links: [
+            { name: 'Github', link: "https://github.com/aquamarine-z" },
+            { name: 'Blog', link: "https://aquamarine-z.github.io/aqua-blog/" },
+            { name: 'Line', link: "https://line.me/ti/p/6fcWHiO0vg" }
+        ]
+    },
+    {
+        name: "Apricityx",
+        avatar: "/assets/friends-avatar/Apricityx.png",
+        labels: ['tag.friend', 'tag.schoolmate'],
+        links: [
+            { name: 'Github', link: "https://github.com/apricityx" },
+            { name: 'Blog', link: "https://blog.apricityx.top/" }
+        ]
+    },
+    {
+        name: "Winston Chen",
+        avatar: "/assets/friends-avatar/WinstonChen.png",
+        labels: ['tag.friend', 'tag.schoolmate'],
+        links: [
+            { name: 'Github', link: "https://github.com/WinstonCHEN1/" },
+            { name: 'Blog', link: "https://winstonchen1.github.io/" }
+        ]
+    },
+    {
+        name: "Syan Wang",
+        avatar: "/assets/friends-avatar/SyanWang.png",
+        labels: ['tag.friend', 'tag.schoolmate'],
+        links: [
+            { name: 'Github', link: "https://github.com/TheSorry404" },
+            { name: 'Blog', link: "https://40404.site/" }
+        ]
+    },
+    {
+        name: 'Mark',
+        avatar: 'https://github.com/pique2233.png',
+        labels: ['tag.friend', 'tag.schoolmate'],
+        links: [
+            { name: 'Github', link: 'https://github.com/pique2233' },
+        ]
+    },
+    {
+        name: 'yuzu',
+        avatar: 'https://github.com/yuzutong.png',
+        labels: ['tag.friend', 'tag.schoolmate'],
+        links: [
+            { name: 'Github', link: 'https://github.com/yuzutong' },
+        ]
+    },
+];
