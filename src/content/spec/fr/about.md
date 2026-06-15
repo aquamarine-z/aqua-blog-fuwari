@@ -1,4 +1,4 @@
-# À propos de ce site (About)
+# À propos de ce site
 
 Bienvenue sur le blog personnel d'Aquamarine ! Ce site est construit sur le puissant framework [Astro Fuwari](https://github.com/saicaca/fuwari) et intègre une série de personnalisations approfondies et d'améliorations de fonctionnalités basées sur son excellent design original, dans le but de créer une base de connaissances personnelle et une plateforme de présentation plus complètes et adaptées aux besoins personnalisés.
 

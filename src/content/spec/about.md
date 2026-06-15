@@ -1,4 +1,4 @@
-# 关于本站 (About)
+# 关于本站
 
 欢迎来到 Aquamarine 的个人博客！本站基于强大的 [Astro Fuwari](https://github.com/saicaca/fuwari) 框架构建，并在其原有优秀设计的基础上，进行了一系列深度的定制与功能增强，旨在打造一个更全面、更符合个性化需求的个人知识库与展示平台。
 
