@@ -133,7 +133,12 @@ const jsonLd = {
                     <div class="flex items-center gap-3 mb-5 mt-2">
                         <Icon name="material-symbols:translate-rounded" class="text-xl text-black/40 dark:text-white/40" />
                         <div class="flex flex-wrap gap-2">
-                            {entry.availableLangs.map((l: string) => {
+                            {entry.availableLangs.sort((a: string, b: string) => {
+                                const langs = siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"];
+                                const iA = langs.indexOf(a);
+                                const iB = langs.indexOf(b);
+                                return (iA === -1 ? 999 : iA) - (iB === -1 ? 999 : iB);
+                            }).map((l: string) => {
                                 const isMain = l === siteConfig.lang;
                                 const link = isMain ? url(`/posts/${entry.slug}/`) : url(`/${l}/posts/${entry.slug}/`);
                                 const isCurrent = l === (Astro.currentLocale || siteConfig.lang);
