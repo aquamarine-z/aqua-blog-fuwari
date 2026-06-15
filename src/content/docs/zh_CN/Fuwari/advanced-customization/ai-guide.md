@@ -2,7 +2,7 @@
 title: "AI 协作修改指南 (Agent Reference)"
 published: 2026-06-15
 description: "专为 AI Agent 和自动化代码助手准备的项目修改参考手册。AI 在修改本项目前请务必阅读此参考文档。"
-sidebar_position: 6
+sidebar_position: 7
 ---
 
 # AI 协作修改指南 (Agent Reference)
@@ -47,6 +47,10 @@ The i18n system is heavily customized to support strict separation and graceful 
 - **Adding Tags**: To add a new tag, you MUST register it in `src/i18n/i18nKey.ts` and add its translation to AT LEAST the main language file (e.g., `src/i18n/languages/zh_CN.ts`).
 - **Post Filtering (Hiding mechanism)**: Posts without a translation in the current language directory (e.g., `src/content/blog/en/`) are completely hidden from that language's feed. This filtering logic is executed in `src/utils/content-utils.ts` inside `getSortedPosts()`.
 - **Main Language Folder & Conflict**: For the main language (e.g., `zh_CN`), posts can be placed either in the root `src/content/blog/` or in `src/content/blog/zh_CN/`. Both map to the root routing without the language prefix. However, if two files share the same slug across these two locations, `content-utils.ts` will throw a conflict error during compilation to prevent silent overwriting.
+
+## 5. MDX and UI Component Hydration
+- **Inserting Components**: If you are asked to insert a React/Vue/Svelte UI component into a post or documentation, you MUST use an `.mdx` file, not `.md`. You must `import` the component immediately below the frontmatter block.
+- **Hydration is Required**: Because Astro uses a Zero-JS by default architecture, UI framework components embedded in `.mdx` files are rendered as static HTML without event listeners. If the component has interactivity (e.g., `onClick`, state hooks), you MUST append an Astro client directive like `client:load`, `client:idle`, or `client:visible` when calling it (e.g., `<MyComponent client:load />`), otherwise the interactivity will completely fail.
 
 Whenever you make structural changes, always ensure you respect the `sidebar_position` for Docs, update translation keys in the main language dictionary, and avoid breaking the Astro Content Collections schema.
 ```
