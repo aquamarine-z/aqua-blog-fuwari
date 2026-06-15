@@ -11,7 +11,7 @@ export const siteConfig: SiteConfig = {
 	title: "Fuwari",
 	subtitle: 'The French version of Fuwari',
 	lang: 'zh_CN',         // 'en', 'zh_CN', 'zh_TW', 'ja', 'ko', 'es', 'th', etc.
-	languages: ["fr", "zh_CN", "en", "ja", "ko"], // Add this array to precisely match language prefixes
+	languages: ["zh_CN","ja", "ko", "en", "fr" ], // Add this array to precisely match language prefixes
 	themeColor: {
 		hue: 300, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
 		fixed: false, // Hide the theme color picker for visitors
