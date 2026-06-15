@@ -51,7 +51,7 @@ export const navBarConfig: NavBarConfig = {
 		LinkPreset.Friends,
 		{
 			name: "GitHub",
-			url: "https://github.com/saicaca/fuwari",
+			url: "https://github.com/aquamarine-z",
 			external: true,
 			icon: "fa6-brands:github"
 		},
