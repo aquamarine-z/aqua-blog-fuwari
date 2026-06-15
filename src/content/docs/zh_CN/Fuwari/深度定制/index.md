@@ -1,8 +1,8 @@
 ---
 title: '🛠️ 深度定制'
 published: 2026-06-15
-description: '关于框架深层定制的高级教程集合，包括断点控制、UI核心组件修改等。'
-sidebar_position: 5
+description: 'Fuwari 博客深度定制化方案与高级玩法'
+sidebar_position: 6
 is_article: true
 ---
 

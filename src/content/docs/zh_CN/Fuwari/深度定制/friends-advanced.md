@@ -1,9 +1,10 @@
 ---
-title: 01 友链高级定制：Icon与Tag系统
+title: '友链高级定制：Icon与Tag系统'
 published: 2026-06-15
 description: 详细介绍如何为友情链接自定义社交图标、创建全新的标签 (Tag)、以及标签的国际化与 Fallback 策略机制。
 tags: [深度定制, 友情链接, i18n]
 category: 深度定制
+sidebar_position: 1
 ---
 
 # 友情链接高级定制：Icon与Tag系统全解
