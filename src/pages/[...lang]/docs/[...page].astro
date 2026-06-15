@@ -14,6 +14,9 @@ export const getStaticPaths = (async ({ paginate }) => {
 	);
 }) satisfies GetStaticPaths;
 
+import I18nKey from "../../../i18n/i18nKey";
+import { i18n } from "../../../i18n/translation";
+
 const { page } = Astro.props;
 const len = page.data.length;
 ---

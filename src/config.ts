@@ -126,13 +126,5 @@ export const friendsConfig: Friend[] = [
         links: [
             { name: 'Github', link: 'https://github.com/pique2233' },
         ]
-    },
-    {
-        name: 'yuzu',
-        avatar: 'https://github.com/yuzutong.png',
-        labels: ['tag.friend', 'tag.schoolmate'],
-        links: [
-            { name: 'Github', link: 'https://github.com/yuzutong' },
-        ]
-    },
+    }
 ];
