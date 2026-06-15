@@ -26,6 +26,16 @@ Pour les longs articles et documents, la table des matières latérale (TOC) est
 - **Table des matières flottante sur mobile** : Sur les appareils à petit écran comme les smartphones ou les tablettes, le plan de l'article se réduit automatiquement pour devenir un élégant bouton flottant.
 - **Accès en un clic** : Lors de la lecture de textes longs, les visiteurs peuvent appeler le répertoire à tout moment pour accéder rapidement à la section qui les intéresse, éliminant ainsi le besoin de faire défiler de longues pages dans les deux sens, ce qui améliore considérablement l'efficacité de la recherche sur mobile.
 
+### 5. 🗂️ Systèmes d'archives indépendants pour Blog et Docs
+Pour rendre la découverte de contenu plus claire et intuitive, la page d'archives a été remaniée et étendue :
+- **Chronologies séparées** : Création de pages d'archives indépendantes pour les articles de Blog et les tutoriels de Docs, afin qu'ils n'interfèrent pas entre eux.
+- **Organisation claire du contenu** : Que vous passiez en revue d'anciens essais ou que vous recherchiez une série de tutoriels spécifiques, vous pouvez les trouver facilement dans leurs chronologies respectives.
+
+### 6. 🤝 Système de liens d'amis
+Les rencontres sur Internet sont un beau destin. Une nouvelle page élégante de Liens d'amis (Friends) a été ajoutée :
+- **Cartes d'amis personnalisées** : Affiche les avatars, les pseudos, les biographies et les liens des amis à l'aide de cartes UI unifiées et esthétiques.
+- **Expansion et interaction faciles** : Prend en charge la catégorisation des liens d'amis, rendant le site plus chaleureux et facilitant la communication entre blogueurs.
+
 ## 🚀 Open Source et URL du projet
 
 Tout le code personnalisé et les nouvelles fonctionnalités de ce blog sont open source sur GitHub. Si vous aimez ces extensions ou si vous souhaitez créer votre propre site personnel multilingue puissant basé sur cela, n'hésitez pas à visiter et à mettre une étoile sur mon dépôt :

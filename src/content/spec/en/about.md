@@ -26,6 +26,16 @@ For long articles and documents, a sidebar Table of Contents (TOC) is essential 
 - **Floating Mobile Directory**: On small-screen devices like phones or tablets, the article outline automatically collapses into an elegant floating button.
 - **One-tap Access**: While reading long texts, visitors can bring up the directory at any time to quickly jump to sections of interest, eliminating the need to scroll back and forth and greatly improving mobile lookup efficiency.
 
+### 5. 🗂️ Independent Archive Systems for Blog and Docs
+To make content discovery clearer and more intuitive, the Archive page has been refactored and expanded:
+- **Separate Timelines**: Established independent archive pages for Blog posts and Docs tutorials, ensuring they don't interfere with each other.
+- **Clear Content Organization**: Whether you're reviewing past essays or looking for specific tutorial series, you can easily find them in their respective archive timelines.
+
+### 6. 🤝 Friend Links System
+Meeting on the internet is a beautiful fate. A new elegant Friend Links (Friends) page has been added:
+- **Custom Friend Cards**: Displays friends' avatars, nicknames, bios, and links using unified and beautiful UI cards.
+- **Easy Expansion**: Supports categorized friend links, making the site more interconnected and encouraging communication among fellow bloggers.
+
 ## 🚀 Open Source & Project URL
 
 Sharing brings more joy. All customized code and new features of this blog are open-sourced on GitHub. If you like these extensions or want to build your own powerful multilingual personal site based on this, welcome to visit and Star my repository:
