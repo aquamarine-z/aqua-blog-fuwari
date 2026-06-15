@@ -133,7 +133,7 @@ if (type === 'article' && entry) {
 		<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings}>
 			<script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
 			<div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4">
-				<div id="post-container" class="card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full">
+				<div id="post-container" class="card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full" data-available-langs={entry.availableLangs ? entry.availableLangs.join(',') : ''}>
 					<!-- word count and reading time -->
 					<div class="flex flex-row text-black/30 dark:text-white/30 gap-5 mb-3 transition onload-animation">
 						<div class="flex flex-row items-center">
@@ -176,6 +176,30 @@ if (type === 'article' && entry) {
 								category={entry.data.category}
 								type="docs"
 						></PostMetadata>
+
+                        {entry.availableLangs && entry.availableLangs.length > 0 && (
+                            <div class="flex items-center gap-3 mb-5 mt-2">
+                                <Icon name="material-symbols:translate-rounded" class="text-xl text-black/40 dark:text-white/40" />
+                                <div class="flex flex-wrap gap-2">
+                                    {entry.availableLangs.map((l: string) => {
+                                        const isMain = l === siteConfig.lang;
+                                        const link = isMain ? url(`/${entry.slug}/`) : url(`/${l}/${entry.slug}/`);
+                                        const isCurrent = l === (Astro.currentLocale || siteConfig.lang);
+                                        return (
+                                            <a href={link} data-no-swup class:list={[
+                                                "px-3 py-1 rounded-lg text-sm font-medium transition-colors",
+                                                isCurrent 
+                                                    ? "bg-[var(--primary)] text-white dark:text-black pointer-events-none" 
+                                                    : "bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20"
+                                            ]}>
+                                                {l === 'zh_CN' ? '简体中文' : l === 'en' ? 'English' : l === 'ja' ? '日本語' : l === 'ko' ? '한국어' : l === 'fr' ? 'Français' : l}
+                                            </a>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
 						{!entry.data.image && <div class="border-[var(--line-divider)] border-dashed border-b-[1px] mb-5"></div>}
 					</div>
 
@@ -205,7 +229,7 @@ if (type === 'article' && entry) {
                                     const link = isMain ? url(`/${entry.slug}/`) : url(`/${l}/${entry.slug}/`);
                                     return (
                                         <a href={link} class="px-3 py-1 bg-[var(--primary)] text-white dark:text-black rounded-lg text-sm hover:brightness-110 transition">
-                                            {l === 'zh_CN' ? '中文' : l === 'en' ? 'English' : l === 'ja' ? '日本語' : l === 'ko' ? '한국어' : l}
+                                            {l === 'zh_CN' ? '中文' : l === 'en' ? 'English' : l === 'ja' ? '日本語' : l === 'ko' ? '한국어' : l === 'fr' ? 'Français' : l}
                                         </a>
                                     );
                                 })}

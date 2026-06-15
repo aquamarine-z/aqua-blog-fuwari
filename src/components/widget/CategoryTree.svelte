@@ -3,14 +3,24 @@
     import { siteConfig } from '../../config';
 
     export let categories = [];
-    export let lang = 'zh_CN';
+    export let lang = siteConfig.lang;
     export let currentUrl = '';
+
+    // Process categories when lang changes
+    $: {
+        const mainLang = siteConfig.lang;
+        
+        const langsPattern = (siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"])
+                .filter(l => l !== mainLang)
+                .join('|');
+            const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`);
+    }
 
     function getUrl(url) {
         if (!url) return '';
-        const mainLang = siteConfig.lang || 'zh_CN';
+        const mainLang = siteConfig.lang;
         if (lang && lang !== mainLang && url.startsWith('/')) {
-            const langsPattern = (siteConfig.languages || ["zh_CN", "en", "ja", "ko"])
+            const langsPattern = (siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"])
                 .filter(l => l !== mainLang)
                 .join('|');
             const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`);

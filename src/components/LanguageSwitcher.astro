@@ -8,10 +8,11 @@ const langNames: Record<string, string> = {
     "zh_CN": "简体中文",
     "en": "English",
     "ja": "日本語",
-    "ko": "한국어"
+    "ko": "한국어",
+    "fr": "Français"
 };
 
-const languages = (siteConfig.languages || ["zh_CN", "en", "ja", "ko"]).map(code => ({
+const languages = (siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"]).map(code => ({
     code,
     name: langNames[code] || code,
     path: code === siteConfig.lang ? "/" : `/${code}/`
@@ -21,10 +22,10 @@ const currentLangName = languages.find(l => l.code === currentLang)?.name || lan
 
 // Build switch URLs for each language
 const { pathname } = Astro.url;
-const langsPattern = (siteConfig.languages || ["zh_CN", "en", "ja", "ko"])
+const langsPattern = (siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"])
     .filter(l => l !== siteConfig.lang)
     .join('|');
-const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`);
+const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`, 'i');
 
 const langUrls = languages.map(lang => {
     // First, strip any existing language prefix to get the base path
@@ -104,21 +105,22 @@ class LangSwitcher extends HTMLElement {
             // Update links on client-side navigation
             const updateLinks = () => {
                 const currentPath = window.location.pathname;
-                const langs = window.supportedLangs || ['en', 'ja', 'ko'];
-                // Not perfectly accurate to main lang without window.mainLang, but ok since we just want to match ANY lang prefix to strip it
+                const langs = window.supportedLangs || [window.mainLang, 'en', 'ja', 'ko'];
                 const langsPattern = langs.join('|');
-                const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`);
+                const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`, 'i');
                 let basePath = currentPath.replace(regex, "/");
                 if (!basePath.startsWith("/")) basePath = "/" + basePath;
 
                 const links = this.querySelectorAll('a[data-lang-code]');
                 links.forEach(a => {
                     const code = a.getAttribute('data-lang-code');
+                    const mainLang = window.mainLang;
+                    
                     let targetUrl = basePath;
-                    const mainLang = window.mainLang || 'zh_CN';
                     if (code !== mainLang) {
                         targetUrl = `/${code}${basePath === '/' ? '/' : basePath}`;
                     }
+
                     a.setAttribute('href', targetUrl);
                 });
             };

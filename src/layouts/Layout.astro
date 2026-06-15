@@ -142,7 +142,7 @@ const bannerOffset =
 			'page-width': `${PAGE_WIDTH}rem`,
 		}}></style>  <!-- defines global css variables. This will be applied to <html> <body> and some other elements idk why -->
 
-		<script is:inline define:vars={{ supportedLangs: siteConfig.languages || ["zh_CN", "en", "ja", "ko"], mainLang: siteConfig.lang }}>
+		<script is:inline define:vars={{ supportedLangs: siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"], mainLang: siteConfig.lang }}>
 			window.supportedLangs = supportedLangs;
 			window.mainLang = mainLang;
 		</script>

@@ -4,27 +4,23 @@ import { i18n } from "@i18n/translation";
 import { getCategoryUrl } from "@utils/url-utils.ts";
 import { siteConfig } from "../config";
 
-const LANG_PREFIXES = (siteConfig.languages || ['en', 'ja', 'ko'])
-    .filter(l => l !== siteConfig.lang)
+const LANG_PREFIXES = (siteConfig.languages || [siteConfig.lang, 'en', 'ja', 'ko'])
     .map(l => `${l}/`);
-
-function filterByLang(slug: string, lang?: string) {
-	if (!lang || lang === siteConfig.lang) {
-		return !LANG_PREFIXES.some(prefix => slug.startsWith(prefix));
-	}
-	return slug.startsWith(`${lang}/`);
-}
 
 function getBaseSlug(slug: string): string {
     for (const prefix of LANG_PREFIXES) {
-        if (slug.startsWith(prefix)) return slug.substring(prefix.length);
+        if (slug.toLowerCase().startsWith(prefix.toLowerCase())) {
+            return slug.substring(prefix.length);
+        }
     }
     return slug;
 }
 
 function getPostLang(slug: string): string {
     for (const prefix of LANG_PREFIXES) {
-        if (slug.startsWith(prefix)) return prefix.replace('/', '');
+        if (slug.toLowerCase().startsWith(prefix.toLowerCase())) {
+            return prefix.replace('/', '');
+        }
     }
     return siteConfig.lang;
 }
@@ -54,6 +50,10 @@ export async function getRawSortedBlogPosts(lang?: string, includeHidden = false
     for (const base in groups) {
         const versions = groups[base];
         const availableLangs = versions.map(v => getPostLang(v.slug));
+        
+        if (new Set(availableLangs).size !== availableLangs.length) {
+            throw new Error(`Conflict detected for blog post '${base}': multiple files exist for the same language. You cannot have the main language version in both the root directory and the main language folder.`);
+        }
         
         let bestPost = versions.find(v => getPostLang(v.slug) === requestedLang);
         let isFallback = false;
@@ -108,6 +108,10 @@ export async function getRawSortedDocsPosts(lang?: string, includeHidden = false
         const versions = groups[base];
         const availableLangs = versions.map(v => getPostLang(v.slug));
         
+        if (new Set(availableLangs).size !== availableLangs.length) {
+            throw new Error(`Conflict detected for docs post '${base}': multiple files exist for the same language. You cannot have the main language version in both the root directory and the main language folder.`);
+        }
+        
         let bestPost = versions.find(v => getPostLang(v.slug) === requestedLang);
         let isFallback = false;
         
@@ -155,6 +159,10 @@ export async function getSpecEntry(slug: string, lang?: string): Promise<Transla
 
     const requestedLang = lang || siteConfig.lang;
     const availableLangs = versions.map(v => getPostLang(v.slug));
+    
+    if (new Set(availableLangs).size !== availableLangs.length) {
+        throw new Error(`Conflict detected for spec entry '${slug}': multiple files exist for the same language. You cannot have the main language version in both the root directory and the main language folder.`);
+    }
     
     let bestPost = versions.find(v => getPostLang(v.slug) === requestedLang);
     let isFallback = false;
@@ -395,7 +403,7 @@ export async function getBlogCategoryTree(lang?: string): Promise<CategoryTreeTy
 	const rootItems: CategoryTreeType[] = [];
 	allPosts.forEach((post) => {
 		const parts = post.id.split(/[\/\\]/);
-		if (post.originalLang && post.originalLang !== siteConfig.lang && parts[0] === post.originalLang) {
+		if (post.originalLang && parts[0].toLowerCase() === post.originalLang.toLowerCase()) {
 			parts.shift();
 		}
 		parts.pop(); // remove filename
@@ -442,7 +450,7 @@ export async function getDocsCategoryTree(lang?: string): Promise<CategoryTreeTy
 		// Wait, previously this used post.id, but now we should use original post.id from fallback?
 		// No, we strip lang prefix from post.id manually to get correct structure!
 		const parts = post.id.split(/[\/\\]/);
-		if (post.originalLang && post.originalLang !== siteConfig.lang && parts[0] === post.originalLang) {
+		if (post.originalLang && parts[0].toLowerCase() === post.originalLang.toLowerCase()) {
 			parts.shift();
 		}
 		parts.pop(); // remove filename
