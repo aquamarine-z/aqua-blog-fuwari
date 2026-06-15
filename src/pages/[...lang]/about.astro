@@ -5,13 +5,18 @@ export function getStaticPaths() {
 }
 
 
-import { getEntry, render } from "astro:content";
+import { render } from "astro:content";
 import Markdown from "@components/misc/Markdown.astro";
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
 import MainGridLayout from "../../layouts/MainGridLayout.astro";
+import { getSpecEntry } from "@utils/content-utils";
+import { siteConfig } from "../../config";
+import { Icon } from "astro-icon/components";
+import { url } from "@utils/url-utils";
 
-const aboutPost = await getEntry("spec", "about");
+const langCode = Astro.params.lang || siteConfig.lang;
+const aboutPost = await getSpecEntry("about", langCode);
 
 if (!aboutPost) {
 	throw new Error("About page content not found");
@@ -22,9 +27,40 @@ const { Content } = await render(aboutPost);
 <MainGridLayout title={i18n(I18nKey.about, Astro.currentLocale)} description={i18n(I18nKey.about, Astro.currentLocale)}>
     <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
         <div class="card-base z-10 px-9 py-6 relative w-full ">
-            <Markdown class="mt-2">
-                <Content />
-            </Markdown>
+            {aboutPost.isFallback && aboutPost.originalLang === siteConfig.lang && (
+                <div class="mb-6 p-4 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 onload-animation">
+                    <div class="flex items-center gap-2">
+                        <Icon name="material-symbols:warning-outline-rounded" class="text-xl" />
+                        <span>{i18n(I18nKey.fallbackToMainLang, Astro.currentLocale)}</span>
+                    </div>
+                </div>
+            )}
+            
+            {aboutPost.isFallback && aboutPost.originalLang !== siteConfig.lang && (
+                <div class="mb-6 p-4 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 onload-animation">
+                    <div class="flex items-center gap-2 mb-2">
+                        <Icon name="material-symbols:error-outline-rounded" class="text-xl" />
+                        <span>{i18n(I18nKey.noTranslationSwitchTo, Astro.currentLocale)}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        {aboutPost.availableLangs && aboutPost.availableLangs.map((l: string) => {
+                            const isMain = l === siteConfig.lang;
+                            const link = isMain ? url(`/${aboutPost.slug}/`) : url(`/${l}/${aboutPost.slug}/`);
+                            return (
+                                <a href={link} class="px-3 py-1 bg-[var(--primary)] text-white dark:text-black rounded-lg text-sm hover:brightness-110 transition">
+                                    {l === 'zh_CN' ? '中文' : l === 'en' ? 'English' : l === 'ja' ? '日本語' : l === 'ko' ? '한국어' : l}
+                                </a>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
+            {!(aboutPost.isFallback && aboutPost.originalLang !== siteConfig.lang) && (
+                <Markdown class="mt-2">
+                    <Content />
+                </Markdown>
+            )}
         </div>
     </div>
 </MainGridLayout>

@@ -51,6 +51,8 @@ enum I18nKey {
     tagReact = 'tag.react',
     fallbackToMainLang = 'fallbackToMainLang',
     noTranslationSwitchTo = 'noTranslationSwitchTo',
+    customHue = 'customHue',
+    themeColorNames = 'themeColorNames',
 }
 
 export default I18nKey;

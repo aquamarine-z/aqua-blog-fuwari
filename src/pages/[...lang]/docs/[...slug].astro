@@ -10,7 +10,7 @@ import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
-import { getDir, getPostUrlBySlug } from "@utils/url-utils";
+import { getDir, getPostUrlBySlug, url } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
 import { licenseConfig } from "src/config";
 import ImageWrapper from "../../../components/misc/ImageWrapper.astro";
@@ -26,7 +26,7 @@ export async function getStaticPaths() {
 
 	return Promise.all(langPaths.map(async (lang) => {
 		const langCode = lang.params.lang || siteConfig.lang;
-		const allDocsPosts = await getSortedDocsPosts(langCode);
+		const allDocsPosts = await getSortedDocsPosts(langCode, true);
 		const tree = await getDocsCategoryTree(langCode);
 		const slugs = flattenTreeSlugs(tree);
 		
@@ -50,6 +50,11 @@ export async function getStaticPaths() {
 						entry.data.nextTitle = nextPost.data.title;
 					}
 				}
+			} else {
+				entry.data.prevSlug = "";
+				entry.data.prevTitle = "";
+				entry.data.nextSlug = "";
+				entry.data.nextTitle = "";
 			}
 			
 			const slugWithoutPrefix = entry.slug.startsWith("docs/") ? entry.slug.substring(5) : entry.slug;
@@ -169,6 +174,7 @@ if (type === 'article' && entry) {
 								updated={entry.data.updated}
 								tags={entry.data.tags}
 								category={entry.data.category}
+								type="docs"
 						></PostMetadata>
 						{!entry.data.image && <div class="border-[var(--line-divider)] border-dashed border-b-[1px] mb-5"></div>}
 					</div>
@@ -196,9 +202,9 @@ if (type === 'article' && entry) {
                             <div class="flex flex-wrap gap-2 mt-2">
                                 {entry.availableLangs && entry.availableLangs.map((l: string) => {
                                     const isMain = l === siteConfig.lang;
-                                    const link = isMain ? `/docs/${entry.slug}/` : `/${l}/docs/${entry.slug}/`;
+                                    const link = isMain ? url(`/${entry.slug}/`) : url(`/${l}/${entry.slug}/`);
                                     return (
-                                        <a href={link} class="px-3 py-1 bg-[var(--primary)] text-[var(--btn-content)] rounded-lg text-sm hover:brightness-110 transition">
+                                        <a href={link} class="px-3 py-1 bg-[var(--primary)] text-white dark:text-black rounded-lg text-sm hover:brightness-110 transition">
                                             {l === 'zh_CN' ? '中文' : l === 'en' ? 'English' : l === 'ja' ? '日本語' : l === 'ko' ? '한국어' : l}
                                         </a>
                                     );

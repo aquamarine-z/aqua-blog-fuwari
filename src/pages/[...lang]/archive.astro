@@ -8,9 +8,10 @@ export const getStaticPaths = (async () => {
 	return Promise.all(langPaths.map(async (lang) => {
 		const langCode = lang.params.lang || siteConfig.lang;
 		const sortedPostsList = await getSortedBlogPostsList(langCode);
+		const sortedDocsList = await getSortedDocsPostsList(langCode);
 		return {
 			params: { lang: lang.params.lang || undefined },
-			props: { sortedPostsList }
+			props: { sortedPostsList, sortedDocsList }
 		};
 	}));
 }) satisfies GetStaticPaths;
@@ -19,11 +20,11 @@ import ArchivePanel from "@components/ArchivePanel.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
-import { getSortedBlogPostsList } from "../../utils/content-utils";
+import { getSortedBlogPostsList, getSortedDocsPostsList } from "../../utils/content-utils";
 
-const { sortedPostsList } = Astro.props;
+const { sortedPostsList, sortedDocsList } = Astro.props;
 ---
 
 <MainGridLayout title={i18n(I18nKey.archive, Astro.currentLocale)}>
-    <ArchivePanel sortedPosts={sortedPostsList} client:only="svelte" lang={Astro.currentLocale}></ArchivePanel>
+    <ArchivePanel blogPosts={sortedPostsList} docsPosts={sortedDocsList} client:only="svelte" lang={Astro.currentLocale}></ArchivePanel>
 </MainGridLayout>

@@ -9,6 +9,9 @@ export default {
       fontFamily: {
         sans: ["Roboto", "sans-serif", ...defaultTheme.fontFamily.sans],
       },
+      screens: {
+        nav: "1143px",
+      },
       colors: {
         border: "hsl(var(--shadcn-border, 220 13% 91%))",
         input: "hsl(var(--shadcn-input, 220 13% 91%))",

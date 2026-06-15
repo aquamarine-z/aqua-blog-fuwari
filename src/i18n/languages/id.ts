@@ -41,4 +41,6 @@ export const id: Translation = {
     [Key.colorMagenta]: "Magenta",
     [Key.colorRose]: "Rose",
     [Key.blog]: "Blog",
+        [Key.customHue]: 'Custom Hue',
+[Key.themeColorNames]: ['Crimson', 'Aqua', 'Indigo', 'Violet', 'Rose'],
 };

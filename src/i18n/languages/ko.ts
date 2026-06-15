@@ -54,4 +54,6 @@ export const ko: Translation = {
     [Key.tagReact]: "React",
     [Key.fallbackToMainLang]: '이 기사는 현재 언어로 번역되지 않았습니다. 기본 언어로 표시됩니다.',
     [Key.noTranslationSwitchTo]: '이 기사는 현재 언어에 존재하지 않습니다. 사용 가능한 언어로 전환하십시오：',
+        [Key.customHue]: '사용자 지정 색조',
+[Key.themeColorNames]: ['크림슨', '아쿠아', '인디고', '바이올렛', '로즈'],
 };

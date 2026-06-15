@@ -19,6 +19,6 @@ const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(Astro.url.pathname) ||
     </div>
     <div id="sidebar-sticky" class="transition-all duration-700 flex flex-col w-full gap-4 top-4 sticky top-4">
         <Categories class="onload-animation" style="animation-delay: 150ms" isDocs={isDocs}></Categories>
-        <Tag class:list={["onload-animation", {"hidden lg:block": isDocs}]} style="animation-delay: 200ms" isDocs={isDocs}></Tag>
+        {!isDocs && <Tag class="onload-animation" style="animation-delay: 200ms" isDocs={false}></Tag>}
     </div>
 </div>

@@ -29,14 +29,14 @@ function getPostLang(slug: string): string {
     return siteConfig.lang;
 }
 
-export type TranslatedPost<T extends "blog" | "docs"> = CollectionEntry<T> & {
+export type TranslatedPost<T extends "blog" | "docs" | "spec"> = CollectionEntry<T> & {
     isFallback?: boolean;
     availableLangs?: string[];
     originalLang?: string;
 };
 
 // Retrieve posts and sort them by publication date
-export async function getRawSortedBlogPosts(lang?: string): Promise<TranslatedPost<"blog">[]> {
+export async function getRawSortedBlogPosts(lang?: string, includeHidden = false): Promise<TranslatedPost<"blog">[]> {
 	const allBlogPosts = await getCollection("blog", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
@@ -67,6 +67,10 @@ export async function getRawSortedBlogPosts(lang?: string): Promise<TranslatedPo
             isFallback = true;
         }
 
+        if (!includeHidden && !availableLangs.includes(requestedLang) && !availableLangs.includes(siteConfig.lang)) {
+            continue;
+        }
+
         processed.push({
             ...bestPost,
             data: { ...bestPost.data },
@@ -85,7 +89,7 @@ export async function getRawSortedBlogPosts(lang?: string): Promise<TranslatedPo
 	return sorted;
 }
 
-export async function getRawSortedDocsPosts(lang?: string): Promise<TranslatedPost<"docs">[]> {
+export async function getRawSortedDocsPosts(lang?: string, includeHidden = false): Promise<TranslatedPost<"docs">[]> {
 	const allDocsPosts = await getCollection("docs", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
@@ -116,6 +120,10 @@ export async function getRawSortedDocsPosts(lang?: string): Promise<TranslatedPo
             isFallback = true;
         }
 
+        if (!includeHidden && !availableLangs.includes(requestedLang) && !availableLangs.includes(siteConfig.lang)) {
+            continue;
+        }
+
         processed.push({
             ...bestPost,
             data: { ...bestPost.data },
@@ -137,6 +145,37 @@ export async function getRawSortedDocsPosts(lang?: string): Promise<TranslatedPo
 		}
 	}
 	return sorted;
+}
+
+export async function getSpecEntry(slug: string, lang?: string): Promise<TranslatedPost<"spec"> | undefined> {
+    const allSpecs = await getCollection("spec");
+    
+    const versions = allSpecs.filter(post => getBaseSlug(post.slug) === slug);
+    if (versions.length === 0) return undefined;
+
+    const requestedLang = lang || siteConfig.lang;
+    const availableLangs = versions.map(v => getPostLang(v.slug));
+    
+    let bestPost = versions.find(v => getPostLang(v.slug) === requestedLang);
+    let isFallback = false;
+    
+    if (!bestPost) {
+        bestPost = versions.find(v => getPostLang(v.slug) === siteConfig.lang);
+        isFallback = true;
+    }
+    if (!bestPost) {
+        bestPost = versions[0];
+        isFallback = true;
+    }
+
+    return {
+        ...bestPost,
+        data: { ...bestPost.data },
+        slug: slug as CollectionEntry<"spec">["slug"],
+        isFallback,
+        availableLangs,
+        originalLang: getPostLang(bestPost.slug)
+    };
 }
 
 export async function getRawSortedAllPosts(lang?: string) {
@@ -180,6 +219,16 @@ export function flattenTreeSlugs(items: CategoryTreeType[]): string[] {
 }
 
 function sortTree(items: CategoryTreeType[]) {
+	const positionMap = new Map<number, string>();
+	for (const item of items) {
+		if (item.sidebar_position !== undefined) {
+			if (positionMap.has(item.sidebar_position)) {
+				throw new Error(`Sidebar position conflict! Both '${item.name}' and '${positionMap.get(item.sidebar_position)}' have sidebar_position: ${item.sidebar_position}`);
+			}
+			positionMap.set(item.sidebar_position, item.name);
+		}
+	}
+
 	items.sort((a, b) => {
 		if (a.sidebar_position !== undefined && b.sidebar_position !== undefined) {
 			if (a.sidebar_position !== b.sidebar_position) {

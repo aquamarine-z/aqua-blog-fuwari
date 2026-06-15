@@ -8,12 +8,18 @@ import { getPostUrlBySlug } from "../utils/url-utils";
 
 export let tags: string[] = [];
 export let categories: string[] = [];
-export let sortedPosts: Post[] = [];
+export let blogPosts: Post[] = [];
+export let docsPosts: Post[] = [];
 
-const params = new URLSearchParams(window.location.search);
+let currentType: "blog" | "docs" = "blog";
+
+const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
 tags = params.has("tag") ? params.getAll("tag") : [];
 categories = params.has("category") ? params.getAll("category") : [];
 const uncategorized = params.get("uncategorized");
+if (params.get("type") === "docs") {
+    currentType = "docs";
+}
 
 interface Post {
 	slug: string;
@@ -42,8 +48,9 @@ function formatTag(tagList: string[]) {
 	return tagList.map((t) => `#${t}`).join(" ");
 }
 
-onMount(async () => {
-	let filteredPosts: Post[] = sortedPosts;
+function updateGroups() {
+    let sourcePosts = currentType === "docs" ? docsPosts : blogPosts;
+	let filteredPosts: Post[] = sourcePosts;
 
 	if (tags.length > 0) {
 		filteredPosts = filteredPosts.filter(
@@ -83,10 +90,33 @@ onMount(async () => {
 	groupedPostsArray.sort((a, b) => b.year - a.year);
 
 	groups = groupedPostsArray;
+}
+
+onMount(async () => {
+    updateGroups();
 });
+
+function handleTypeSwitch(type: "blog" | "docs") {
+    currentType = type;
+    if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        url.searchParams.set("type", type);
+        window.history.replaceState({}, "", url.toString());
+    }
+    updateGroups();
+}
 </script>
 
 <div class="card-base px-8 py-6">
+    <div class="flex flex-row justify-center mb-6 gap-4">
+        <button class={`px-6 py-2 rounded-full font-bold transition-all ${currentType === 'blog' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--btn-plain-bg)] text-75 hover:bg-[var(--btn-plain-bg-hover)]'}`} on:click={() => handleTypeSwitch('blog')}>
+            Blog
+        </button>
+        <button class={`px-6 py-2 rounded-full font-bold transition-all ${currentType === 'docs' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--btn-plain-bg)] text-75 hover:bg-[var(--btn-plain-bg-hover)]'}`} on:click={() => handleTypeSwitch('docs')}>
+            Docs
+        </button>
+    </div>
+
     {#each groups as group}
         <div>
             <div class="flex flex-row w-full items-center h-[3.75rem]">
