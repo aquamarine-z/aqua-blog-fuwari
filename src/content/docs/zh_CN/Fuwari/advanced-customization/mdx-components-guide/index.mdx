@@ -1,0 +1,90 @@
+---
+title: "MDX 与交互式组件指南"
+published: 2026-06-15
+description: "详细介绍 MDX 文档的强大功能，教你如何在文章中穿插 React/Vue 等动态组件并激活它们的交互能力。"
+sidebar_position: 6
+---
+
+import SvelteCounter from './SvelteCounter.svelte';
+import ReactCounter from './ReactCounter.tsx';
+
+# MDX 与交互式组件指南
+
+在 Fuwari 博客中，你在编写文章或文档时，会面临两种扩展名的选择：`.md` 和 `.mdx`。
+
+如果你只是想记录纯文本、插入一些图片和代码块，那么标准的 `.md` 完全足够。但如果你希望在文章中间“整点花活”——比如插入一个可以实时操作的图表、一个精美的 React 轮播图，或者一个可以点击互动的打赏按钮，那么你就必须使用 `.mdx`。
+
+## 1. 什么是 MDX？
+
+MDX 是 Markdown 和 JSX 的结合体。它允许你在标准的 Markdown 语法中，直接引入并使用 UI 组件（如 React, Vue, Svelte 或 Astro 原生组件）。
+
+### 如何在 MDX 中插入组件？
+
+要在 `.mdx` 文件中使用组件，你需要做两件事：
+1. **导入组件**：在文件顶部（Frontmatter 的 `---` 区域下方），像写 JavaScript 一样 `import` 你的组件。
+2. **渲染组件**：在正文中像写 HTML 标签一样使用它。
+
+**示例**：
+```mdx
+---
+title: '我的 MDX 测试文章'
+published: 2026-06-15
+---
+
+import SvelteCounter from './SvelteCounter.svelte';
+import ReactCounter from './ReactCounter.tsx';
+
+# 欢迎来到我的文章
+
+下面是一段普通的 Markdown 文字。
+
+<InteractiveButton client:load />
+```
+
+### 真实演示
+
+上面的代码块只是个演示，但由于本篇文章本身就是一个 `.mdx` 文件，所以我特地在这里真正地挂载了刚才演示的两个组件。你可以尝试点击它们：
+
+<SvelteCounter client:load />
+
+<ReactCounter client:load />
+
+> [!TIP]
+> **文件组织最佳实践**：正如本篇文章的源码一样，如果你的某个 React 或 Svelte 组件是**专属于某篇文章**的（比如一个特制的演示动画），你可以直接将文章的 `.mdx` 改写为 `index.mdx`，并将组件文件放在同级目录下（如上面引入的 `./SvelteCounter.svelte`）。这种“文件夹即文章”的就近组织方式，比把所有组件塞进全局的 `src/components/` 要清晰整洁得多！
+
+---
+
+## 2. 为什么我的组件点击没反应？（Hydration 原理）
+
+很多新手在 MDX 中插入了 Vue 或 React 组件后，会发现**按钮按了没反应**、**数据不更新**。
+
+**原因在于 Astro 的“零 JS”架构（Zero-JS by default）**。
+为了追求极致的加载速度，Astro 在打包时，会把所有的 React/Vue 组件全部渲染成**纯静态的 HTML 字符串**，并把附带的 JavaScript 全部剔除掉。
+
+### 如何让组件“活”过来？(客户端指令)
+
+要让你的组件恢复交互能力（比如响应 `onClick` 事件），你必须告诉 Astro：“这个组件需要加载 JavaScript！”。
+
+这在 Astro 中被称为 **Client Directives (客户端指令)**。你可以根据组件的优先级，在组件标签上添加不同的 `client:` 属性：
+
+1. **`client:load`**
+   - **作用**：页面加载时立即加载并执行 JS。
+   - **适用场景**：首屏极其重要的交互组件（如顶部导航栏、马上要用的搜索框）。
+   - **用法**：`<InteractiveButton client:load />`
+
+2. **`client:idle`**
+   - **作用**：等页面基本加载完毕、浏览器主线程空闲时再加载 JS。
+   - **适用场景**：绝大多数不需要立刻点击的组件（如文章中部的交互式图表、评论区）。
+   - **用法**：`<InteractiveButton client:idle />`
+
+3. **`client:visible`**
+   - **作用**：组件滚动到屏幕可视区域时才加载 JS。
+   - **适用场景**：位于页面底部的沉重组件，如果用户没划到底部，就完全不加载它的 JS，极大节省流量。
+   - **用法**：`<InteractiveButton client:visible />`
+
+4. **`client:only="react"`**
+   - **作用**：跳过服务端的静态 HTML 生成，完全在客户端使用对应的框架渲染。
+   - **适用场景**：当你的组件依赖浏览器特有的 API（如 `window` 或 `localStorage`），在 Node 环境下运行会报错时。
+   - **用法**：`<InteractiveButton client:only="react" />`
+
+只要正确加上了 `client:` 指令，你的 React/Vue 组件就能在 MDX 文章中完美运行了！
