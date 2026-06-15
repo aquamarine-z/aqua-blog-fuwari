@@ -59,7 +59,7 @@ export const navBarConfig: NavBarConfig = {
 export const profileConfig: ProfileConfig = {
 	avatar: "https://github.com/aquamarine-z.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
 	name: "Aquamarine",
-	bio: "Keep coding, keep smiling.",
+	bio: "星屑を集めて、自分だけの夜空を照らす。",
 	links: [
 		{
 			name: "GitHub",
