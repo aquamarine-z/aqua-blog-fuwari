@@ -25,7 +25,9 @@ Before proposing code changes, familiarize yourself with the following core syst
 
 ## 1. Docs File System & Category Tree
 - **Directory**: `src/content/docs/[lang]/`. Subdirectories automatically create nested navigation categories.
-- **Ordering**: The navigation tree ordering is strictly controlled by the `sidebar_position` property in the markdown frontmatter.
+- **Ordering**: The navigation tree ordering is controlled by the `sidebar_position` property in the markdown frontmatter.
+  - **Missing Position**: If a file lacks `sidebar_position`, it falls back to a lower priority. Files with `sidebar_position` will always appear above those without. For items without `sidebar_position`, folders are sorted above files, and then they are sorted alphabetically by filename.
+  - **Conflict Error**: No two items (files or folders) within the same directory level can have the same `sidebar_position`. If a collision occurs, `content-utils.ts` will intentionally throw a `Sidebar position conflict!` Error and fail the build.
 - **Logic Location**: The logic that parses directories and builds the category tree is located in `src/utils/content-utils.ts` (specifically `getSortedDocsPosts` and `getCategoryTree`). If you need to modify how the sidebar is generated or sorted, edit `content-utils.ts`.
 
 ## 2. Persistent BGM (Music Player) System
