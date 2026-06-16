@@ -51,10 +51,10 @@ function getGiscusTheme() {
       --color-accent-subtle: oklch(0.7 0.14 ${hue} / 0.15);
     }
     
-    /* 强行替换 Catppuccin 的加载动画，改回原版 GitHub 动画，并使用 filter 将其染成主题色 */
+    /* 强行替换 Catppuccin 的加载动画，改回原版 GitHub 动画，并使用 filter 将其染成同色系 */
     main .gsc-loading-image {
       background-image: url(https://github.githubassets.com/images/mona-loading-\${isDark ? 'dark' : 'default'}.gif);
-      filter: hue-rotate(calc(\${hue}deg - 212deg)) saturate(1.2) brightness(1.2);
+      filter: hue-rotate(calc(\${hue}deg - 212deg)) saturate(\${isDark ? 1.2 : 0.6}) brightness(\${isDark ? 1.2 : 1.6});
     }
   `;
   
