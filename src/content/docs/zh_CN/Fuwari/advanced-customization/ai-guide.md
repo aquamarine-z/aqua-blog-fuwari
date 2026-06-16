@@ -2,7 +2,6 @@
 title: "AI 协作修改指南 (Agent Reference)"
 published: 2026-06-15
 description: "专为 AI Agent 和自动化代码助手准备的项目修改参考手册。AI 在修改本项目前请务必阅读此参考文档。"
-sidebar_position: 7
 ---
 
 # AI 协作修改指南 (Agent Reference)
