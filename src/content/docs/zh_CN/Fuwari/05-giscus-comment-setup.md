@@ -1,6 +1,6 @@
 ---
 title: 配置 Giscus 评论区
-sidebar_position: 8
+sidebar_position: 7
 published: 2026-06-16
 ---
 
