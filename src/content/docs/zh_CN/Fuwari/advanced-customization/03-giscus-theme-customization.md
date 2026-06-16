@@ -54,7 +54,7 @@ function getGiscusTheme() {
     /* 强行替换 Catppuccin 的加载动画，改回原版 GitHub 动画，并使用 filter 将其染成同色系 */
     main .gsc-loading-image {
       background-image: url(https://github.githubassets.com/images/mona-loading-\${isDark ? 'dark' : 'default'}.gif);
-      filter: hue-rotate(calc(\${hue}deg - 212deg)) saturate(\${isDark ? 1.2 : 0.6}) brightness(\${isDark ? 1.2 : 1.6});
+      filter: hue-rotate(calc(\${hue}deg - 212deg)) saturate(\${isDark ? 1.2 : 0.5}) brightness(\${isDark ? 1.2 : 2.5});
     }
   `;
   
