@@ -3,13 +3,14 @@ import { giscusConfig } from 'src/config';
 
 interface Props {
   term?: string;
+  lang?: string;
 }
 
-const { term } = Astro.props;
+const { term, lang = giscusConfig.lang } = Astro.props;
 ---
 <div class="giscus-container mt-10">
   <div class="giscus" id="giscus-container"></div>
-  <script is:inline define:vars={{ config: giscusConfig, term }}>
+  <script is:inline define:vars={{ config: giscusConfig, term, lang }}>
     function getGiscusTheme() {
       const isDark = document.documentElement.classList.contains('dark');
       const hue = getComputedStyle(document.documentElement).getPropertyValue('--hue') || '300';
