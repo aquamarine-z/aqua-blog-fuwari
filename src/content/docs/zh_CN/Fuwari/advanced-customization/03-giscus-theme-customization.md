@@ -31,7 +31,7 @@ function getGiscusTheme() {
   const hue = getComputedStyle(document.documentElement).getPropertyValue('--hue') || '300';
   
   // 3. 为 Giscus 选择一个合适的底色主题 (匹配博客的卡片底色)
-  const baseTheme = isDark ? 'transparent_dark' : 'light';
+  const baseTheme = isDark ? 'catppuccin_macchiato' : 'catppuccin_latte';
   
   // 4. 动态构造覆盖 Giscus 默认样式的 CSS 字符串
   const css = `

@@ -13,7 +13,7 @@ const { term } = Astro.props;
     function getGiscusTheme() {
       const isDark = document.documentElement.classList.contains('dark');
       const hue = getComputedStyle(document.documentElement).getPropertyValue('--hue') || '300';
-      const baseTheme = isDark ? 'transparent_dark' : 'light';
+      const baseTheme = isDark ? 'catppuccin_macchiato' : 'catppuccin_latte';
       const css = `
         @import url('https://giscus.app/themes/${baseTheme}.css');
         main {
