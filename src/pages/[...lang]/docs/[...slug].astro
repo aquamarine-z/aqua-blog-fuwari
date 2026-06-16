@@ -190,7 +190,7 @@ if (type === 'article' && entry) {
                                     const link = isMain ? url(`/${entry.slug}/`) : url(`/${l}/${entry.slug}/`);
                                     const isCurrent = l === (Astro.currentLocale || siteConfig.lang);
                                     return (
-                                        <a href={link} data-no-swup class:list={[
+                                        <a href={link} data-no-swup data-lang-code={l} class:list={[
                                             "px-3 py-1 rounded-lg text-sm font-medium transition-colors",
                                             isCurrent 
                                                 ? "bg-[var(--primary)] text-white dark:text-black pointer-events-none" 
@@ -231,7 +231,7 @@ if (type === 'article' && entry) {
                                     const isMain = l === siteConfig.lang;
                                     const link = isMain ? url(`/${entry.slug}/`) : url(`/${l}/${entry.slug}/`);
                                     return (
-                                        <a href={link} class="px-3 py-1 bg-[var(--primary)] text-white dark:text-black rounded-lg text-sm hover:brightness-110 transition">
+                                        <a href={link} data-no-swup class="px-3 py-1 bg-[var(--primary)] text-white dark:text-black rounded-lg text-sm hover:brightness-110 transition">
                                             {getTranslation(l)?.[I18nKey.name] || l}
                                         </a>
                                     );

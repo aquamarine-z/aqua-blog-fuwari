@@ -265,6 +265,7 @@ const bannerEnabled = !!document.getElementById('banner-wrapper')
 function setClickOutsideToClose(panel: string, ignores: string[]) {
 	document.addEventListener("click", event => {
 		let panelDom = document.getElementById(panel);
+		if (!panelDom) return;
 		let tDom = event.target;
 		if (!(tDom instanceof Node)) return;		// Ensure the event target is an HTML Node
 		for (let ig of ignores) {
@@ -273,7 +274,7 @@ function setClickOutsideToClose(panel: string, ignores: string[]) {
 				return;
 			}
 		}
-		panelDom!.classList.add("float-panel-closed");
+		panelDom.classList.add("float-panel-closed");
 	});
 }
 setClickOutsideToClose("display-setting", ["display-setting", "display-settings-switch"])
@@ -377,8 +378,8 @@ function fixLangRoutes() {
     if (!langPrefix) return;
     
     document.querySelectorAll('a[href]').forEach(a => {
-        // Skip links that are for language switching (they have data-no-swup or are inside lang-panel)
-        if (a.hasAttribute('data-no-swup') || a.closest('#lang-panel')) return;
+        // Skip links that are for language switching (they have data-no-swup, data-lang-code, or are inside lang-panel)
+        if (a.hasAttribute('data-no-swup') || a.hasAttribute('data-lang-code') || a.closest('#lang-panel')) return;
         
         let href = a.getAttribute('href');
         // If it's a local link and doesn't already have ANY language prefix
@@ -401,16 +402,33 @@ function handleInitialScroll() {
 	if (window.innerWidth < 1024 && !window.location.hash) {
 		const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(window.location.pathname) || window.location.pathname.includes('/posts/docs');
 		if (isDocs) {
-			const target = document.getElementById('swup-mobile-scroll-target');
-			if (target) {
-				// Prevent sudden layout jumps by executing after the first frame
-				requestAnimationFrame(() => {
-					target.scrollIntoView();
-				});
-			}
+			scrollToMobileDocsTarget();
 		}
 	}
 }
+
+function isDocsPath(pathname: string) {
+    return /^\/([a-zA-Z_-]+\/)?docs\/?/.test(pathname) || pathname.includes('/posts/docs');
+}
+
+function scrollToMobileDocsTarget() {
+    const target = document.getElementById('swup-mobile-scroll-target');
+    if (!target) return;
+
+    requestAnimationFrame(() => {
+        target.scrollIntoView();
+    });
+}
+
+let pendingMobileDocsScrollUrl: string | null = null;
+
+document.addEventListener('category-tree:updated', (event) => {
+    const nextUrl = (event as CustomEvent).detail?.url;
+    if (!pendingMobileDocsScrollUrl || nextUrl !== pendingMobileDocsScrollUrl) return;
+
+    pendingMobileDocsScrollUrl = null;
+    scrollToMobileDocsTarget();
+});
 
 /* Load settings when entering the site */
 init();
@@ -464,11 +482,17 @@ const setup = () => {
 			bodyElement!.classList.remove('lg:is-home');
 		}
 
-        // Delegate scrolling entirely to Swup!
-        // Because CategoryTree now expands on the server (SSR), the layout is completely stable before Swup scrolls!
+        // Delegate scrolling to Swup except for docs-internal mobile navigation.
+        // In that case the persistent CategoryTree must expand first, otherwise the scroll target is measured too early.
         if (window.innerWidth < 1024) {
-            const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(visit.to.url) || visit.to.url.includes('/posts/docs');
-            if (isDocs && visit.scroll) {
+            const nextUrl = new URL(visit.to.url, window.location.origin);
+            const isDocs = isDocsPath(nextUrl.pathname);
+            const isDocsInternalNavigation = isDocsPath(window.location.pathname) && isDocs;
+
+            if (isDocsInternalNavigation && visit.scroll) {
+                visit.scroll.reset = false;
+                pendingMobileDocsScrollUrl = nextUrl.pathname;
+            } else if (isDocs && visit.scroll) {
                 visit.scroll.target = '#swup-mobile-scroll-target';
             }
         }

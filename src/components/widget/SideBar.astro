@@ -22,3 +22,89 @@ const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(Astro.url.pathname) ||
         {!isDocs && <Tag class="onload-animation" style="animation-delay: 200ms" isDocs={false}></Tag>}
     </div>
 </div>
+
+<script>
+function isDocsPath(pathname) {
+    return /^\/([a-zA-Z_-]+\/)?docs\/?/.test(pathname) || pathname.includes('/posts/docs');
+}
+
+async function refreshSidebarSticky(targetUrl) {
+    const currentSidebarRoot = document.getElementById('sidebar');
+    const currentSidebar = document.getElementById('sidebar-sticky');
+    if (!currentSidebar) return;
+
+    try {
+        const response = await fetch(targetUrl, {
+            headers: { 'X-Requested-With': 'swup-sidebar-sync' },
+        });
+        if (!response.ok) return;
+
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const nextSidebarRoot = doc.getElementById('sidebar');
+        const nextSidebar = doc.getElementById('sidebar-sticky');
+        if (!nextSidebar) return;
+
+        if (currentSidebarRoot && nextSidebarRoot) {
+            currentSidebarRoot.className = nextSidebarRoot.className;
+
+            const currentProfileWrapper = currentSidebarRoot.querySelector(':scope > div:first-child');
+            const nextProfileWrapper = nextSidebarRoot.querySelector(':scope > div:first-child');
+            if (currentProfileWrapper && nextProfileWrapper) {
+                currentProfileWrapper.className = nextProfileWrapper.className;
+            }
+        }
+
+        currentSidebar.replaceWith(nextSidebar);
+    } catch (error) {
+        console.warn('Failed to sync sidebar widgets:', error);
+    }
+}
+
+function setupSidebarSync() {
+    if (window.__sidebarSyncMounted) return;
+    window.__sidebarSyncMounted = true;
+
+    let previousPath = window.location.pathname;
+    let pendingSync = false;
+
+    const syncIfSidebarShouldRefresh = () => {
+        const nextPath = window.location.pathname;
+        if (nextPath === previousPath) return;
+
+        const wasDocsPath = isDocsPath(previousPath);
+        const isNextDocsPath = isDocsPath(nextPath);
+        const isDocsInternalNavigation = wasDocsPath && isNextDocsPath;
+        const shouldRefresh = wasDocsPath !== isNextDocsPath;
+        previousPath = nextPath;
+
+        if (shouldRefresh) {
+            refreshSidebarSticky(`${window.location.pathname}${window.location.search}`);
+            return;
+        }
+
+        if (isDocsInternalNavigation) {
+            document.dispatchEvent(new CustomEvent('category-tree:update-url', {
+                detail: { url: nextPath },
+            }));
+        }
+    };
+
+    const scheduleSidebarSync = () => {
+        if (pendingSync) return;
+        pendingSync = true;
+
+        requestAnimationFrame(() => {
+            pendingSync = false;
+            syncIfSidebarShouldRefresh();
+        });
+    };
+
+    document.addEventListener('astro:page-load', scheduleSidebarSync);
+    document.addEventListener('swup:content:replace', scheduleSidebarSync);
+    document.addEventListener('swup:page:view', scheduleSidebarSync);
+    window.addEventListener('popstate', scheduleSidebarSync);
+}
+
+setupSidebarSync();
+</script>

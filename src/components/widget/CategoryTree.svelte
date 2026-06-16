@@ -1,10 +1,14 @@
 <script>
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount, tick } from 'svelte';
     import { siteConfig } from '../../config';
 
     export let categories = [];
     export let lang = siteConfig.lang;
     export let currentUrl = '';
+    export let listenForUrlUpdates = true;
+    export let isRoot = true;
+
+    let activeUrl = currentUrl;
 
     // Process categories when lang changes
     $: {
@@ -31,10 +35,10 @@
         return url;
     }
 
-    function isNodeActive(node) {
+    function isNodeActive(node, url = activeUrl) {
         if (node.type === 'file') {
             let url1 = getUrl(node.url) || '';
-            let url2 = currentUrl || '';
+            let url2 = url || '';
             if (url1.endsWith('/')) url1 = url1.slice(0, -1);
             if (url2.endsWith('/')) url2 = url2.slice(0, -1);
             // sometimes URL decoding is needed
@@ -45,7 +49,7 @@
             let isActive = false;
             if (node.url) {
                 let url1 = getUrl(node.url) || '';
-                let url2 = currentUrl || '';
+                let url2 = url || '';
                 if (url1.endsWith('/')) url1 = url1.slice(0, -1);
                 if (url2.endsWith('/')) url2 = url2.slice(0, -1);
                 url1 = decodeURI(url1);
@@ -54,19 +58,19 @@
             }
             if (isActive) return true;
             if (node.children) {
-                return node.children.some(child => isNodeActive(child));
+                return node.children.some(child => isNodeActive(child, url));
             }
         }
         return false;
     }
 
-    function expandActive(nodes) {
+    function expandActive(nodes, url = activeUrl) {
         let expanded = {};
         for (const node of nodes) {
-            if (node.type === 'folder' && isNodeActive(node)) {
+            if (node.type === 'folder' && isNodeActive(node, url)) {
                 expanded[node.folderName || node.name] = true;
                 if (node.children) {
-                    const childrenExpanded = expandActive(node.children);
+                    const childrenExpanded = expandActive(node.children, url);
                     expanded = { ...expanded, ...childrenExpanded };
                 }
             }
@@ -75,7 +79,7 @@
     }
 
     // Initialize synchronously so it renders correctly on the server (SSR), preventing layout shifts on client!
-    let expandedCategories = expandActive(categories);
+    let expandedCategories = expandActive(categories, activeUrl);
 
     function toggleCategory(node) {
         const key = node.folderName || node.name;
@@ -85,8 +89,34 @@
         };
     }
 
+    let cleanupUrlListener = () => {};
+
     onMount(() => {
-        // Any pure client-side only logic goes here
+        if (!listenForUrlUpdates) return;
+
+        const updateUrl = async (event) => {
+            const nextUrl = event.detail?.url;
+            if (!nextUrl || nextUrl === activeUrl) return;
+
+            activeUrl = nextUrl;
+            expandedCategories = expandActive(categories, nextUrl);
+
+            if (isRoot) {
+                await tick();
+                document.dispatchEvent(new CustomEvent('category-tree:updated', {
+                    detail: { url: nextUrl },
+                }));
+            }
+        };
+
+        document.addEventListener('category-tree:update-url', updateUrl);
+        cleanupUrlListener = () => {
+            document.removeEventListener('category-tree:update-url', updateUrl);
+        };
+    });
+
+    onDestroy(() => {
+        cleanupUrlListener();
     });
 </script>
 
@@ -97,7 +127,7 @@
                 <div
                     class="category-header"
                     class:expanded={expandedCategories[node.folderName || node.name]}
-                    class:active={isNodeActive(node)}
+                    class:active={isNodeActive(node, activeUrl)}
                 >
                     <button 
                         class="category-chevron-btn" 
@@ -125,7 +155,7 @@
 
                 {#if expandedCategories[node.folderName || node.name] && node.children}
                     <div class="category-children">
-                        <svelte:self categories={node.children} lang={lang} currentUrl={currentUrl} />
+                        <svelte:self categories={node.children} lang={lang} currentUrl={activeUrl} listenForUrlUpdates={listenForUrlUpdates} isRoot={false} />
                     </div>
                 {/if}
             </div>
@@ -133,7 +163,7 @@
             <a
                 href={getUrl(node.url)}
                 class="category-leaf"
-                class:active={isNodeActive(node)}
+                class:active={isNodeActive(node, activeUrl)}
                 title={node.name}
             >
                 <span class="leaf-dot"></span>

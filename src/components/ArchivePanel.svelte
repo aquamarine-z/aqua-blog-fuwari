@@ -111,10 +111,10 @@ function handleTypeSwitch(type: "blog" | "docs") {
 <div class="card-base px-8 py-6">
     <div class="flex flex-row justify-center mb-6 gap-4">
         <button class={`px-6 py-2 rounded-full font-bold transition-all ${currentType === 'blog' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--btn-plain-bg)] text-75 hover:bg-[var(--btn-plain-bg-hover)]'}`} on:click={() => handleTypeSwitch('blog')}>
-            Blog
+            {i18n(I18nKey.blog, lang)}
         </button>
         <button class={`px-6 py-2 rounded-full font-bold transition-all ${currentType === 'docs' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--btn-plain-bg)] text-75 hover:bg-[var(--btn-plain-bg-hover)]'}`} on:click={() => handleTypeSwitch('docs')}>
-            Docs
+            {i18n(I18nKey.docs, lang)}
         </button>
     </div>
 
@@ -131,7 +131,7 @@ function handleTypeSwitch(type: "blog" | "docs") {
                     ></div>
                 </div>
                 <div class="w-[70%] md:w-[80%] transition text-left text-50">
-                    {group.posts.length} {i18n(group.posts.length === 1 ? I18nKey.postCount : I18nKey.postsCount)}
+                    {group.posts.length} {i18n(group.posts.length === 1 ? I18nKey.postCount : I18nKey.postsCount, lang)}
                 </div>
             </div>
 
