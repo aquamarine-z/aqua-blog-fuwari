@@ -10,8 +10,31 @@ const { term } = Astro.props;
 <div class="giscus-container mt-10">
   <div class="giscus" id="giscus-container"></div>
   <script is:inline define:vars={{ config: giscusConfig, term }}>
+    function getGiscusTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const hue = getComputedStyle(document.documentElement).getPropertyValue('--hue') || '300';
+      const baseTheme = isDark ? 'transparent_dark' : 'light';
+      const css = `
+        @import url('https://giscus.app/themes/${baseTheme}.css');
+        main {
+          --color-btn-primary-bg: oklch(0.7 0.14 ${hue});
+          --color-btn-primary-border: oklch(0.7 0.14 ${hue});
+          --color-btn-primary-hover-bg: oklch(0.65 0.14 ${hue});
+          --color-btn-primary-hover-border: oklch(0.65 0.14 ${hue});
+          --color-btn-primary-disabled-bg: oklch(0.7 0.14 ${hue} / 0.5);
+          --color-btn-primary-disabled-border: oklch(0.7 0.14 ${hue} / 0.5);
+          --color-btn-primary-text: #ffffff;
+          --color-accent-fg: oklch(0.7 0.14 ${hue});
+          --color-accent-emphasis: oklch(0.7 0.14 ${hue});
+          --color-accent-muted: oklch(0.7 0.14 ${hue} / 0.4);
+          --color-accent-subtle: oklch(0.7 0.14 ${hue} / 0.15);
+        }
+      `;
+      return 'data:text/css;base64,' + btoa(css);
+    }
+
     function loadGiscus() {
-      const theme = document.documentElement.classList.contains('dark') ? 'catppuccin_mocha' : 'catppuccin_latte';
+      const theme = getGiscusTheme();
       const script = document.createElement('script');
       script.src = 'https://giscus.app/client.js';
       script.setAttribute('data-repo', config.repo);
@@ -42,19 +65,22 @@ const { term } = Astro.props;
 
     // Listen for theme changes to dynamically update Giscus theme
     const observer = new MutationObserver((mutations) => {
+      let shouldUpdate = false;
       mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          const isDark = document.documentElement.classList.contains('dark');
-          const iframe = document.querySelector('iframe.giscus-frame');
-          if (iframe && iframe.contentWindow) {
-            iframe.contentWindow.postMessage(
-              { giscus: { setConfig: { theme: isDark ? 'catppuccin_mocha' : 'catppuccin_latte' } } },
-              'https://giscus.app'
-            );
-          }
+        if (mutation.attributeName === 'class' || mutation.attributeName === 'style') {
+          shouldUpdate = true;
         }
       });
+      if (shouldUpdate) {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage(
+            { giscus: { setConfig: { theme: getGiscusTheme() } } },
+            'https://giscus.app'
+          );
+        }
+      }
     });
-    observer.observe(document.documentElement, { attributes: true });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
   </script>
 </div>
