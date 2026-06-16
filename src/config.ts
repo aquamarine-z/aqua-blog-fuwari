@@ -133,8 +133,8 @@ export const friendsConfig: Friend[] = [
 export const giscusConfig: GiscusConfig = {
 	repo: "aquamarine-z/aqua-blog-discussion",
 	repoId: "R_kgDONLC_uw",
-	category: "General", // Placeholder, you can update this to match your actual discussion category
-	categoryId: "DIC_kwDONLC_uw4CjsX9", // Placeholder, you can update this to match your actual category id
+	category: "General",
+	categoryId: "DIC_kwDONLC_u84CkA5v",
 	mapping: "specific", // We use specific mapping to share comments across languages
 	strict: "0",
 	reactionsEnabled: "1",
