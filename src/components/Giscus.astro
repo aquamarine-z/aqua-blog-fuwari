@@ -6,7 +6,11 @@ interface Props {
   lang?: string;
 }
 
-const { term, lang = giscusConfig.lang } = Astro.props;
+let { term, lang = giscusConfig.lang } = Astro.props;
+
+if (lang === 'el') {
+  lang = 'gr';
+}
 ---
 <div class="giscus-container mt-10">
   <div class="giscus" id="giscus-container"></div>

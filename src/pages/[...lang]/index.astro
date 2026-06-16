@@ -95,10 +95,58 @@ const t = {
         japanese: "Japonais (JLPT N1)",
         korean: "Coréen (TOPIK 6)",
         design: "Design Frontend"
+    },
+    el: {
+        title: "Γεια σας, είμαι ο Aquamarine",
+        subtitle: "Frontend Developer & Λάτρης Γλωσσών",
+        description: "Ειδικεύομαι στο <strong>Frontend Design</strong>, δημιουργώντας όμορφες και διαδραστικές εφαρμογές ιστού χρησιμοποιώντας <strong>React</strong> και <strong>Vue</strong>. Πέρα από τον προγραμματισμό, είμαι παθιασμένος με την εκμάθηση ξένων γλωσσών.",
+        readBlog: "Διαβάστε το Blog",
+        viewDocs: "Δείτε τα Έγγραφα",
+        techStack: "Τεχνολογίες",
+        techDesc: "Παθιασμένος με τη σύγχρονη ανάπτυξη ιστού. Δημιουργία διαδραστικών και προσβάσιμων διεπαφών χρήστη.",
+        languages: "Γλώσσες",
+        langDesc: "Η εκμάθηση γλωσσών είναι το χόμπι μου. Μου αρέσει να εξερευνώ διαφορετικές κουλτούρες μέσω των γλωσσών.",
+        native: "Κινέζικα (Μητρική)",
+        english: "Αγγλικά (Επαγγελματικά)",
+        japanese: "Ιαπωνικά (JLPT N1)",
+        korean: "Κορεάτικα (TOPIK 6)",
+        design: "Frontend Design"
+    },
+    he: {
+        title: "שלום, אני Aquamarine",
+        subtitle: "מפתח Frontend וחובב שפות",
+        description: "אני מתמחה ב-<strong>Frontend Design</strong>, יצירת יישומי רשת יפים ואינטראקטיביים באמצעות <strong>React</strong> ו-<strong>Vue</strong>. מעבר לקידוד, אני אוהב ללמוד שפות זרות.",
+        readBlog: "קראו את הבלוג",
+        viewDocs: "צפו במסמכים",
+        techStack: "טכנולוגיות",
+        techDesc: "אוהב פיתוח רשת מודרני. בונה ממשקי משתמש רספונסיביים ונגישים.",
+        languages: "שפות",
+        langDesc: "לימוד שפות הוא התחביב שלי. אני נהנה לחקור תרבויות שונות דרך השפות שלהן.",
+        native: "סינית (שפת אם)",
+        english: "אנגלית (מקצועית)",
+        japanese: "יפנית (JLPT N1)",
+        korean: "קוריאנית (TOPIK 6)",
+        design: "Frontend Design"
+    },
+    ru: {
+        title: "Привет, я Aquamarine",
+        subtitle: "Frontend-разработчик и энтузиаст языков",
+        description: "Я специализируюсь на <strong>Frontend-дизайне</strong>, создавая красивые и интерактивные веб-приложения с использованием <strong>React</strong> и <strong>Vue</strong>. Помимо программирования, я увлекаюсь изучением иностранных языков.",
+        readBlog: "Читать блог",
+        viewDocs: "Документация",
+        techStack: "Технологии",
+        techDesc: "Увлекаюсь современной веб-разработкой. Создаю отзывчивые и доступные пользовательские интерфейсы.",
+        languages: "Языки",
+        langDesc: "Изучение языков — мое хобби. Мне нравится исследовать разные культуры через их языки.",
+        native: "Китайский (Родной)",
+        english: "Английский (Профессиональный)",
+        japanese: "Японский (JLPT N1)",
+        korean: "Корейский (TOPIK 6)",
+        design: "Frontend-дизайн"
     }
 };
 
-const currentT = t[lang as keyof typeof t] || t.zh_CN;
+const currentT = t[lang as keyof typeof t] || t.en;
 ---
 
 <MainGridLayout title={i18n(I18nKey.home, Astro.currentLocale)}>

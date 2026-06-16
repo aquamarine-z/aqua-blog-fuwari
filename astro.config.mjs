@@ -26,17 +26,21 @@ import { remarkExcerpt } from "./src/plugins/remark-excerpt.js";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 
+const customRedirects = {
+	'/docs': '/docs/intro/'
+};
+(siteConfig.languages || []).forEach(lang => {
+	if (lang !== siteConfig.lang) {
+		customRedirects[`/${lang}/docs`] = `/${lang}/docs/intro/`;
+	}
+});
+
 // https://astro.build/config
 export default defineConfig({
 	site: "https://fuwari.vercel.app/",
 	base: "/",
 	trailingSlash: "always",
-	redirects: {
-		'/docs': '/docs/intro/',
-		'/en/docs': '/en/docs/intro/',
-		'/ja/docs': '/ja/docs/intro/',
-		'/ko/docs': '/ko/docs/intro/',
-	},
+	redirects: customRedirects,
 	i18n: {
 		defaultLocale: siteConfig.lang,
 		locales: siteConfig.languages || ["zh_CN", "en", "ja", "ko"],
@@ -53,7 +57,7 @@ export default defineConfig({
 			animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
 			// the default value `transition-` cause transition delay
 			// when the Tailwind class `transition-all` is used
-			containers: ["main", "#toc", "#sidebar", "#sidebar-bottom", "#mobile-toc-container"],
+			containers: ["main", "#toc", "#sidebar", "#sidebar-bottom", "#mobile-toc-container", "#navbar-wrapper"],
 			smoothScrolling: true,
 			cache: true,
 			preload: true,

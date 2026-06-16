@@ -1,46 +1,33 @@
-import {siteConfig} from "../config";
+import { siteConfig } from "../config";
 import type I18nKey from "./i18nKey";
-import {en} from "./languages/en";
-import {es} from "./languages/es";
-import {id} from "./languages/id";
-import {ja} from "./languages/ja";
-import {ko} from "./languages/ko";
-import {th} from "./languages/th";
-import {tr} from "./languages/tr";
-import {vi} from "./languages/vi";
-import {zh_CN} from "./languages/zh_CN";
-import {zh_TW} from "./languages/zh_TW";
-import {fr} from "./languages/fr";
 
 export type Translation = Partial<{
     [K in I18nKey]: string;
 }>;
 
-const map: { [key: string]: Translation } = {
-    es: es,
-    en: en,
-    en_us: en,
-    en_gb: en,
-    en_au: en,
-    zh_cn: zh_CN,
-    zh_tw: zh_TW,
-    ja: ja,
-    ja_jp: ja,
-    ko: ko,
-    ko_kr: ko,
-    th: th,
-    th_th: th,
-    vi: vi,
-    vi_vn: vi,
-    id: id,
-    tr: tr,
-    tr_tr: tr,
-    fr: fr,
-    fr_fr: fr,
-};
+const translations = import.meta.glob<{ [key: string]: Translation }>('./languages/*.ts', { eager: true });
+
+const map: { [key: string]: Translation } = {};
+
+for (const path in translations) {
+    const match = path.match(/\/languages\/([\w-]+)\.ts$/);
+    if (match) {
+        const langName = match[1].toLowerCase().replace(/-/g, '_');
+        const module = translations[path];
+        const translation = Object.values(module)[0];
+        if (translation) {
+            map[langName] = translation;
+        }
+    }
+}
 
 export function getTranslation(lang: string): Translation | undefined {
-    return map[lang.toLowerCase()];
+    const lower = lang.toLowerCase().replace(/-/g, '_');
+    if (map[lower]) return map[lower];
+    
+    // Fallback to base language (e.g. en_us -> en)
+    const base = lower.split('_')[0];
+    return map[base];
 }
 
 export function i18n(key: I18nKey, lang?: string): string {

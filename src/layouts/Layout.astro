@@ -397,8 +397,24 @@ function init() {
 	fixLangRoutes();
 }
 
+function handleInitialScroll() {
+	if (window.innerWidth < 1024 && !window.location.hash) {
+		const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(window.location.pathname) || window.location.pathname.includes('/posts/docs');
+		if (isDocs) {
+			const target = document.getElementById('swup-mobile-scroll-target');
+			if (target) {
+				// Prevent sudden layout jumps by executing after the first frame
+				requestAnimationFrame(() => {
+					target.scrollIntoView();
+				});
+			}
+		}
+	}
+}
+
 /* Load settings when entering the site */
 init();
+handleInitialScroll();
 
 const setup = () => {
 	// TODO: temp solution to change the height of the banner

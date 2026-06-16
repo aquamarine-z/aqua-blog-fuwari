@@ -53,6 +53,7 @@ enum I18nKey {
     noTranslationSwitchTo = 'noTranslationSwitchTo',
     customHue = 'customHue',
     themeColorNames = 'themeColorNames',
+    name = 'name',
 }
 
 export default I18nKey;

@@ -44,5 +44,5 @@ export const zh_TW: Translation = {
     [Key.colorRose]: "玫瑰",
     [Key.blog]: "部落格",
         [Key.customHue]: '自訂色相',
-[Key.themeColorNames]: ['楓葉赤', '琉璃翠', '星河靛', '暮雲紫', '櫻花粉'],
+[Key.themeColorNames]: ['楓葉赤', '琥珀橙', '銀杏黃', '琉璃翠', '星河靛', '暮雲紫', '櫻花粉'],
 };

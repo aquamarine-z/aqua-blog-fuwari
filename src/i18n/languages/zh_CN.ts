@@ -2,6 +2,7 @@ import Key from "../i18nKey";
 import type {Translation} from "../translation";
 
 export const zh_CN: Translation = {
+    [Key.name]: "简体中文",
     [Key.home]: "主页",
     [Key.about]: "关于",
     [Key.archive]: "归档",
@@ -55,5 +56,5 @@ export const zh_CN: Translation = {
     [Key.fallbackToMainLang]: '该文章暂无当前语言翻译，回退显示主语言内容。',
     [Key.noTranslationSwitchTo]: '该文章在此语言下不存在，请切换到存在的语言浏览：',
         [Key.customHue]: '自定义色相',
-[Key.themeColorNames]: ['枫叶赤', '琉璃翠', '星河靛', '暮云紫', '樱花粉'],
+[Key.themeColorNames]: ['枫叶赤', '琥珀橙', '银杏黄', '琉璃翠', '星河靛', '暮云紫', '樱花粉'],
 };

@@ -2,6 +2,7 @@ import Key from "../i18nKey";
 import type {Translation} from "../translation";
 
 export const fr: Translation = {
+    [Key.name]: "Français",
     [Key.home]: "Accueil",
     [Key.about]: "À propos",
     [Key.archive]: "Archives",
@@ -55,6 +56,6 @@ export const fr: Translation = {
     [Key.fallbackToMainLang]: 'Cet article n\'a pas de traduction pour la langue actuelle. Retour à la langue principale.',
     [Key.noTranslationSwitchTo]: 'Cet article n\'existe pas dans la langue actuelle. Veuillez passer à une langue disponible : ',
     [Key.customHue]: 'Teinte personnalisée',
-    [Key.themeColorNames]: ['Cramoisi', 'Aqua', 'Indigo', 'Violet', 'Rose'],
+    [Key.themeColorNames]: ['Cramoisi', 'Ambre', 'Or', 'Aqua', 'Indigo', 'Violet', 'Rose'],
 };
 

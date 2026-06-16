@@ -42,5 +42,5 @@ export const vi: Translation = {
     [Key.colorRose]: "Rose",
     [Key.blog]: "Blog",
         [Key.customHue]: 'Custom Hue',
-[Key.themeColorNames]: ['Crimson', 'Aqua', 'Indigo', 'Violet', 'Rose'],
+[Key.themeColorNames]: ['Crimson', 'Amber', 'Gold', 'Aqua', 'Indigo', 'Violet', 'Rose'],
 };

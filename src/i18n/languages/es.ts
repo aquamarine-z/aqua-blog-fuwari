@@ -42,5 +42,5 @@ export const es: Translation = {
     [Key.colorRose]: "Rose",
     [Key.blog]: "Blog",
         [Key.customHue]: 'Custom Hue',
-[Key.themeColorNames]: ['Crimson', 'Aqua', 'Indigo', 'Violet', 'Rose'],
+[Key.themeColorNames]: ['Carmesí', 'Ámbar', 'Oro', 'Aqua', 'Índigo', 'Violeta', 'Rosa'],
 };

@@ -2,6 +2,7 @@ import Key from "../i18nKey";
 import type {Translation} from "../translation";
 
 export const ja: Translation = {
+    [Key.name]: "日本語",
     [Key.home]: "ホーム",
     [Key.about]: "概要",
     [Key.archive]: "アーカイブ",
@@ -55,5 +56,5 @@ export const ja: Translation = {
     [Key.fallbackToMainLang]: 'この記事は現在の言語に翻訳されていません。メイン言語で表示しています。',
     [Key.noTranslationSwitchTo]: 'この記事は現在の言語には存在しません。利用可能な言語に切り替えてください：',
         [Key.customHue]: 'カスタム色相',
-[Key.themeColorNames]: ['クリムゾン', 'アクア', 'インディゴ', 'バイオレット', 'ローズ'],
+[Key.themeColorNames]: ['クリムゾン', 'アンバー', 'ゴールド', 'アクア', 'インディゴ', 'バイオレット', 'ローズ'],
 };
