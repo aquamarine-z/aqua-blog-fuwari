@@ -29,6 +29,9 @@ const { term } = Astro.props;
           --color-accent-muted: oklch(0.7 0.14 ${hue} / 0.4);
           --color-accent-subtle: oklch(0.7 0.14 ${hue} / 0.15);
         }
+        main .gsc-loading-image {
+          background-image: url(https://github.githubassets.com/images/mona-loading-${isDark ? 'dark' : 'default'}.gif);
+        }
       `;
       return 'data:text/css;base64,' + btoa(css);
     }
