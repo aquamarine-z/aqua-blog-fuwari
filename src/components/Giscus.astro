@@ -11,7 +11,7 @@ const { term } = Astro.props;
   <div class="giscus" id="giscus-container"></div>
   <script is:inline define:vars={{ config: giscusConfig, term }}>
     function loadGiscus() {
-      const theme = document.documentElement.classList.contains('dark') ? 'transparent_dark' : 'light';
+      const theme = document.documentElement.classList.contains('dark') ? 'catppuccin_mocha' : 'catppuccin_latte';
       const script = document.createElement('script');
       script.src = 'https://giscus.app/client.js';
       script.setAttribute('data-repo', config.repo);
@@ -48,7 +48,7 @@ const { term } = Astro.props;
           const iframe = document.querySelector('iframe.giscus-frame');
           if (iframe && iframe.contentWindow) {
             iframe.contentWindow.postMessage(
-              { giscus: { setConfig: { theme: isDark ? 'transparent_dark' : 'light' } } },
+              { giscus: { setConfig: { theme: isDark ? 'catppuccin_mocha' : 'catppuccin_latte' } } },
               'https://giscus.app'
             );
           }
