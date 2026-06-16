@@ -42,6 +42,8 @@ function getGiscusTheme() {
       --color-btn-primary-border: oklch(0.7 0.14 ${hue});
       --color-btn-primary-hover-bg: oklch(0.65 0.14 ${hue});
       --color-btn-primary-hover-border: oklch(0.65 0.14 ${hue});
+      --color-btn-primary-selected-bg: oklch(0.6 0.14 ${hue});
+      --color-btn-primary-selected-border: oklch(0.6 0.14 ${hue});
       --color-btn-primary-disabled-bg: oklch(0.7 0.14 ${hue} / 0.5);
       --color-btn-primary-disabled-border: oklch(0.7 0.14 ${hue} / 0.5);
       --color-btn-primary-text: #ffffff;
