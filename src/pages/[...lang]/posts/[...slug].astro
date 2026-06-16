@@ -229,6 +229,6 @@ const jsonLd = {
         </a>
     </div>
 
-    {giscusConfig.enable && <Giscus term={entry.slug} />}
+    {giscusConfig.enable && <Giscus term={entry.slug} lang={(Astro.params.lang || siteConfig.lang).replace('_', '-')} />}
 
 </MainGridLayout>
