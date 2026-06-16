@@ -90,7 +90,7 @@ description: "${frontmatter.description || ''}"
 tags: [${tags.map(t => `"${t}"`).join(', ')}]
 category: "${category}"
 draft: false
-lang: "zh_CN"
+
 ---
 `;
             const destDir = categoryName === 'Docs' ? newDocsDir : path.join(newBlogDir, 'migrated');

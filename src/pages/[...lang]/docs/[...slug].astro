@@ -118,9 +118,7 @@ if (type === 'article' && entry) {
 			url: Astro.site,
 		},
 		datePublished: formatDateToYYYYMMDD(entry.data.published),
-		inLanguage: entry.data.lang
-			? entry.data.lang.replace("_", "-")
-			: siteConfig.lang.replace("_", "-"),
+		inLanguage: (Astro.currentLocale || siteConfig.lang).replace("_", "-"),
 	};
 }
 ---
@@ -132,7 +130,7 @@ if (type === 'article' && entry) {
 	</MainGridLayout>
 ) : (
 	entry && (
-		<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings}>
+		<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={Astro.currentLocale || siteConfig.lang} setOGTypeArticle={true} headings={headings}>
 			<script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
 			<div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4">
 				<div id="post-container" class="card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full" data-available-langs={entry.availableLangs ? entry.availableLangs.join(',') : ''}>
