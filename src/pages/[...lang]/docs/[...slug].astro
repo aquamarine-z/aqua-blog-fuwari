@@ -21,6 +21,7 @@ import { formatDateToYYYYMMDD } from "../../../utils/date-utils";
 import { getLangPaths } from "@utils/i18n-utils";
 import { getDocsCategoryTree, flattenTreeSlugs } from "@utils/content-utils";
 import Giscus from "@components/Giscus.astro";
+import { giscusConfig } from "src/config";
 
 export async function getStaticPaths() {
 	const langPaths = getLangPaths();
@@ -275,7 +276,7 @@ if (type === 'article' && entry) {
 				</a>
 			</div>
 
-            <Giscus term={entry.slug} />
+            {giscusConfig.enable && <Giscus term={entry.slug} />}
 
 		</MainGridLayout>
 	)

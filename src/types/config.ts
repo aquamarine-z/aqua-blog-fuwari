@@ -110,6 +110,7 @@ export type ExpressiveCodeConfig = {
 };
 
 export type GiscusConfig = {
+  enable: boolean;
 	repo: string;
 	repoId: string;
 	category: string;

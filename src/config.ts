@@ -131,6 +131,7 @@ export const friendsConfig: Friend[] = [
 ];
 
 export const giscusConfig: GiscusConfig = {
+	enable: true,
 	repo: "aquamarine-z/aqua-blog-discussion",
 	repoId: "R_kgDONLC_uw",
 	category: "General",
