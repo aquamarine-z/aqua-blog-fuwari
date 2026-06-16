@@ -5,6 +5,7 @@ import type {
 	ProfileConfig,
 	SiteConfig,
 	Friend,
+	GiscusConfig,
 } from "./types/config";
 import { LinkPreset } from "./types/config";
 
@@ -128,3 +129,18 @@ export const friendsConfig: Friend[] = [
         ]
     }
 ];
+
+export const giscusConfig: GiscusConfig = {
+	repo: "aquamarine-z/aqua-blog-discussion",
+	repoId: "R_kgDONLC_uw",
+	category: "General", // Placeholder, you can update this to match your actual discussion category
+	categoryId: "DIC_kwDONLC_uw4CjsX9", // Placeholder, you can update this to match your actual category id
+	mapping: "specific", // We use specific mapping to share comments across languages
+	strict: "0",
+	reactionsEnabled: "1",
+	emitMetadata: "0",
+	inputPosition: "top",
+	theme: "light",
+	lang: "zh-CN",
+	loading: "lazy",
+};

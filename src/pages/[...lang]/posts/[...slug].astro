@@ -16,6 +16,7 @@ import PostMetadata from "../../../components/PostMeta.astro";
 import { profileConfig, siteConfig } from "../../../config";
 import { formatDateToYYYYMMDD } from "../../../utils/date-utils";
 import TOC from "@components/widget/TOC.astro";
+import Giscus from "@components/Giscus.astro";
 
 import { getBlogCategoryTree, flattenTreeSlugs } from "@utils/content-utils";
 
@@ -227,5 +228,7 @@ const jsonLd = {
             </div>}
         </a>
     </div>
+
+    <Giscus term={entry.slug} />
 
 </MainGridLayout>
