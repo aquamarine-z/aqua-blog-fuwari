@@ -50,6 +50,12 @@ function getGiscusTheme() {
       --color-accent-muted: oklch(0.7 0.14 ${hue} / 0.4);
       --color-accent-subtle: oklch(0.7 0.14 ${hue} / 0.15);
     }
+    
+    /* 强行替换 Catppuccin 的加载动画，改回原版 GitHub 动画，并使用 filter 将其染成主题色 */
+    main .gsc-loading-image {
+      background-image: url(https://github.githubassets.com/images/mona-loading-\${isDark ? 'dark' : 'default'}.gif);
+      filter: hue-rotate(calc(\${hue}deg - 212deg)) saturate(1.2) brightness(1.2);
+    }
   `;
   
   // 5. 转换为 Data URI 返回，Giscus 将把其作为 custom theme 解析

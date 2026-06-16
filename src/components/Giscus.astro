@@ -31,6 +31,7 @@ const { term } = Astro.props;
         }
         main .gsc-loading-image {
           background-image: url(https://github.githubassets.com/images/mona-loading-${isDark ? 'dark' : 'default'}.gif);
+          filter: hue-rotate(calc(${hue}deg - 212deg)) saturate(1.2) brightness(1.2);
         }
       `;
       return 'data:text/css;base64,' + btoa(css);
