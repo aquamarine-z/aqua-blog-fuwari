@@ -1,5 +1,6 @@
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import { siteConfig } from "@/config";
 
 export function pathsEqual(path1: string, path2: string) {
 	const normalizedPath1 = path1.replace(/^\/|\/$/g, "").toLowerCase();
@@ -12,11 +13,17 @@ function joinUrl(...parts: string[]): string {
 	return joined.replace(/\/+/g, "/");
 }
 
-export function getPostUrlBySlug(slug: string): string {
+function addLangPrefix(path: string, lang?: string): string {
+	if (!lang || lang === siteConfig.lang) return path;
+	if (!path.startsWith("/")) path = `/${path}`;
+	return `/${lang}${path}`;
+}
+
+export function getPostUrlBySlug(slug: string, lang?: string): string {
 	if (slug.startsWith("docs/")) {
-		return url(`/${slug}/`);
+		return url(addLangPrefix(`/${slug}/`, lang));
 	}
-	return url(`/posts/${slug}/`);
+	return url(addLangPrefix(`/posts/${slug}/`, lang));
 }
 
 export function getTagUrl(tag: string, type?: "blog" | "docs"): string {
@@ -47,6 +54,23 @@ export function getDir(path: string): string {
 	return path.substring(0, lastSlashIndex + 1);
 }
 
+export function getBasePath() {
+	const base = import.meta.env.BASE_URL || "/";
+	if (base === "/") return "";
+	return `/${base.replace(/^\/|\/$/g, "")}`;
+}
+
+export function stripBasePath(path: string) {
+	const base = getBasePath();
+	if (!base) return path || "/";
+	if (path === base) return "/";
+	if (path.startsWith(`${base}/`)) return path.slice(base.length) || "/";
+	return path || "/";
+}
+
 export function url(path: string) {
+	const base = getBasePath();
+	if (base && path.startsWith(`${base}/`)) return path;
+	if (base && path === base) return path;
 	return joinUrl("", import.meta.env.BASE_URL, path);
 }

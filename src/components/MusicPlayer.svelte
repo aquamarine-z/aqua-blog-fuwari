@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { musicStore } from '../stores/musicStore';
   import Icon from '@iconify/svelte';
+  import { url } from '../utils/url-utils';
 
   let isPlaying = musicStore.getState().isPlaying;
   let audioRef: HTMLAudioElement;
@@ -48,7 +49,7 @@
 
 <audio 
   bind:this={audioRef} 
-  src="/music/최정인 - Already Free (Exultation).flac" 
+  src={url("/music/최정인 - Already Free (Exultation).flac")} 
   loop 
 />
 

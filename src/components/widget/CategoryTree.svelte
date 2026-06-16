@@ -1,6 +1,7 @@
 <script>
     import { onDestroy, onMount, tick } from 'svelte';
     import { siteConfig } from '../../config';
+    import { stripBasePath, url as withBaseUrl } from '../../utils/url-utils';
 
     export let categories = [];
     export let lang = siteConfig.lang;
@@ -20,25 +21,30 @@
             const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`);
     }
 
-    function getUrl(url) {
-        if (!url) return '';
+    function getInternalUrl(value) {
+        if (!value) return '';
         const mainLang = siteConfig.lang;
-        if (lang && lang !== mainLang && url.startsWith('/')) {
+        if (lang && lang !== mainLang && value.startsWith('/')) {
             const langsPattern = (siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"])
                 .filter(l => l !== mainLang)
                 .join('|');
             const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`);
-            if (!url.match(regex)) {
-                return `/${lang}${url}`;
+            if (!value.match(regex)) {
+                return `/${lang}${value}`;
             }
         }
-        return url;
+        return value;
+    }
+
+    function getUrl(value) {
+        const internalUrl = getInternalUrl(value);
+        return internalUrl ? withBaseUrl(internalUrl) : '';
     }
 
     function isNodeActive(node, url = activeUrl) {
         if (node.type === 'file') {
-            let url1 = getUrl(node.url) || '';
-            let url2 = url || '';
+            let url1 = getInternalUrl(node.url) || '';
+            let url2 = stripBasePath(url || '');
             if (url1.endsWith('/')) url1 = url1.slice(0, -1);
             if (url2.endsWith('/')) url2 = url2.slice(0, -1);
             // sometimes URL decoding is needed
@@ -48,8 +54,8 @@
         } else if (node.type === 'folder') {
             let isActive = false;
             if (node.url) {
-                let url1 = getUrl(node.url) || '';
-                let url2 = url || '';
+                let url1 = getInternalUrl(node.url) || '';
+                let url2 = stripBasePath(url || '');
                 if (url1.endsWith('/')) url1 = url1.slice(0, -1);
                 if (url2.endsWith('/')) url2 = url2.slice(0, -1);
                 url1 = decodeURI(url1);
@@ -195,7 +201,7 @@
         background: none;
         cursor: pointer;
         transition: all 0.2s ease;
-        color: var(--text-color, rgb(64, 64, 64));
+        color: oklch(0.45 0 0);
         font-size: 0.9rem;
         font-weight: 600;
         text-align: left;
@@ -225,10 +231,11 @@
         text-align: left;
         display: flex;
         align-items: center;
+        transition: none;
     }
 
     :global(.dark) .category-header {
-        color: rgb(212, 212, 212);
+        color: oklch(0.85 0 0);
     }
 
     .category-header:hover {
@@ -302,14 +309,14 @@
         padding: 0.35rem 0.5rem;
         border-radius: 0.375rem;
         text-decoration: none;
-        color: rgb(115, 115, 115);
+        color: oklch(0.55 0 0);
         font-size: 0.8rem;
         line-height: 1.3;
         transition: all 0.15s ease;
     }
 
     :global(.dark) .category-leaf {
-        color: rgb(163, 163, 163);
+        color: oklch(0.70 0 0);
     }
 
     .category-leaf:hover {

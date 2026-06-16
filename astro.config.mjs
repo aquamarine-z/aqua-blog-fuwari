@@ -26,19 +26,29 @@ import { remarkExcerpt } from "./src/plugins/remark-excerpt.js";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 
+const astroConfig = {
+	site: "https://aquamarine-z.github.io",
+	base: "/aqua-blog-fuwari",
+};
+
+const withBase = (path) => {
+	if (astroConfig.base === "/") return path;
+	return `${astroConfig.base}${path.startsWith("/") ? path : `/${path}`}`;
+};
+
 const customRedirects = {
-	'/docs': '/docs/intro/'
+	'/docs': withBase('/docs/intro/')
 };
 (siteConfig.languages || []).forEach(lang => {
 	if (lang !== siteConfig.lang) {
-		customRedirects[`/${lang}/docs`] = `/${lang}/docs/intro/`;
+		customRedirects[`/${lang}/docs`] = withBase(`/${lang}/docs/intro/`);
 	}
 });
 
 // https://astro.build/config
 export default defineConfig({
-	site: "https://fuwari.vercel.app/",
-	base: "/",
+	site: "https://aquamarine-z.github.io",
+	base: "/aqua-blog-fuwari",
 	trailingSlash: "always",
 	redirects: customRedirects,
 	i18n: {

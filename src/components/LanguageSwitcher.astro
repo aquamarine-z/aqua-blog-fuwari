@@ -78,6 +78,8 @@ const langUrls = languages.map(lang => {
 </style>
 
 <script>
+import { stripBasePath, url } from "../utils/url-utils";
+
 class LangSwitcher extends HTMLElement {
     constructor() {
         super();
@@ -104,11 +106,13 @@ class LangSwitcher extends HTMLElement {
                 }
             });
             
-            // Update links on client-side navigation
             const updateLinks = () => {
-                const currentPath = window.location.pathname;
-                const langs = window.supportedLangs || [window.mainLang, 'en', 'ja', 'ko'];
-                const langsPattern = langs.join('|');
+                const currentPath = stripBasePath(window.location.pathname);
+                const mainLang = window.mainLang || 'zh_CN';
+                const langs = window.supportedLangs || [mainLang, 'en', 'ja', 'ko'];
+                const filteredLangs = langs.filter(lang => lang !== mainLang);
+                const langsPattern = filteredLangs.join('|');
+                if (!langsPattern) return;
                 const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`, 'i');
                 let basePath = currentPath.replace(regex, "/");
                 if (!basePath.startsWith("/")) basePath = "/" + basePath;
@@ -116,14 +120,13 @@ class LangSwitcher extends HTMLElement {
                 const links = this.querySelectorAll('a[data-lang-code]');
                 links.forEach(a => {
                     const code = a.getAttribute('data-lang-code');
-                    const mainLang = window.mainLang;
                     
                     let targetUrl = basePath;
                     if (code !== mainLang) {
                         targetUrl = `/${code}${basePath === '/' ? '/' : basePath}`;
                     }
 
-                    a.setAttribute('href', targetUrl);
+                    a.setAttribute('href', url(targetUrl));
                 });
             };
             

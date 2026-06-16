@@ -10,6 +10,7 @@ import TOC from "../components/widget/TOC.astro";
 import Profile from "../components/widget/Profile.astro";
 import Tag from "../components/widget/Tags.astro";
 import { siteConfig } from "../config";
+import { stripBasePath } from "../utils/url-utils";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_EXTEND,
@@ -42,8 +43,9 @@ const mainPanelTop = siteConfig.banner.enable
 	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
 	: "5.5rem";
 
-const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(Astro.url.pathname) || 
-               Astro.url.pathname.includes('/posts/docs');
+const currentPath = stripBasePath(Astro.url.pathname);
+const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(currentPath) || 
+               currentPath.includes('/posts/docs');
 ---
 
 <Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle}>

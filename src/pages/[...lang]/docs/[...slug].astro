@@ -71,6 +71,7 @@ export async function getStaticPaths() {
 		const paginationPaths = [];
 		for (let i = 1; i <= totalPages; i++) {
 			const pageData = allDocsPosts.slice((i - 1) * PAGE_SIZE, i * PAGE_SIZE);
+			const prefix = lang.params.lang ? `/${lang.params.lang}` : "";
 			const page = {
 				data: pageData,
 				currentPage: i,
@@ -78,9 +79,9 @@ export async function getStaticPaths() {
 				total: allDocsPosts.length,
 				lastPage: totalPages,
 				url: {
-					current: i === 1 ? "/docs/" : `/docs/${i}/`,
-					prev: i > 1 ? (i === 2 ? "/docs/" : `/docs/${i - 1}/`) : undefined,
-					next: i < totalPages ? `/docs/${i + 1}/` : undefined,
+					current: i === 1 ? `${prefix}/docs/` : `${prefix}/docs/${i}/`,
+					prev: i > 1 ? (i === 2 ? `${prefix}/docs/` : `${prefix}/docs/${i - 1}/`) : undefined,
+					next: i < totalPages ? `${prefix}/docs/${i + 1}/` : undefined,
 				}
 			};
 			paginationPaths.push({
@@ -115,7 +116,7 @@ if (type === 'article' && entry) {
 		author: {
 			"@type": "Person",
 			name: profileConfig.name,
-			url: Astro.site,
+			url: new URL(url("/"), Astro.site).href,
 		},
 		datePublished: formatDateToYYYYMMDD(entry.data.published),
 		inLanguage: (Astro.currentLocale || siteConfig.lang).replace("_", "-"),
@@ -231,7 +232,7 @@ if (type === 'article' && entry) {
                                     const isMain = l === siteConfig.lang;
                                     const link = isMain ? url(`/${entry.slug}/`) : url(`/${l}/${entry.slug}/`);
                                     return (
-                                        <a href={link} data-no-swup class="px-3 py-1 bg-[var(--primary)] text-white dark:text-black rounded-lg text-sm hover:brightness-110 transition">
+                                        <a href={link} data-no-swup data-lang-code={l} class="px-3 py-1 bg-[var(--primary)] text-white dark:text-black rounded-lg text-sm hover:brightness-110 transition">
                                             {getTranslation(l)?.[I18nKey.name] || l}
                                         </a>
                                     );
@@ -251,7 +252,7 @@ if (type === 'article' && entry) {
 			</div>
 
 			<div class="flex flex-col md:flex-row justify-between mb-4 gap-4 overflow-hidden w-full">
-				<a href={entry.data.prevSlug ? getPostUrlBySlug(entry.data.prevSlug) : "#"}
+				<a href={entry.data.prevSlug ? getPostUrlBySlug(entry.data.prevSlug, Astro.currentLocale) : "#"}
 				   class:list={["w-full font-bold overflow-hidden active:scale-95", {"pointer-events-none": !entry.data.prevSlug}]}>
 					{entry.data.prevSlug && <div class="btn-card rounded-2xl w-full h-[3.75rem] max-w-full px-4 flex items-center !justify-start gap-4" >
 						<Icon name="material-symbols:chevron-left-rounded" class="text-[2rem] text-[var(--primary)]" />
@@ -261,7 +262,7 @@ if (type === 'article' && entry) {
 					</div>}
 				</a>
 
-				<a href={entry.data.nextSlug ? getPostUrlBySlug(entry.data.nextSlug) : "#"}
+				<a href={entry.data.nextSlug ? getPostUrlBySlug(entry.data.nextSlug, Astro.currentLocale) : "#"}
 				   class:list={["w-full font-bold overflow-hidden active:scale-95", {"pointer-events-none": !entry.data.nextSlug}]}>
 					{entry.data.nextSlug && <div class="btn-card rounded-2xl w-full h-[3.75rem] max-w-full px-4 flex items-center !justify-end gap-4">
 						<div class="overflow-hidden transition overflow-ellipsis whitespace-nowrap max-w-[calc(100%_-_3rem)] text-black/75 dark:text-white/75">

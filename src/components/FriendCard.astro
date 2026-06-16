@@ -2,6 +2,7 @@
 import { Icon } from "astro-icon/components";
 import { i18n } from "../i18n/translation";
 import I18nKey from "../i18n/i18nKey";
+import { url } from "../utils/url-utils";
 
 export interface Friend {
     name: string;
@@ -15,6 +16,7 @@ interface Props {
 }
 
 const { friend } = Astro.props;
+const avatarUrl = friend.avatar.startsWith("/") ? url(friend.avatar) : friend.avatar;
 
 // Determine colors for labels based on the old labelDefaultColors mapping
 const labelColors: Record<string, string> = {
@@ -42,7 +44,7 @@ const getIconName = (name: string) => {
 
 <div class="card-base p-6 relative overflow-hidden group">
     <div class="flex items-center gap-6 mb-4">
-        <img src={friend.avatar} alt={friend.name} class="w-16 h-16 rounded-full shadow-lg ring-2 ring-[var(--primary)]/20" />
+        <img src={avatarUrl} alt={friend.name} class="w-16 h-16 rounded-full shadow-lg ring-2 ring-[var(--primary)]/20" />
         <div>
             <h3 class="text-xl font-bold text-black/90 dark:text-white/90">{friend.name}</h3>
             <div class="flex flex-wrap gap-2 mt-2">

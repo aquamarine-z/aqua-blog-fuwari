@@ -3,6 +3,7 @@ import type { MarkdownHeading } from "astro";
 import Categories from "./Categories.astro";
 import Profile from "./Profile.astro";
 import Tag from "./Tags.astro";
+import { stripBasePath } from "../../utils/url-utils";
 
 interface Props {
 	class?: string;
@@ -10,8 +11,9 @@ interface Props {
 }
 
 const className = Astro.props.class;
-const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(Astro.url.pathname) || 
-               Astro.url.pathname.includes('/posts/docs');
+const currentPath = stripBasePath(Astro.url.pathname);
+const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(currentPath) || 
+               currentPath.includes('/posts/docs');
 ---
 <div id="sidebar" class:list={[className, "w-full"]}>
     <div class:list={["flex flex-col w-full gap-4 mb-4", {"hidden lg:flex": isDocs}]}>
@@ -24,7 +26,10 @@ const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(Astro.url.pathname) ||
 </div>
 
 <script>
+import { stripBasePath } from "../../utils/url-utils";
+
 function isDocsPath(pathname) {
+    pathname = stripBasePath(pathname);
     return /^\/([a-zA-Z_-]+\/)?docs\/?/.test(pathname) || pathname.includes('/posts/docs');
 }
 
@@ -65,11 +70,11 @@ function setupSidebarSync() {
     if (window.__sidebarSyncMounted) return;
     window.__sidebarSyncMounted = true;
 
-    let previousPath = window.location.pathname;
+    let previousPath = stripBasePath(window.location.pathname);
     let pendingSync = false;
 
     const syncIfSidebarShouldRefresh = () => {
-        const nextPath = window.location.pathname;
+        const nextPath = stripBasePath(window.location.pathname);
         if (nextPath === previousPath) return;
 
         const wasDocsPath = isDocsPath(previousPath);
