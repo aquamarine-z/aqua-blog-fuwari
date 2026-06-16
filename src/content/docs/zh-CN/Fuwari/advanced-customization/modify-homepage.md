@@ -33,7 +33,7 @@ sidebar_position: 5
 ```typescript
 // Translations for the homepage
 const t = {
-    zh_CN: {
+    zh-CN: {
         title: "Hi, 我是 Aquamarine",
         subtitle: "前端开发者 & 语言爱好者",
         description: "我专注于 <strong>前端设计</strong>，使用 <strong>React</strong> 和 <strong>Vue</strong> 构建美观且交互丰富的 Web 应用。...",

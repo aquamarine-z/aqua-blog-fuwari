@@ -75,9 +75,9 @@ enum I18nKey {
 仅仅注册 Key 和颜色还不够，我们还需要告诉系统，这个标签在中文、英文、日文等环境下分别应该显示什么文字。
 
 ### 配置翻译字典
-进入 `src/i18n/languages/` 目录，这里存放了所有的语言配置文件（如 `zh_CN.ts`, `en.ts` 等）。
+进入 `src/i18n/languages/` 目录，这里存放了所有的语言配置文件（如 `zh-CN.ts`, `en.ts` 等）。
 
-在你的**主语言**（如 `zh_CN.ts`）中加入翻译：
+在你的**主语言**（如 `zh-CN.ts`）中加入翻译：
 ```typescript
 import I18nKey from "../i18nKey";
 import type { Translation } from "../translation";
@@ -101,7 +101,7 @@ export const zh_CN: Translation = {
 Fuwari 的底层 i18n 系统 (`src/i18n/translation.ts`) 实现了一套强大且严格的 **Fallback（降级回退）策略**：
 
 1. **优先查找当前语言**：当你访问法语页面时，系统首先去 `fr.ts` 里面寻找 `tag.myNewTag` 对应的翻译。
-2. **回退主语言 (siteConfig.lang)**：如果在 `fr.ts` 里面找不到翻译，系统会自动去你的主语言（在 `src/config.ts` 中配置的 `siteConfig.lang`，例如 `zh_CN`）中寻找对应的翻译，并暂时显示主语言的文字。
+2. **回退主语言 (siteConfig.lang)**：如果在 `fr.ts` 里面找不到翻译，系统会自动去你的主语言（在 `src/config.ts` 中配置的 `siteConfig.lang`，例如 `zh-CN`）中寻找对应的翻译，并暂时显示主语言的文字。
 3. **报错保障 (Strict Error)**：但是，如果系统发现连你的**主语言配置**中都缺失了这个词条的翻译，它会直接在终端抛出一个 `Error: i18n key 'xxx' not found in main language`。这个策略能强制保障你不会在网站上留下一个空白或者 `undefined` 的尴尬标签！
 
 正因为有了这套机制，你可以放心地在主语言中创建各种 Tag，并在有闲暇时间时慢慢补全其他小语种的翻译！

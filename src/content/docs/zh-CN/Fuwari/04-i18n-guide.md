@@ -37,7 +37,7 @@ sidebar_position: 5
 ```typescript
 export const siteConfig: SiteConfig = {
     // ...
-    lang: "zh_CN", // 将中文设为主语言
+    lang: "zh-CN", // 将中文设为主语言
     languages: ["en", "ja", "ko"], // 声明支持的其它语言
     // ...
 }
@@ -46,14 +46,14 @@ export const siteConfig: SiteConfig = {
 ### 主语言与其他语言的区别
 1. **内容降级兜底**：当你在其它语言环境中访问了未翻译的组件、未翻译的文章、或者未翻译的自定义 Tag 时，系统会默认退回到主语言抓取对应内容进行兜底展示（Fallback 策略）。
 2. **路由前缀自动消隐**：这是主语言系统的一大魔法！对于主语言来说，它的路由会自动去掉语言路径。
-   - 比如你将主语言设置为 `zh_CN`，你在访问中文“关于”页面时，网址会干净利落地显示为：`https://你的域名/about/`。
+   - 比如你将主语言设置为 `zh-CN`，你在访问中文“关于”页面时，网址会干净利落地显示为：`https://你的域名/about/`。
    - 而当你切换到其它外语（如英语 `en` 或日语 `ja`）时，它们的网址则会规范地带上前缀：`https://你的域名/en/about/` 或 `https://你的域名/ja/about/`。
 这种设计既保持了主页面 URL 的优雅与简短，又对搜索引擎 (SEO) 极其友好。
 
 ### 主语言内容的专属文件夹（可选）
 在存放 Markdown 文件时，你可以直接将主语言的文章放在根目录（例如 `src/content/blog/xxx.md`）。但如果你是个强迫症，希望所有语言的文件都能隔离存放，系统同样支持**为主语言创建独立的语言文件夹**！
-- 比如，在主语言为 `zh_CN` 的情况下，`src/content/blog/zh_CN/xxx.md` 与直接放在根目录的 `src/content/blog/xxx.md` 是**完全等价**的，它们最终都会被渲染到主语言的无前缀路由下。
-- **注意防冲突**：既然两者等价，请千万不要在根目录和 `zh_CN` 目录下同时创建两个同名（Slug 相同）的文章！如果发生这种路径冲突，系统为了防止内容覆盖，会在编译阶段直接报错。
+- 比如，在主语言为 `zh-CN` 的情况下，`src/content/blog/zh-CN/xxx.md` 与直接放在根目录的 `src/content/blog/xxx.md` 是**完全等价**的，它们最终都会被渲染到主语言的无前缀路由下。
+- **注意防冲突**：既然两者等价，请千万不要在根目录和 `zh-CN` 目录下同时创建两个同名（Slug 相同）的文章！如果发生这种路径冲突，系统为了防止内容覆盖，会在编译阶段直接报错。
 
 ## 标签与字典：如何补充 i18n Tag？
 
@@ -70,7 +70,7 @@ enum I18nKey {
 
 ### 2. 在语言字典中补充翻译
 注册完毕后，进入 `src/i18n/languages/` 目录，分别在对应的语言文件中补充翻译。
-**最重要的是：你必须在你的主语言文件（例如 `zh_CN.ts`）中补充它！**
+**最重要的是：你必须在你的主语言文件（例如 `zh-CN.ts`）中补充它！**
 ```typescript
 import I18nKey from "../i18nKey";
 import type { Translation } from "../translation";
@@ -87,5 +87,5 @@ export const zh_CN: Translation = {
 如果你想支持系统默认未配置的全新语言（例如德语 `de`），仅需三步：
 
 1. **类型声明**：在 `src/types/config.ts` 中的 `SiteConfig` 类型的 `lang` 联合类型里，加入新的语言标识（如 `"de"`）。
-2. **字典创建**：在 `src/i18n/languages/` 目录下新建 `de.ts`，并照猫画虎将 `zh_CN.ts` 里的所有字段用德文翻译一遍导出。
+2. **字典创建**：在 `src/i18n/languages/` 目录下新建 `de.ts`，并照猫画虎将 `zh-CN.ts` 里的所有字段用德文翻译一遍导出。
 3. **注册字典**：打开 `src/i18n/translation.ts`，在最上方的语言映射字典表（通常是一个 Record 对象或 map）中，引入你的 `de.ts` 并将其绑定到对应的 `'de'` 键值上。最后在 `src/config.ts` 的 `languages` 数组中加上 `"de"` 即可大功告成！

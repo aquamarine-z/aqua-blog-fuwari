@@ -66,7 +66,7 @@ export const siteConfig: SiteConfig = {
 当你点击顶部的“博客 (Blog)”、“文档 (Docs)”等栏目时，它们的标题是支持国际化的。
 如果你想修改这些页面的名字，需要去修改翻译字典！
 
-打开你的主语言字典文件，比如 `src/i18n/languages/zh_CN.ts`：
+打开你的主语言字典文件，比如 `src/i18n/languages/zh-CN.ts`：
 ```typescript
 export const zh_CN: Translation = {
     [I18nKey.home]: '主页',

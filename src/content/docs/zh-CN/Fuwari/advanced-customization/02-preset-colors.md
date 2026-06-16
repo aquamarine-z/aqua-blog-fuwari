@@ -35,10 +35,10 @@ export const siteConfig: SiteConfig = {
 ## 第二步：配置颜色的多语言名称
 
 只改了颜色值还不够，还需要为它们命名。
-我们在多语言字典中设计了智能的安全降级回退机制。打开语言字典文件，例如中文版的 `src/i18n/languages/zh_CN.ts`：
+我们在多语言字典中设计了智能的安全降级回退机制。打开语言字典文件，例如中文版的 `src/i18n/languages/zh-CN.ts`：
 
 ```typescript
-// src/i18n/languages/zh_CN.ts
+// src/i18n/languages/zh-CN.ts
 export const zh_CN: Translation = {
     // ...
     // ⬇️ 新增对应的名称数组，长度必须和 config.ts 中的 colors 数组一致！
@@ -74,12 +74,12 @@ export const siteConfig: SiteConfig = {
 
 ## 智能容错与降级回退策略
 
-如果你的网站有多语言，但你只在 `zh_CN.ts` 中配置了名称，而忘记了配置 `en.ts`，或者你在 `en.ts` 中写的数组长度和 `config.ts` 里面的色相数量对不上，会发生什么？
+如果你的网站有多语言，但你只在 `zh-CN.ts` 中配置了名称，而忘记了配置 `en.ts`，或者你在 `en.ts` 中写的数组长度和 `config.ts` 里面的色相数量对不上，会发生什么？
 
 > [!NOTE]
 > **技术原理解析：渲染容错机制**
 > 在 `src/components/widget/DisplaySettings.svelte` 底层渲染面板时，系统会执行两道严格的降级防线：
-> 1. **主语言兜底**：系统会优先检查当前语言字典中的 `themeColorNames` 数组长度是否与配置的颜色数量完美匹配。如果不匹配或不存在，它会自动去抓取 `siteConfig.lang` (通常是 `zh_CN`) 里的内容来兜底。
+> 1. **主语言兜底**：系统会优先检查当前语言字典中的 `themeColorNames` 数组长度是否与配置的颜色数量完美匹配。如果不匹配或不存在，它会自动去抓取 `siteConfig.lang` (通常是 `zh-CN`) 里的内容来兜底。
 > 2. **极致生存**：如果在连主语言里也找不到完全匹配的数组，为了不导致前端面板崩溃，系统会直接生成通用的编号代号进行极致兜底（例如自动渲染为 `Color 1`, `Color 2`...）。
 
 这就意味着，你哪怕乱改配置文件，前端显示面板也会极力维持正常运作。这就是改造后配置系统的健壮性所在！

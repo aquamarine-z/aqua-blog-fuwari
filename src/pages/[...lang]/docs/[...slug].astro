@@ -199,7 +199,7 @@ if (type === 'article' && entry) {
                                                     ? "bg-[var(--primary)] text-white dark:text-black pointer-events-none" 
                                                     : "bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20"
                                             ]}>
-                                                {l === 'zh_CN' ? '简体中文' : l === 'en' ? 'English' : l === 'ja' ? '日本語' : l === 'ko' ? '한국어' : l === 'fr' ? 'Français' : l}
+                                                {l === 'zh-CN' ? '简体中文' : l === 'en' ? 'English' : l === 'ja' ? '日本語' : l === 'ko' ? '한국어' : l === 'fr' ? 'Français' : l}
                                             </a>
                                         );
                                     })}
@@ -236,7 +236,7 @@ if (type === 'article' && entry) {
                                     const link = isMain ? url(`/${entry.slug}/`) : url(`/${l}/${entry.slug}/`);
                                     return (
                                         <a href={link} class="px-3 py-1 bg-[var(--primary)] text-white dark:text-black rounded-lg text-sm hover:brightness-110 transition">
-                                            {l === 'zh_CN' ? '中文' : l === 'en' ? 'English' : l === 'ja' ? '日本語' : l === 'ko' ? '한국어' : l === 'fr' ? 'Français' : l}
+                                            {l === 'zh-CN' ? '中文' : l === 'en' ? 'English' : l === 'ja' ? '日本語' : l === 'ko' ? '한국어' : l === 'fr' ? 'Français' : l}
                                         </a>
                                     );
                                 })}
@@ -276,7 +276,7 @@ if (type === 'article' && entry) {
 				</a>
 			</div>
 
-            {giscusConfig.enable && <Giscus term={entry.slug} lang={(Astro.params.lang || siteConfig.lang).replace('_', '-')} />}
+            {giscusConfig.enable && <Giscus term={entry.slug} lang={Astro.params.lang || siteConfig.lang} />}
 
 		</MainGridLayout>
 	)

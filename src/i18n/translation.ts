@@ -8,7 +8,7 @@ import {ko} from "./languages/ko";
 import {th} from "./languages/th";
 import {tr} from "./languages/tr";
 import {vi} from "./languages/vi";
-import {zh_CN} from "./languages/zh_CN";
+import {zh_CN} from "./languages/zh-CN";
 import {zh_TW} from "./languages/zh_TW";
 import {fr} from "./languages/fr";
 
@@ -22,7 +22,7 @@ const map: { [key: string]: Translation } = {
     en_us: en,
     en_gb: en,
     en_au: en,
-    zh_cn: zh_CN,
+    "zh-cn": zh_CN,
     zh_tw: zh_TW,
     ja: ja,
     ja_jp: ja,
@@ -44,7 +44,7 @@ export function getTranslation(lang: string): Translation | undefined {
 }
 
 export function i18n(key: I18nKey, lang?: string): string {
-    const currentLang = lang || siteConfig.lang || "zh_CN";
+    const currentLang = lang || siteConfig.lang || "zh-CN";
     const translation = getTranslation(currentLang);
     let value = translation ? translation[key] : undefined;
 

@@ -57,6 +57,6 @@ export const giscusConfig: GiscusConfig = {
 ```
 
 > [!NOTE]
-> `mapping` 设置为 `specific` 可以确保当你在多语言站点切换语言时，即使文章的 URL 发生变化（如 `/zh_CN/posts/hello` 到 `/en/posts/hello`），只要文章的文件名 (`slug`) 一致，评论就会映射到同一个讨论帖下。
+> `mapping` 设置为 `specific` 可以确保当你在多语言站点切换语言时，即使文章的 URL 发生变化（如 `/zh-CN/posts/hello` 到 `/en/posts/hello`），只要文章的文件名 (`slug`) 一致，评论就会映射到同一个讨论帖下。
 
 保存配置后，重启项目，你的文章和文档页面的最下方就会自动出现评论区了！

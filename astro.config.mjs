@@ -39,7 +39,7 @@ export default defineConfig({
 	},
 	i18n: {
 		defaultLocale: siteConfig.lang,
-		locales: siteConfig.languages || ["zh_CN", "en", "ja", "ko"],
+		locales: siteConfig.languages || ["zh-CN", "en", "ja", "ko"],
 		routing: {
 			prefixDefaultLocale: false,
 		},

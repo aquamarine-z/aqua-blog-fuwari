@@ -16,7 +16,7 @@ const lang = Astro.currentLocale || siteConfig.lang;
 
 // Translations for the homepage
 const t = {
-    zh_CN: {
+    "zh-CN": {
         title: "Hi, 我是 Aquamarine",
         subtitle: "前端开发者 & 语言爱好者",
         description: "我专注于 <strong>前端设计</strong>，使用 <strong>React</strong> 和 <strong>Vue</strong> 构建美观且交互丰富的 Web 应用。在编程之外，我也对小语种学习充满热情。我拥有 <strong>日语 N1</strong> 和 <strong>韩语 TOPIK 6</strong> 证书，喜欢探索技术与语言学的交叉领域。",
@@ -98,7 +98,7 @@ const t = {
     }
 };
 
-const currentT = t[lang as keyof typeof t] || t.zh_CN;
+const currentT = t[lang as keyof typeof t] || t["zh-CN"];
 ---
 
 <MainGridLayout title={i18n(I18nKey.home, Astro.currentLocale)}>

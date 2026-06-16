@@ -48,7 +48,7 @@ const { Content } = await render(aboutPost);
                             const link = isMain ? url(`/${aboutPost.slug}/`) : url(`/${l}/${aboutPost.slug}/`);
                             return (
                                 <a href={link} class="px-3 py-1 bg-[var(--primary)] text-white dark:text-black rounded-lg text-sm hover:brightness-110 transition">
-                                    {l === 'zh_CN' ? '中文' : l === 'en' ? 'English' : l === 'ja' ? '日本語' : l === 'ko' ? '한국어' : l === 'fr' ? 'Français' : l}
+                                    {l === 'zh-CN' ? '中文' : l === 'en' ? 'English' : l === 'ja' ? '日本語' : l === 'ko' ? '한국어' : l === 'fr' ? 'Français' : l}
                                 </a>
                             );
                         })}

@@ -51,4 +51,4 @@ export const friendsConfig: Friend[] = [
 ---
 
 > **进阶提示**：
-> 如果你想为友链的 `links` 配置特定的图标，或者想创建全新的 `labels` 标签并支持多国语言翻译，请查看深度定制文档：[友情链接高级定制：Icon与Tag系统全解](/zh_CN/docs/fuwari/深度定制/01-friends-advanced/)。
+> 如果你想为友链的 `links` 配置特定的图标，或者想创建全新的 `labels` 标签并支持多国语言翻译，请查看深度定制文档：[友情链接高级定制：Icon与Tag系统全解](/zh-CN/docs/fuwari/深度定制/01-friends-advanced/)。

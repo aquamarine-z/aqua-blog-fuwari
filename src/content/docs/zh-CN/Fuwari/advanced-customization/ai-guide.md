@@ -43,9 +43,9 @@ Before proposing code changes, familiarize yourself with the following core syst
 The i18n system is heavily customized to support strict separation and graceful degradation.
 - **Dictionary & Fallback**: Handled in `src/i18n/translation.ts`. The `i18n(key, lang)` function attempts to find the translation in the target language. If missing, it **falls back to the main language** (`siteConfig.lang` defined in `config.ts`).
 - **Strict Error**: If a translation key is missing in the **main language**, the system intentionally throws a build-time Error to prevent empty UI elements.
-- **Adding Tags**: To add a new tag, you MUST register it in `src/i18n/i18nKey.ts` and add its translation to AT LEAST the main language file (e.g., `src/i18n/languages/zh_CN.ts`).
+- **Adding Tags**: To add a new tag, you MUST register it in `src/i18n/i18nKey.ts` and add its translation to AT LEAST the main language file (e.g., `src/i18n/languages/zh-CN.ts`).
 - **Post Filtering (Hiding mechanism)**: Posts without a translation in the current language directory (e.g., `src/content/blog/en/`) are completely hidden from that language's feed. This filtering logic is executed in `src/utils/content-utils.ts` inside `getSortedPosts()`.
-- **Main Language Folder & Conflict**: For the main language (e.g., `zh_CN`), posts can be placed either in the root `src/content/blog/` or in `src/content/blog/zh_CN/`. Both map to the root routing without the language prefix. However, if two files share the same slug across these two locations, `content-utils.ts` will throw a conflict error during compilation to prevent silent overwriting.
+- **Main Language Folder & Conflict**: For the main language (e.g., `zh-CN`), posts can be placed either in the root `src/content/blog/` or in `src/content/blog/zh-CN/`. Both map to the root routing without the language prefix. However, if two files share the same slug across these two locations, `content-utils.ts` will throw a conflict error during compilation to prevent silent overwriting.
 
 ## 5. MDX and UI Component Hydration
 - **Inserting Components**: If you are asked to insert a React/Vue/Svelte UI component into a post or documentation, you MUST use an `.mdx` file, not `.md`. You must `import` the component immediately below the frontmatter block.
