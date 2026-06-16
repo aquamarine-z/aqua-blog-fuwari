@@ -41,6 +41,10 @@ export const profileConfig: ProfileConfig = {
 - **名字与签名 (`name` & `bio`)**：直接修改为你喜欢的文字。
 - **社交链接 (`links`)**：这会在你的名字下方生成一排可点击的社交图标。`icon` 字段支持 [Icones](https://icones.js.org/) 上超过十万个开源图标，直接复制标识符填入即可。
 
+> [!TIP]
+> **进阶技巧：修改头像的点击跳转链接**
+> 默认情况下，点击大头像会跳转到`/about/`页面。如果你希望它像通常的博客那样点击回到主页，只需打开 `src/components/widget/Profile.astro` 文件，找到第 10 行附近的 `<a aria-label="..." href={url('/about/')}`，将其修改为 `href={url('/')}` 即可。你也可以顺便将对应的图标修改为 `material-symbols:home-outline-rounded` 以匹配主页意图。
+
 ---
 
 ## 2. 修改网站名称与各页面 Title
