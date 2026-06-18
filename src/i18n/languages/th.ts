@@ -43,4 +43,16 @@ export const th: Translation = {
     [Key.blog]: "Blog",
         [Key.customHue]: 'Custom Hue',
 [Key.themeColorNames]: ['Crimson', 'Amber', 'Gold', 'Aqua', 'Indigo', 'Violet', 'Rose'],
+
+    [Key.jsPlayground]: "JS Playground",
+    [Key.jsCode]: "โค้ด JavaScript",
+    [Key.inputData]: "ข้อมูลนำเข้า (JSON)",
+    [Key.consoleOutput]: "ผลลัพธ์คอนโซล",
+    [Key.awaitingExecution]: "กำลังรอการทำงาน...",
+    [Key.runCode]: "รันโค้ด",
+    [Key.executing]: "กำลังทำงาน...",
+    [Key.reset]: "รีเซ็ต",
+
+    [Key.jsCodePlaceholder]: "ป้อนรหัส JavaScript ที่นี่...\nเช่น return data.map(x => x * 2);",
+    [Key.inputDataPlaceholder]: "ป้อนข้อมูล JSON ที่นี่...\nเช่น [1, 2, 3]",
 };

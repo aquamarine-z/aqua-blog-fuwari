@@ -57,4 +57,16 @@ export const ja: Translation = {
     [Key.noTranslationSwitchTo]: 'この記事は現在の言語には存在しません。利用可能な言語に切り替えてください：',
         [Key.customHue]: 'カスタム色相',
 [Key.themeColorNames]: ['クリムゾン', 'アンバー', 'ゴールド', 'アクア', 'インディゴ', 'バイオレット', 'ローズ'],
+
+    [Key.jsPlayground]: "JSプレイグラウンド",
+    [Key.jsCode]: "JavaScript コード",
+    [Key.inputData]: "入力データ (JSON)",
+    [Key.consoleOutput]: "コンソール出力",
+    [Key.awaitingExecution]: "実行待ち...",
+    [Key.runCode]: "コードを実行",
+    [Key.executing]: "実行中...",
+    [Key.reset]: "リセット",
+
+    [Key.jsCodePlaceholder]: "ここにJavaScriptコードを入力してください...\n例：return data.map(x => x * 2);",
+    [Key.inputDataPlaceholder]: "ここにJSONデータを入力してください...\n例：[1, 2, 3]",
 };

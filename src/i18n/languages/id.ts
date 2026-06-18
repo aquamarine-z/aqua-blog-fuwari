@@ -43,4 +43,16 @@ export const id: Translation = {
     [Key.blog]: "Blog",
         [Key.customHue]: 'Custom Hue',
 [Key.themeColorNames]: ['Crimson', 'Amber', 'Gold', 'Aqua', 'Indigo', 'Violet', 'Rose'],
+
+    [Key.jsPlayground]: "JS Playground",
+    [Key.jsCode]: "Kode JavaScript",
+    [Key.inputData]: "Data Masukan (JSON)",
+    [Key.consoleOutput]: "Output Konsol",
+    [Key.awaitingExecution]: "Menunggu eksekusi...",
+    [Key.runCode]: "Jalankan Kode",
+    [Key.executing]: "Mengeksekusi...",
+    [Key.reset]: "Atur Ulang",
+
+    [Key.jsCodePlaceholder]: "Masukkan kode JavaScript di sini...\ncth. return data.map(x => x * 2);",
+    [Key.inputDataPlaceholder]: "Masukkan data JSON di sini...\ncth. [1, 2, 3]",
 };

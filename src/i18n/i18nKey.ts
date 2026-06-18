@@ -54,6 +54,16 @@ enum I18nKey {
     customHue = 'customHue',
     themeColorNames = 'themeColorNames',
     name = 'name',
+    jsPlayground = 'jsPlayground',
+    jsCode = 'jsCode',
+    inputData = 'inputData',
+    consoleOutput = 'consoleOutput',
+    awaitingExecution = 'awaitingExecution',
+    runCode = 'runCode',
+    executing = 'executing',
+    reset = 'reset',
+    jsCodePlaceholder = 'jsCodePlaceholder',
+    inputDataPlaceholder = 'inputDataPlaceholder',
 }
 
 export default I18nKey;

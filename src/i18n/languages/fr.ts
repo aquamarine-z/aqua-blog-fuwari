@@ -57,5 +57,17 @@ export const fr: Translation = {
     [Key.noTranslationSwitchTo]: 'Cet article n\'existe pas dans la langue actuelle. Veuillez passer à une langue disponible : ',
     [Key.customHue]: 'Teinte personnalisée',
     [Key.themeColorNames]: ['Cramoisi', 'Ambre', 'Or', 'Aqua', 'Indigo', 'Violet', 'Rose'],
+
+    [Key.jsPlayground]: "JS Playground",
+    [Key.jsCode]: "Code JavaScript",
+    [Key.inputData]: "Données d'entrée (JSON)",
+    [Key.consoleOutput]: "Sortie de la Console",
+    [Key.awaitingExecution]: "En attente d'exécution...",
+    [Key.runCode]: "Exécuter le code",
+    [Key.executing]: "Exécution...",
+    [Key.reset]: "Réinitialiser",
+
+    [Key.jsCodePlaceholder]: "Entrez le code JavaScript ici...\nex. return data.map(x => x * 2);",
+    [Key.inputDataPlaceholder]: "Entrez les données JSON ici...\nex. [1, 2, 3]",
 };
 

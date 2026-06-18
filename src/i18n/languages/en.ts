@@ -57,5 +57,17 @@ export const en: Translation = {
     [Key.noTranslationSwitchTo]: 'This article does not exist in the current language. Please switch to an available language: ',
         [Key.customHue]: 'Custom Hue',
 [Key.themeColorNames]: ['Crimson', 'Amber', 'Gold', 'Aqua', 'Indigo', 'Violet', 'Rose'],
+
+    [Key.jsPlayground]: "JS Playground",
+    [Key.jsCode]: "JavaScript Code",
+    [Key.inputData]: "Input Data (JSON)",
+    [Key.consoleOutput]: "Console Output",
+    [Key.awaitingExecution]: "Awaiting execution...",
+    [Key.runCode]: "Run Code",
+    [Key.executing]: "Executing...",
+    [Key.reset]: "Reset",
+
+    [Key.jsCodePlaceholder]: "Enter JavaScript code here...\ne.g. return data.map(x => x * 2);",
+    [Key.inputDataPlaceholder]: "Enter JSON data here...\ne.g. [1, 2, 3]",
 };
 

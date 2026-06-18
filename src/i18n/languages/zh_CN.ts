@@ -57,4 +57,16 @@ export const zh_CN: Translation = {
     [Key.noTranslationSwitchTo]: '该文章在此语言下不存在，请切换到存在的语言浏览：',
         [Key.customHue]: '自定义色相',
 [Key.themeColorNames]: ['枫叶赤', '琥珀橙', '银杏黄', '琉璃翠', '星河靛', '暮云紫', '樱花粉'],
+
+    [Key.jsPlayground]: "JS 演练场",
+    [Key.jsCode]: "JavaScript 代码",
+    [Key.inputData]: "输入数据 (JSON)",
+    [Key.consoleOutput]: "控制台输出",
+    [Key.awaitingExecution]: "等待执行...",
+    [Key.runCode]: "运行代码",
+    [Key.executing]: "执行中...",
+    [Key.reset]: "重置",
+
+    [Key.jsCodePlaceholder]: "在此输入 JavaScript 代码...\n例如：return data.map(x => x * 2);",
+    [Key.inputDataPlaceholder]: "在此输入 JSON 数据...\n例如：[1, 2, 3]",
 };

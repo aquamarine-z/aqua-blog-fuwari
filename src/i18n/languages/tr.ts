@@ -43,4 +43,16 @@ export const tr: Translation = {
     [Key.blog]: "Blog",
         [Key.customHue]: 'Custom Hue',
 [Key.themeColorNames]: ['Crimson', 'Amber', 'Gold', 'Aqua', 'Indigo', 'Violet', 'Rose'],
+
+    [Key.jsPlayground]: "JS Playground",
+    [Key.jsCode]: "JavaScript Kodu",
+    [Key.inputData]: "Giriş Verisi (JSON)",
+    [Key.consoleOutput]: "Konsol Çıktısı",
+    [Key.awaitingExecution]: "Çalıştırılması bekleniyor...",
+    [Key.runCode]: "Kodu Çalıştır",
+    [Key.executing]: "Çalıştırılıyor...",
+    [Key.reset]: "Sıfırla",
+
+    [Key.jsCodePlaceholder]: "JavaScript kodunu buraya girin...\nörn. return data.map(x => x * 2);",
+    [Key.inputDataPlaceholder]: "JSON verilerini buraya girin...\nörn. [1, 2, 3]",
 };

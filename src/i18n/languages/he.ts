@@ -57,4 +57,16 @@ export const he: Translation = {
     [Key.noTranslationSwitchTo]: 'מאמר זה אינו קיים בשפה הנוכחית. אנא בחר שפה זמינה: ',
     [Key.customHue]: 'גוון מותאם אישית',
     [Key.themeColorNames]: ['אדמדם', 'ענבר', 'זהב', 'תכלת', 'אינדיגו', 'סגול', 'ורוד'],
+
+    [Key.jsPlayground]: "JS Playground",
+    [Key.jsCode]: "קוד JavaScript",
+    [Key.inputData]: "נתוני קלט (JSON)",
+    [Key.consoleOutput]: "פלט קונסולה",
+    [Key.awaitingExecution]: "ממתין לביצוע...",
+    [Key.runCode]: "הפעל קוד",
+    [Key.executing]: "מבצע...",
+    [Key.reset]: "איפוס",
+
+    [Key.jsCodePlaceholder]: "הזן קוד JavaScript כאן...\nלמשל return data.map(x => x * 2);",
+    [Key.inputDataPlaceholder]: "הזן נתוני JSON כאן...\nלמשל [1, 2, 3]",
 };

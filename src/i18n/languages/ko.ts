@@ -57,4 +57,16 @@ export const ko: Translation = {
     [Key.noTranslationSwitchTo]: '이 기사는 현재 언어에 존재하지 않습니다. 사용 가능한 언어로 전환하십시오：',
         [Key.customHue]: '사용자 지정 색조',
 [Key.themeColorNames]: ['크림슨', '앰버', '골드', '아쿠아', '인디고', '바이올렛', '로즈'],
+
+    [Key.jsPlayground]: "JS 플레이그라운드",
+    [Key.jsCode]: "JavaScript 코드",
+    [Key.inputData]: "입력 데이터 (JSON)",
+    [Key.consoleOutput]: "콘솔 출력",
+    [Key.awaitingExecution]: "실행 대기 중...",
+    [Key.runCode]: "코드 실행",
+    [Key.executing]: "실행 중...",
+    [Key.reset]: "초기화",
+
+    [Key.jsCodePlaceholder]: "여기에 JavaScript 코드를 입력하세요...\n예: return data.map(x => x * 2);",
+    [Key.inputDataPlaceholder]: "여기에 JSON 데이터를 입력하세요...\n예: [1, 2, 3]",
 };

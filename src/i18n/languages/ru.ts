@@ -57,4 +57,16 @@ export const ru: Translation = {
     [Key.noTranslationSwitchTo]: 'Эта статья не существует на текущем языке. Пожалуйста, выберите доступный язык: ',
     [Key.customHue]: 'Свой оттенок',
     [Key.themeColorNames]: ['Малиновый', 'Янтарный', 'Золотой', 'Аква', 'Индиго', 'Фиолетовый', 'Розовый'],
+
+    [Key.jsPlayground]: "JS Playground",
+    [Key.jsCode]: "Код JavaScript",
+    [Key.inputData]: "Входные данные (JSON)",
+    [Key.consoleOutput]: "Вывод консоли",
+    [Key.awaitingExecution]: "Ожидание выполнения...",
+    [Key.runCode]: "Выполнить код",
+    [Key.executing]: "Выполнение...",
+    [Key.reset]: "Сброс",
+
+    [Key.jsCodePlaceholder]: "Введите код JavaScript здесь...\nнапр. return data.map(x => x * 2);",
+    [Key.inputDataPlaceholder]: "Введите данные JSON здесь...\nнапр. [1, 2, 3]",
 };

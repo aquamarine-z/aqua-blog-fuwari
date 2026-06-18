@@ -57,4 +57,16 @@ export const el: Translation = {
     [Key.noTranslationSwitchTo]: 'Αυτό το άρθρο δεν υπάρχει στην τρέχουσα γλώσσα. Παρακαλώ επιλέξτε μια διαθέσιμη γλώσσα: ',
     [Key.customHue]: 'Προσαρμοσμένη Απόχρωση',
     [Key.themeColorNames]: ['Κόκκινο', 'Κεχριμπάρι', 'Χρυσό', 'Γαλάζιο', 'Λουλακί', 'Βιολετί', 'Ροζ'],
+
+    [Key.jsPlayground]: "JS Playground",
+    [Key.jsCode]: "Κώδικας JavaScript",
+    [Key.inputData]: "Δεδομένα Εισόδου (JSON)",
+    [Key.consoleOutput]: "Έξοδος Κονσόλας",
+    [Key.awaitingExecution]: "Αναμονή εκτέλεσης...",
+    [Key.runCode]: "Εκτέλεση Κώδικα",
+    [Key.executing]: "Εκτελείται...",
+    [Key.reset]: "Επαναφορά",
+
+    [Key.jsCodePlaceholder]: "Εισαγάγετε τον κώδικα JavaScript εδώ...\nπ.χ. return data.map(x => x * 2);",
+    [Key.inputDataPlaceholder]: "Εισαγάγετε τα δεδομένα JSON εδώ...\nπ.χ. [1, 2, 3]",
 };
