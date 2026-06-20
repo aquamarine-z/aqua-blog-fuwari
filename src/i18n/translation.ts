@@ -20,6 +20,14 @@ function mergeTranslation(path: string, moduleObj: any, langName: string, expect
                 if (!key.startsWith(expectedPrefix)) {
                     throw new Error(`Translation key '${key}' in '${path}' must start with expected prefix '${expectedPrefix}'`);
                 }
+                
+                // Extract the actual key name without the auto-generated prefix
+                const actualKey = key.slice(expectedPrefix.length);
+                
+                // Enforce that the underlying key name cannot start with square brackets
+                if (/^\[.*?\]/.test(actualKey)) {
+                    throw new Error(`The actual partial key '${actualKey}' in '${path}' cannot start with square brackets '[...]'`);
+                }
             } else {
                 // Global keys must not start with square brackets
                 if (/^\[.*?\]/.test(key)) {
