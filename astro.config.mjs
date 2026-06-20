@@ -39,21 +39,11 @@ const withBase = (path) => {
 	return `${astroConfig.base}${path.startsWith("/") ? path : `/${path}`}`;
 };
 
-const customRedirects = {
-	'/docs': withBase('/docs/intro/')
-};
-(siteConfig.languages || []).forEach(lang => {
-	if (lang !== siteConfig.lang) {
-		customRedirects[`/${lang}/docs`] = withBase(`/${lang}/docs/intro/`);
-	}
-});
-
 // https://astro.build/config
 export default defineConfig({
 	site: "https://aquamarine-z.github.io",
 	base: "/aqua-blog-fuwari",
 	trailingSlash: "always",
-	redirects: customRedirects,
 	i18n: {
 		defaultLocale: siteConfig.lang,
 		locales: siteConfig.languages || ["zh_CN", "en", "ja", "ko"],
