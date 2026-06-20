@@ -14,139 +14,8 @@ import { url } from "../../utils/url-utils";
 
 const lang = Astro.currentLocale || siteConfig.lang;
 
-// Translations for the homepage
-const t = {
-    zh_CN: {
-        title: "Hi, 我是 Aquamarine",
-        subtitle: "前端开发者 & 语言爱好者",
-        description: "我专注于 <strong>前端设计</strong>，使用 <strong>React</strong> 和 <strong>Vue</strong> 构建美观且交互丰富的 Web 应用。在编程之外，我也对小语种学习充满热情。我拥有 <strong>日语 N1</strong> 和 <strong>韩语 TOPIK 6</strong> 证书，喜欢探索技术与语言学的交叉领域。",
-        readBlog: "阅读博客",
-        viewDocs: "查看文档",
-        techStack: "技术栈",
-        techDesc: "热爱现代 Web 开发。使用最新工具构建响应式、无障碍且高性能的用户界面。",
-        languages: "语言能力",
-        langDesc: "语言学习是我的爱好。我喜欢通过语言探索不同的文化，并将其应用到我的日常生活中。",
-        native: "中文 (母语)",
-        english: "英语 (专业)",
-        japanese: "日语 (JLPT N1)",
-        korean: "韩语 (TOPIK 6)",
-        design: "前端设计"
-    },
-    en: {
-        title: "Hi, I'm Aquamarine",
-        subtitle: "Frontend Developer & Language Enthusiast",
-        description: "I specialize in <strong>Frontend Design</strong>, creating beautiful and interactive web applications using <strong>React</strong> and <strong>Vue</strong>. Beyond coding, I'm passionate about foreign language learning. I hold certifications in <strong>Japanese (JLPT N1)</strong> and <strong>Korean (TOPIK 6)</strong>, and I love exploring the intersection of technology and linguistics.",
-        readBlog: "Read Blog",
-        viewDocs: "View Docs",
-        techStack: "Tech Stack",
-        techDesc: "Passionate about modern web development. Building responsive, accessible, and performant user interfaces with the latest tools.",
-        languages: "Languages",
-        langDesc: "Language learning is my hobby. I enjoy exploring different cultures through their languages and applying linguistics to my development workflow.",
-        native: "Chinese (Native)",
-        english: "English (Professional)",
-        japanese: "Japanese (JLPT N1)",
-        korean: "Korean (TOPIK 6)",
-        design: "Frontend Design"
-    },
-    ja: {
-        title: "こんにちは、Aquamarine です",
-        subtitle: "フロントエンドエンジニア & 語学愛好家",
-        description: "<strong>React</strong>と<strong>Vue</strong>を使用して、美しくインタラクティブなWebアプリケーションを構築する<strong>フロントエンド設計</strong>を専門としています。コーディング以外にも、外国語学習に情熱を注いでいます。<strong>日本語 (JLPT N1)</strong>と<strong>韓国語 (TOPIK 6)</strong>の資格を持っており、技術と語学の交差点を探求するのが好きです。",
-        readBlog: "ブログを読む",
-        viewDocs: "ドキュメント",
-        techStack: "技術スタック",
-        techDesc: "モダンなWeb開発に情熱を持っています。最新のツールを使用して、レスポンシブでアクセシビリティが高く、パフォーマンスに優れたUIを構築します。",
-        languages: "言語",
-        langDesc: "語学学習は私の趣味です。言語を通じて異文化を探求し、開発ワークフローに応用することを楽しんでいます。",
-        native: "中国語 (母語)",
-        english: "英語 (ビジネス)",
-        japanese: "日本語 (JLPT N1)",
-        korean: "韓国語 (TOPIK 6)",
-        design: "フロントエンド設計"
-    },
-    ko: {
-        title: "안녕하세요, Aquamarine 입니다",
-        subtitle: "프론트엔드 개발자 & 언어 애호가",
-        description: "<strong>React</strong>와 <strong>Vue</strong>를 사용하여 아름답고 인터랙티브한 웹 애플리케이션을 구축하는 <strong>프론트엔드 디자인</strong>을 전문으로 합니다. 코딩 외에도 외국어 학습에 열정을 가지고 있습니다. <strong>일본어(JLPT N1)</strong>와 <strong>한국어(TOPIK 6)</strong> 자격증을 보유하고 있으며, 기술과 언어학의 교차점을 탐구하는 것을 좋아합니다.",
-        readBlog: "블로그 읽기",
-        viewDocs: "문서 보기",
-        techStack: "기술 스택",
-        techDesc: "모던 웹 개발에 열정을 가지고 있습니다. 최신 도구를 사용하여 반응형이고 접근성이 뛰어나며 성능이 우수한 UI를 구축합니다.",
-        languages: "언어",
-        langDesc: "어학 학습은 제 취미입니다. 언어를 통해 다양한 문화를 탐구하고 개발 워크플로우에 적용하는 것을 즐깁니다.",
-        native: "중국어 (모국어)",
-        english: "영어 (비즈니스)",
-        japanese: "일본어 (JLPT N1)",
-        korean: "한국어 (TOPIK 6)",
-        design: "프론트엔드 디자인"
-    },
-    fr: {
-        title: "Bonjour, je suis Aquamarine",
-        subtitle: "Développeur Frontend & Passionné de Langues",
-        description: "Je me spécialise dans le <strong>Design Frontend</strong>, créant de belles applications web interactives avec <strong>React</strong> et <strong>Vue</strong>. Au-delà du code, je suis passionné par l'apprentissage des langues étrangères. Je détiens des certifications en <strong>Japonais (JLPT N1)</strong> et en <strong>Coréen (TOPIK 6)</strong>.",
-        readBlog: "Lire le Blog",
-        viewDocs: "Voir les Docs",
-        techStack: "Technologies",
-        techDesc: "Passionné par le développement web moderne. Création d'interfaces utilisateur réactives, accessibles et performantes.",
-        languages: "Langues",
-        langDesc: "L'apprentissage des langues est mon hobby. J'aime explorer différentes cultures à travers leurs langues.",
-        native: "Chinois (Maternel)",
-        english: "Anglais (Professionnel)",
-        japanese: "Japonais (JLPT N1)",
-        korean: "Coréen (TOPIK 6)",
-        design: "Design Frontend"
-    },
-    el: {
-        title: "Γεια σας, είμαι ο Aquamarine",
-        subtitle: "Frontend Developer & Λάτρης Γλωσσών",
-        description: "Ειδικεύομαι στο <strong>Frontend Design</strong>, δημιουργώντας όμορφες και διαδραστικές εφαρμογές ιστού χρησιμοποιώντας <strong>React</strong> και <strong>Vue</strong>. Πέρα από τον προγραμματισμό, είμαι παθιασμένος με την εκμάθηση ξένων γλωσσών.",
-        readBlog: "Διαβάστε το Blog",
-        viewDocs: "Δείτε τα Έγγραφα",
-        techStack: "Τεχνολογίες",
-        techDesc: "Παθιασμένος με τη σύγχρονη ανάπτυξη ιστού. Δημιουργία διαδραστικών και προσβάσιμων διεπαφών χρήστη.",
-        languages: "Γλώσσες",
-        langDesc: "Η εκμάθηση γλωσσών είναι το χόμπι μου. Μου αρέσει να εξερευνώ διαφορετικές κουλτούρες μέσω των γλωσσών.",
-        native: "Κινέζικα (Μητρική)",
-        english: "Αγγλικά (Επαγγελματικά)",
-        japanese: "Ιαπωνικά (JLPT N1)",
-        korean: "Κορεάτικα (TOPIK 6)",
-        design: "Frontend Design"
-    },
-    he: {
-        title: "שלום, אני Aquamarine",
-        subtitle: "מפתח Frontend וחובב שפות",
-        description: "אני מתמחה ב-<strong>Frontend Design</strong>, יצירת יישומי רשת יפים ואינטראקטיביים באמצעות <strong>React</strong> ו-<strong>Vue</strong>. מעבר לקידוד, אני אוהב ללמוד שפות זרות.",
-        readBlog: "קראו את הבלוג",
-        viewDocs: "צפו במסמכים",
-        techStack: "טכנולוגיות",
-        techDesc: "אוהב פיתוח רשת מודרני. בונה ממשקי משתמש רספונסיביים ונגישים.",
-        languages: "שפות",
-        langDesc: "לימוד שפות הוא התחביב שלי. אני נהנה לחקור תרבויות שונות דרך השפות שלהן.",
-        native: "סינית (שפת אם)",
-        english: "אנגלית (מקצועית)",
-        japanese: "יפנית (JLPT N1)",
-        korean: "קוריאנית (TOPIK 6)",
-        design: "Frontend Design"
-    },
-    ru: {
-        title: "Привет, я Aquamarine",
-        subtitle: "Frontend-разработчик и энтузиаст языков",
-        description: "Я специализируюсь на <strong>Frontend-дизайне</strong>, создавая красивые и интерактивные веб-приложения с использованием <strong>React</strong> и <strong>Vue</strong>. Помимо программирования, я увлекаюсь изучением иностранных языков.",
-        readBlog: "Читать блог",
-        viewDocs: "Документация",
-        techStack: "Технологии",
-        techDesc: "Увлекаюсь современной веб-разработкой. Создаю отзывчивые и доступные пользовательские интерфейсы.",
-        languages: "Языки",
-        langDesc: "Изучение языков — мое хобби. Мне нравится исследовать разные культуры через их языки.",
-        native: "Китайский (Родной)",
-        english: "Английский (Профессиональный)",
-        japanese: "Японский (JLPT N1)",
-        korean: "Корейский (TOPIK 6)",
-        design: "Frontend-дизайн"
-    }
-};
-
-const currentT = t[lang as keyof typeof t] || t.en;
+import { HomeKey } from "../../i18n/partials/home/keys";
+const t = (key: HomeKey) => i18n(key, lang);
 ---
 
 <MainGridLayout title={i18n(I18nKey.home, Astro.currentLocale)}>
@@ -158,14 +27,14 @@ const currentT = t[lang as keyof typeof t] || t.en;
             
             <div class="flex-1 flex flex-col items-center md:items-start gap-5 text-center md:text-left mt-2">
                 <h1 class="text-3xl md:text-5xl font-bold text-[var(--primary)] tracking-tight">
-                    {currentT.title} <span class="wave-emoji inline-block origin-bottom-right hover:animate-wiggle cursor-default">👋</span>
+                    {t(HomeKey.title)} <span class="wave-emoji inline-block origin-bottom-right hover:animate-wiggle cursor-default">👋</span>
                 </h1>
                 
                 <h2 class="text-xl md:text-2xl font-semibold text-90">
-                    {currentT.subtitle}
+                    {t(HomeKey.subtitle)}
                 </h2>
                 
-                <p class="text-base md:text-lg text-75 leading-relaxed max-w-2xl" set:html={currentT.description}>
+                <p class="text-base md:text-lg text-75 leading-relaxed max-w-2xl" set:html={t(HomeKey.description)}>
                 </p>
                 
                 <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-2">
@@ -176,7 +45,7 @@ const currentT = t[lang as keyof typeof t] || t.en;
                         <Icon name="fa6-brands:vuejs" class="text-xl" /> Vue
                     </div>
                     <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 hover:-translate-y-0.5 transition-all font-medium cursor-default">
-                        <Icon name="material-symbols:palette-outline" class="text-xl" /> {currentT.design}
+                        <Icon name="material-symbols:palette-outline" class="text-xl" /> {t(HomeKey.design)}
                     </div>
                     <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 hover:-translate-y-0.5 transition-all font-medium cursor-default">
                         <Icon name="material-symbols:translate-rounded" class="text-xl" /> JLPT N1 & TOPIK 6
@@ -186,12 +55,12 @@ const currentT = t[lang as keyof typeof t] || t.en;
                 <div class="flex flex-wrap gap-4 mt-6 w-full justify-center md:justify-start">
                     <a href={url(Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/blog/` : "/blog/")} class="group bg-[var(--primary)] text-white px-6 py-3.5 rounded-xl hover:brightness-110 shadow-lg shadow-[var(--primary)]/30 active:scale-95 transition-all font-bold flex items-center gap-2 text-lg">
                         <Icon name="material-symbols:article-outline-rounded" class="text-xl" />
-                        {currentT.readBlog}
+                        {t(HomeKey.readBlog)}
                         <Icon name="material-symbols:arrow-forward-rounded" class="text-xl transition-transform group-hover:translate-x-1" />
                     </a>
                     <a href={url(Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/docs/intro/` : "/docs/intro/")} class="group bg-[var(--btn-regular-bg)] text-[var(--btn-content)] px-6 py-3.5 rounded-xl hover:bg-[var(--btn-regular-bg-hover)] shadow-md active:scale-95 transition-all font-bold flex items-center gap-2 text-lg">
                         <Icon name="material-symbols:menu-book-outline-rounded" class="text-xl" />
-                        {currentT.viewDocs}
+                        {t(HomeKey.viewDocs)}
                         <Icon name="material-symbols:arrow-forward-rounded" class="text-xl transition-transform group-hover:translate-x-1" />
                     </a>
                 </div>
@@ -205,10 +74,10 @@ const currentT = t[lang as keyof typeof t] || t.en;
                 <div class="p-2 rounded-lg bg-[var(--primary)]/10 group-hover:bg-[var(--primary)]/20 transition-colors">
                     <Icon name="material-symbols:code-blocks-outline-rounded" class="text-2xl" />
                 </div>
-                {currentT.techStack}
+                {t(HomeKey.techStack)}
             </h3>
             <p class="text-75 mb-5 leading-relaxed">
-                {currentT.techDesc}
+                {t(HomeKey.techDesc)}
             </p>
             <ul class="space-y-2 text-75">
                 <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> React, Vue.js, Svelte</li>
@@ -223,16 +92,16 @@ const currentT = t[lang as keyof typeof t] || t.en;
                 <div class="p-2 rounded-lg bg-[var(--primary)]/10 group-hover:bg-[var(--primary)]/20 transition-colors">
                     <Icon name="material-symbols:translate-rounded" class="text-2xl" />
                 </div>
-                {currentT.languages}
+                {t(HomeKey.languages)}
             </h3>
             <p class="text-75 mb-5 leading-relaxed">
-                {currentT.langDesc}
+                {t(HomeKey.langDesc)}
             </p>
             <ul class="space-y-2 text-75">
-                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {currentT.native}</li>
-                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {currentT.english}</li>
-                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {currentT.japanese}</li>
-                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {currentT.korean}</li>
+                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {t(HomeKey.native)}</li>
+                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {t(HomeKey.english)}</li>
+                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {t(HomeKey.japanese)}</li>
+                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {t(HomeKey.korean)}</li>
             </ul>
         </div>
     </div>
