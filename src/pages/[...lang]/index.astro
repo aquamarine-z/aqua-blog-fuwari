@@ -26,12 +26,12 @@ const t = (key: HomeKey) => i18n(key, lang);
             </div>
             
             <div class="flex-1 flex flex-col items-center md:items-start gap-5 text-center md:text-left mt-2">
-                <h1 class="text-3xl md:text-5xl font-bold text-[var(--primary)] tracking-tight">
-                    {t(HomeKey.title)} <span class="wave-emoji inline-block origin-bottom-right hover:animate-wiggle cursor-default">👋</span>
+                <h1 class="text-3xl md:text-5xl title-font font-bold text-[var(--primary)] tracking-tight">
+                    {t(HomeKey.title)}
                 </h1>
                 
-                <h2 class="text-xl md:text-2xl font-semibold text-90">
-                    {t(HomeKey.subtitle)}
+                <h2 class="text-xl md:text-2xl font-semibold text-90 h-8 flex items-center">
+                    <span id="typewriter" class="border-r-[3px] border-[var(--primary)] pr-1 animate-pulse"></span>
                 </h2>
                 
                 <p class="text-base md:text-lg text-75 leading-relaxed max-w-2xl" set:html={t(HomeKey.description)}>
@@ -108,13 +108,68 @@ const t = (key: HomeKey) => i18n(key, lang);
 </MainGridLayout>
 
 <style>
-@keyframes wiggle {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-20deg); }
-    50% { transform: rotate(20deg); }
-    75% { transform: rotate(-10deg); }
-}
-.hover\:animate-wiggle:hover {
-    animation: wiggle 1s ease-in-out infinite;
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@700;800&display=swap');
+
+.title-font {
+    font-family: 'Outfit', sans-serif;
 }
 </style>
+
+<script is:inline define:vars={{ initialSubtitle: t(HomeKey.subtitle) }}>
+    function initTypewriter() {
+        const el = document.getElementById("typewriter");
+        if (!el) return;
+        
+        const allWords = [
+            initialSubtitle,
+            "フロントエンドエンジニア · 多言語話者",
+            "프론트엔드 개발자 · 다국어 구사자",
+            "Frontend Engineer · Polyglot",
+            "前端开发工程师 · 多语种学习者"
+        ];
+        // Remove duplicates so we don't type the same thing twice in a row
+        const words = [allWords[0], ...allWords.slice(1).filter(w => w !== allWords[0])];
+        
+        let i = 0;
+        let j = 0;
+        let isDeleting = false;
+        
+        function type() {
+            if (!document.getElementById("typewriter")) return; // element detached
+            
+            const currentWord = words[i];
+            
+            if (isDeleting) {
+                j--;
+            } else {
+                j++;
+            }
+            
+            el.textContent = currentWord.substring(0, j);
+            
+            let typeSpeed = 100;
+            if (isDeleting) typeSpeed /= 2;
+            
+            if (!isDeleting && j === currentWord.length) {
+                typeSpeed = 2000;
+                isDeleting = true;
+            } else if (isDeleting && j === 0) {
+                isDeleting = false;
+                i = (i + 1) % words.length;
+                typeSpeed = 500;
+            }
+            
+            setTimeout(type, typeSpeed);
+        }
+        
+        type();
+    }
+    
+    // Support Astro View Transitions
+    document.addEventListener('astro:page-load', initTypewriter);
+    if (document.readyState !== 'loading') {
+        initTypewriter();
+    } else {
+        document.addEventListener('DOMContentLoaded', initTypewriter);
+    }
+</script>

@@ -1,15 +1,15 @@
 import { HomeKey } from './keys';
 
 export const el = {
-    [HomeKey.title]: "Γεια σας, είμαι ο Aquamarine",
-    [HomeKey.subtitle]: "Frontend Developer & Λάτρης Γλωσσών",
-    [HomeKey.description]: "Ειδικεύομαι στο <strong>Frontend Design</strong>, δημιουργώντας όμορφες και διαδραστικές εφαρμογές ιστού χρησιμοποιώντας <strong>React</strong> και <strong>Vue</strong>. Πέρα από τον προγραμματισμό, είμαι παθιασμένος με την εκμάθηση ξένων γλωσσών.",
+    [HomeKey.title]: "Aquamarine",
+    [HomeKey.subtitle]: "Frontend Engineer · Polyglot",
+    [HomeKey.description]: "Δημιουργία <strong>διαισθητικών, κομψών και λιτών</strong> εμπειριών ιστού, κυρίως με <strong>React</strong> και <strong>Vue</strong>. Πέρα από την οθόνη, εξερευνώ πολιτισμούς μέσω της γλωσσολογίας, κατέχοντας πιστοποιήσεις <strong>JLPT N1</strong> και <strong>TOPIK 6</strong>. Πιστεύω ότι ο κομψός κώδικας και οι ομιλούμενες γλώσσες μοιράζονται τον ίδιο πυρήνα: <strong>την ακριβή έκφραση</strong>.",
     [HomeKey.readBlog]: "Διαβάστε το Blog",
     [HomeKey.viewDocs]: "Δείτε τα Έγγραφα",
-    [HomeKey.techStack]: "Τεχνολογίες",
-    [HomeKey.techDesc]: "Παθιασμένος με τη σύγχρονη ανάπτυξη ιστού. Δημιουργία διαδραστικών και προσβάσιμων διεπαφών χρήστη.",
-    [HomeKey.languages]: "Γλώσσες",
-    [HomeKey.langDesc]: "Η εκμάθηση γλωσσών είναι το χόμπι μου. Μου αρέσει να εξερευνώ διαφορετικές κουλτούρες μέσω των γλωσσών.",
+    [HomeKey.techStack]: "Τεχνολογία & Μηχανική",
+    [HomeKey.techDesc]: "Δημιουργία ισχυρών διεπαφών όπου η απόδοση συναντά την αισθητική. Αφοσιωμένος στην προσβασιμότητα και τις βελτιωμένες εμπειρίες χρήστη.",
+    [HomeKey.languages]: "Γλωσσολογία",
+    [HomeKey.langDesc]: "Η γλώσσα διαμορφώνει τη σκέψη. Εξερευνώντας τις αφηγήσεις του κόσμου και διευρύνοντας τις προοπτικές μέσω της γλωσσικής ποικιλομορφίας.",
     [HomeKey.native]: "Κινέζικα (Μητρική)",
     [HomeKey.english]: "Αγγλικά (Επαγγελματικά)",
     [HomeKey.japanese]: "Ιαπωνικά (JLPT N1)",

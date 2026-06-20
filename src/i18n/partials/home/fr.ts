@@ -1,15 +1,15 @@
 import { HomeKey } from './keys';
 
 export const fr = {
-    [HomeKey.title]: "Bonjour, je suis Aquamarine",
-    [HomeKey.subtitle]: "Développeur Frontend & Passionné de Langues",
-    [HomeKey.description]: "Je me spécialise dans le <strong>Design Frontend</strong>, créant de belles applications web interactives avec <strong>React</strong> et <strong>Vue</strong>. Au-delà du code, je suis passionné par l'apprentissage des langues étrangères. Je détiens des certifications en <strong>Japonais (JLPT N1)</strong> et en <strong>Coréen (TOPIK 6)</strong>.",
+    [HomeKey.title]: "Aquamarine",
+    [HomeKey.subtitle]: "Ingénieur Frontend · Polyglotte",
+    [HomeKey.description]: "Création d'expériences web <strong>intuitives, tactiles et épurées</strong>, principalement avec <strong>React</strong> et <strong>Vue</strong>. Au-delà de l'écran, je navigue à travers les cultures grâce à la linguistique, détenant les certifications <strong>JLPT N1</strong> et <strong>TOPIK 6</strong>. Je crois qu'un code élégant et les langues partagent le même cœur : <strong>l'expression précise</strong>.",
     [HomeKey.readBlog]: "Lire le Blog",
     [HomeKey.viewDocs]: "Voir les Docs",
-    [HomeKey.techStack]: "Technologies",
-    [HomeKey.techDesc]: "Passionné par le développement web moderne. Création d'interfaces utilisateur réactives, accessibles et performantes.",
-    [HomeKey.languages]: "Langues",
-    [HomeKey.langDesc]: "L'apprentissage des langues est mon hobby. J'aime explorer différentes cultures à travers leurs langues.",
+    [HomeKey.techStack]: "Ingénierie & Tech",
+    [HomeKey.techDesc]: "Conception d'interfaces robustes où la performance rencontre l'esthétique. Engagé envers l'accessibilité et les expériences utilisateur abouties.",
+    [HomeKey.languages]: "Linguistique",
+    [HomeKey.langDesc]: "La langue façonne la pensée. Explorer les récits du monde et élargir les perspectives grâce à la diversité linguistique.",
     [HomeKey.native]: "Chinois (Maternel)",
     [HomeKey.english]: "Anglais (Professionnel)",
     [HomeKey.japanese]: "Japonais (JLPT N1)",

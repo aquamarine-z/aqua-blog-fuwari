@@ -1,15 +1,15 @@
 import { HomeKey } from './keys';
 
 export const ru = {
-    [HomeKey.title]: "Привет, я Aquamarine",
-    [HomeKey.subtitle]: "Frontend-разработчик и энтузиаст языков",
-    [HomeKey.description]: "Я специализируюсь на <strong>Frontend-дизайне</strong>, создавая красивые и интерактивные веб-приложения с использованием <strong>React</strong> и <strong>Vue</strong>. Помимо программирования, я увлекаюсь изучением иностранных языков.",
+    [HomeKey.title]: "Aquamarine",
+    [HomeKey.subtitle]: "Frontend-инженер · Полиглот",
+    [HomeKey.description]: "Создаю <strong>интуитивно понятные, тактильные и сдержанные</strong> веб-интерфейсы, преимущественно с использованием <strong>React</strong> и <strong>Vue</strong>. Вне экрана я изучаю культуры через лингвистику, имея сертификаты <strong>JLPT N1</strong> и <strong>TOPIK 6</strong>. Я верю, что элегантный код и языки имеют одну суть: <strong>точное выражение</strong>.",
     [HomeKey.readBlog]: "Читать блог",
     [HomeKey.viewDocs]: "Документация",
-    [HomeKey.techStack]: "Технологии",
-    [HomeKey.techDesc]: "Увлекаюсь современной веб-разработкой. Создаю отзывчивые и доступные пользовательские интерфейсы.",
-    [HomeKey.languages]: "Языки",
-    [HomeKey.langDesc]: "Изучение языков — мое хобби. Мне нравится исследовать разные культуры через их языки.",
+    [HomeKey.techStack]: "Инженерия и технологии",
+    [HomeKey.techDesc]: "Создание надежных интерфейсов, где производительность сочетается с эстетикой. Стремлюсь к доступности и безупречному пользовательскому опыту.",
+    [HomeKey.languages]: "Лингвистика",
+    [HomeKey.langDesc]: "Язык формирует мышление. Изучение историй мира и расширение перспектив через языковое разнообразие.",
     [HomeKey.native]: "Китайский (Родной)",
     [HomeKey.english]: "Английский (Профессиональный)",
     [HomeKey.japanese]: "Японский (JLPT N1)",
