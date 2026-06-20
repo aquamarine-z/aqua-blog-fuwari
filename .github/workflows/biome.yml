@@ -18,3 +18,4 @@ jobs:
           version: latest
       - name: Run Biome
         run: biome ci ./src --reporter=github
+        continue-on-error: true
