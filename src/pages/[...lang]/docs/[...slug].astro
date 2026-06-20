@@ -66,31 +66,7 @@ export async function getStaticPaths() {
 			};
 		});
 
-		// 2. Static paths for paginated lists
-		const totalPages = Math.ceil(allDocsPosts.length / PAGE_SIZE);
-		const paginationPaths = [];
-		for (let i = 1; i <= totalPages; i++) {
-			const pageData = allDocsPosts.slice((i - 1) * PAGE_SIZE, i * PAGE_SIZE);
-			const prefix = lang.params.lang ? `/${lang.params.lang}` : "";
-			const page = {
-				data: pageData,
-				currentPage: i,
-				size: PAGE_SIZE,
-				total: allDocsPosts.length,
-				lastPage: totalPages,
-				url: {
-					current: i === 1 ? `${prefix}/docs/` : `${prefix}/docs/${i}/`,
-					prev: i > 1 ? (i === 2 ? `${prefix}/docs/` : `${prefix}/docs/${i - 1}/`) : undefined,
-					next: i < totalPages ? `${prefix}/docs/${i + 1}/` : undefined,
-				}
-			};
-			paginationPaths.push({
-				params: { lang: lang.params.lang || undefined, slug: i === 1 ? undefined : String(i) },
-				props: { type: 'list', entry: null, page },
-			});
-		}
-
-		return [...articlePaths, ...paginationPaths];
+		return [...articlePaths];
 	})).then(results => results.flat());
 }
 
@@ -124,13 +100,7 @@ if (type === 'article' && entry) {
 }
 ---
 
-{type === 'list' && page ? (
-	<MainGridLayout title={i18n(I18nKey.docs, Astro.currentLocale)}>
-		<PostPage page={page}></PostPage>
-		<Pagination class="mx-auto onload-animation" page={page} style={`animation-delay: calc(var(--content-delay) + ${(page.data.length)*50}ms)`}></Pagination>
-	</MainGridLayout>
-) : (
-	entry && (
+{entry && (
 		<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={Astro.currentLocale || siteConfig.lang} setOGTypeArticle={true} headings={headings}>
 			<script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
 			<div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4">
@@ -277,4 +247,4 @@ if (type === 'article' && entry) {
 
 		</MainGridLayout>
 	)
-)}
+}
