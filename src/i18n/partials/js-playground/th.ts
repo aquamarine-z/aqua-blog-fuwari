@@ -9,6 +9,6 @@ export const th = {
     [JsPlaygroundKey.runCode]: "รันโค้ด",
     [JsPlaygroundKey.executing]: "กำลังทำงาน...",
     [JsPlaygroundKey.reset]: "รีเซ็ต",
-    [JsPlaygroundKey.jsCode]: "ป้อนรหัส JavaScript ที่นี่...\nเช่น return data.map(x => x * 2);",
-    [JsPlaygroundKey.inputData]: "ป้อนข้อมูล JSON ที่นี่...\nเช่น [1, 2, 3]",
+    [JsPlaygroundKey.jsCodePlaceholder]: "Code",
+    [JsPlaygroundKey.inputDataPlaceholder]: "Data",
 };

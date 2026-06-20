@@ -9,6 +9,6 @@ export const ja = {
     [JsPlaygroundKey.runCode]: "コードを実行",
     [JsPlaygroundKey.executing]: "実行中...",
     [JsPlaygroundKey.reset]: "リセット",
-    [JsPlaygroundKey.jsCode]: "ここにJavaScriptコードを入力してください...\n例：return data.map(x => x * 2);",
-    [JsPlaygroundKey.inputData]: "ここにJSONデータを入力してください...\n例：[1, 2, 3]",
+    [JsPlaygroundKey.jsCodePlaceholder]: "Code",
+    [JsPlaygroundKey.inputDataPlaceholder]: "Data",
 };

@@ -9,6 +9,6 @@ export const tr = {
     [JsPlaygroundKey.runCode]: "Kodu Çalıştır",
     [JsPlaygroundKey.executing]: "Çalıştırılıyor...",
     [JsPlaygroundKey.reset]: "Sıfırla",
-    [JsPlaygroundKey.jsCode]: "JavaScript kodunu buraya girin...\nörn. return data.map(x => x * 2);",
-    [JsPlaygroundKey.inputData]: "JSON verilerini buraya girin...\nörn. [1, 2, 3]",
+    [JsPlaygroundKey.jsCodePlaceholder]: "Code",
+    [JsPlaygroundKey.inputDataPlaceholder]: "Data",
 };

@@ -9,6 +9,6 @@ export const en = {
     [JsPlaygroundKey.runCode]: "Run Code",
     [JsPlaygroundKey.executing]: "Executing...",
     [JsPlaygroundKey.reset]: "Reset",
-    [JsPlaygroundKey.jsCode]: "Enter JavaScript code here...\ne.g. return data.map(x => x * 2);",
-    [JsPlaygroundKey.inputData]: "Enter JSON data here...\ne.g. [1, 2, 3]",
+    [JsPlaygroundKey.jsCodePlaceholder]: "Code",
+    [JsPlaygroundKey.inputDataPlaceholder]: "Data",
 };

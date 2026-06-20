@@ -9,6 +9,6 @@ export const zh_CN = {
     [JsPlaygroundKey.runCode]: "运行代码",
     [JsPlaygroundKey.executing]: "执行中...",
     [JsPlaygroundKey.reset]: "重置",
-    [JsPlaygroundKey.jsCode]: "在此输入 JavaScript 代码...\n例如：return data.map(x => x * 2);",
-    [JsPlaygroundKey.inputData]: "在此输入 JSON 数据...\n例如：[1, 2, 3]",
+    [JsPlaygroundKey.jsCodePlaceholder]: "Code",
+    [JsPlaygroundKey.inputDataPlaceholder]: "Data",
 };

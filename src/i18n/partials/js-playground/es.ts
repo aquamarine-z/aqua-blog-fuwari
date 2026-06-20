@@ -9,6 +9,6 @@ export const es = {
     [JsPlaygroundKey.runCode]: "Ejecutar Código",
     [JsPlaygroundKey.executing]: "Ejecutando...",
     [JsPlaygroundKey.reset]: "Reiniciar",
-    [JsPlaygroundKey.jsCode]: "Ingrese el código JavaScript aquí...\nej. return data.map(x => x * 2);",
-    [JsPlaygroundKey.inputData]: "Ingrese los datos JSON aquí...\nej. [1, 2, 3]",
+    [JsPlaygroundKey.jsCodePlaceholder]: "Code",
+    [JsPlaygroundKey.inputDataPlaceholder]: "Data",
 };

@@ -9,6 +9,6 @@ export const ko = {
     [JsPlaygroundKey.runCode]: "코드 실행",
     [JsPlaygroundKey.executing]: "실행 중...",
     [JsPlaygroundKey.reset]: "초기화",
-    [JsPlaygroundKey.jsCode]: "여기에 JavaScript 코드를 입력하세요...\n예: return data.map(x => x * 2);",
-    [JsPlaygroundKey.inputData]: "여기에 JSON 데이터를 입력하세요...\n예: [1, 2, 3]",
+    [JsPlaygroundKey.jsCodePlaceholder]: "Code",
+    [JsPlaygroundKey.inputDataPlaceholder]: "Data",
 };

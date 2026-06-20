@@ -9,6 +9,6 @@ export const id = {
     [JsPlaygroundKey.runCode]: "Jalankan Kode",
     [JsPlaygroundKey.executing]: "Mengeksekusi...",
     [JsPlaygroundKey.reset]: "Atur Ulang",
-    [JsPlaygroundKey.jsCode]: "Masukkan kode JavaScript di sini...\ncth. return data.map(x => x * 2);",
-    [JsPlaygroundKey.inputData]: "Masukkan data JSON di sini...\ncth. [1, 2, 3]",
+    [JsPlaygroundKey.jsCodePlaceholder]: "Code",
+    [JsPlaygroundKey.inputDataPlaceholder]: "Data",
 };

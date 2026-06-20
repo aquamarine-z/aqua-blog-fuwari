@@ -9,6 +9,6 @@ export const vi = {
     [JsPlaygroundKey.runCode]: "Chạy Mã",
     [JsPlaygroundKey.executing]: "Đang thực thi...",
     [JsPlaygroundKey.reset]: "Đặt lại",
-    [JsPlaygroundKey.jsCode]: "Nhập mã JavaScript vào đây...\nvd. return data.map(x => x * 2);",
-    [JsPlaygroundKey.inputData]: "Nhập dữ liệu JSON vào đây...\nvd. [1, 2, 3]",
+    [JsPlaygroundKey.jsCodePlaceholder]: "Code",
+    [JsPlaygroundKey.inputDataPlaceholder]: "Data",
 };

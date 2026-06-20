@@ -9,6 +9,6 @@ export const he = {
     [JsPlaygroundKey.runCode]: "הפעל קוד",
     [JsPlaygroundKey.executing]: "מבצע...",
     [JsPlaygroundKey.reset]: "איפוס",
-    [JsPlaygroundKey.jsCode]: "הזן קוד JavaScript כאן...\nלמשל return data.map(x => x * 2);",
-    [JsPlaygroundKey.inputData]: "הזן נתוני JSON כאן...\nלמשל [1, 2, 3]",
+    [JsPlaygroundKey.jsCodePlaceholder]: "Code",
+    [JsPlaygroundKey.inputDataPlaceholder]: "Data",
 };
