@@ -25,6 +25,9 @@ import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
 import { remarkExcerpt } from "./src/plugins/remark-excerpt.js";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
+import { i18nKeyPrefixPlugin } from "./src/astro-plugins/i18nKeyPrefixPlugin.mjs";
+
+
 
 const astroConfig = {
 	site: "https://aquamarine-z.github.io",
@@ -185,6 +188,7 @@ export default defineConfig({
 		],
 	},
 	vite: {
+		plugins: [i18nKeyPrefixPlugin()],
 		build: {
 			rollupOptions: {
 				onwarn(warning, warn) {

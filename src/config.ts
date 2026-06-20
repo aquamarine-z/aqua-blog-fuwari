@@ -8,6 +8,7 @@ import type {
 	GiscusConfig,
 } from "./types/config";
 import { LinkPreset } from "./types/config";
+import { FriendsKey } from "./i18n/partials/friends/keys";
 
 export const siteConfig: SiteConfig = {
 	title: "Aqua",
@@ -86,7 +87,7 @@ export const friendsConfig: Friend[] = [
     {
         name: "Aquamarine",
         avatar: "https://github.com/aquamarine-z.png",
-        labels: ['tag.self', "tag.frontend", "tag.backend", 'tag.react'],
+        labels: [FriendsKey.tagSelf, FriendsKey.tagFrontend, FriendsKey.tagBackend, FriendsKey.tagReact],
         links: [
             { name: 'Github', link: "https://github.com/aquamarine-z" },
             { name: 'Blog', link: "https://aquamarine-z.github.io/aqua-blog/" },
@@ -96,7 +97,7 @@ export const friendsConfig: Friend[] = [
     {
         name: "Apricityx",
         avatar: "/assets/friends-avatar/Apricityx.png",
-        labels: ['tag.friend', 'tag.schoolmate'],
+        labels: [FriendsKey.tagFriend, FriendsKey.tagSchoolmate],
         links: [
             { name: 'Github', link: "https://github.com/apricityx" },
             { name: 'Blog', link: "https://blog.apricityx.top/" }
@@ -105,7 +106,7 @@ export const friendsConfig: Friend[] = [
     {
         name: "Winston Chen",
         avatar: "/assets/friends-avatar/WinstonChen.png",
-        labels: ['tag.friend', 'tag.schoolmate'],
+        labels: [FriendsKey.tagFriend, FriendsKey.tagSchoolmate],
         links: [
             { name: 'Github', link: "https://github.com/WinstonCHEN1/" },
             { name: 'Blog', link: "https://winstonchen1.github.io/" }
@@ -114,7 +115,7 @@ export const friendsConfig: Friend[] = [
     {
         name: "Syan Wang",
         avatar: "/assets/friends-avatar/SyanWang.png",
-        labels: ['tag.friend', 'tag.schoolmate'],
+        labels: [FriendsKey.tagFriend, FriendsKey.tagSchoolmate],
         links: [
             { name: 'Github', link: "https://github.com/TheSorry404" },
             { name: 'Blog', link: "https://40404.site/" }
@@ -123,7 +124,7 @@ export const friendsConfig: Friend[] = [
     {
         name: 'Mark',
         avatar: 'https://github.com/pique2233.png',
-        labels: ['tag.friend', 'tag.schoolmate'],
+        labels: [FriendsKey.tagFriend, FriendsKey.tagSchoolmate],
         links: [
             { name: 'Github', link: 'https://github.com/pique2233' },
         ]

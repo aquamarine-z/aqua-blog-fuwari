@@ -46,15 +46,5 @@ export const zh_TW: Translation = {
         [Key.customHue]: '自訂色相',
 [Key.themeColorNames]: ['楓葉赤', '琥珀橙', '銀杏黃', '琉璃翠', '星河靛', '暮雲紫', '櫻花粉'],
 
-    [Key.jsPlayground]: "JS 演練場",
-    [Key.jsCode]: "JavaScript 程式碼",
-    [Key.inputData]: "輸入資料 (JSON)",
-    [Key.consoleOutput]: "主控台輸出",
-    [Key.awaitingExecution]: "等待執行...",
-    [Key.runCode]: "執行程式碼",
-    [Key.executing]: "執行中...",
-    [Key.reset]: "重置",
 
-    [Key.jsCodePlaceholder]: "在此輸入 JavaScript 程式碼...\n例如：return data.map(x => x * 2);",
-    [Key.inputDataPlaceholder]: "在此輸入 JSON 資料...\n例如：[1, 2, 3]",
 };

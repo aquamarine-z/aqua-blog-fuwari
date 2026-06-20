@@ -44,15 +44,5 @@ export const es: Translation = {
         [Key.customHue]: 'Custom Hue',
 [Key.themeColorNames]: ['Carmesí', 'Ámbar', 'Oro', 'Aqua', 'Índigo', 'Violeta', 'Rosa'],
 
-    [Key.jsPlayground]: "JS Playground",
-    [Key.jsCode]: "Código JavaScript",
-    [Key.inputData]: "Datos de Entrada (JSON)",
-    [Key.consoleOutput]: "Salida de Consola",
-    [Key.awaitingExecution]: "Esperando ejecución...",
-    [Key.runCode]: "Ejecutar Código",
-    [Key.executing]: "Ejecutando...",
-    [Key.reset]: "Reiniciar",
 
-    [Key.jsCodePlaceholder]: "Ingrese el código JavaScript aquí...\nej. return data.map(x => x * 2);",
-    [Key.inputDataPlaceholder]: "Ingrese los datos JSON aquí...\nej. [1, 2, 3]",
 };

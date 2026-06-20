@@ -1,7 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 import { i18n } from "../i18n/translation";
-import I18nKey from "../i18n/i18nKey";
+import { FriendsKey } from "../i18n/partials/friends/keys";
 import { url } from "../utils/url-utils";
 
 export interface Friend {
@@ -20,15 +20,15 @@ const avatarUrl = friend.avatar.startsWith("/") ? url(friend.avatar) : friend.av
 
 // Determine colors for labels based on the old labelDefaultColors mapping
 const labelColors: Record<string, string> = {
-    "tag.friend": "bg-[oklch(0.85_0.15_160)]",
-    "tag.schoolmate": "bg-[oklch(0.80_0.12_250)]",
-    "tag.teacher": "bg-[oklch(0.90_0.20_100)]",
-    "tag.lover": "bg-[oklch(0.85_0.15_330)]",
-    "tag.family": "bg-[oklch(0.85_0.15_140)]",
-    "tag.self": "bg-[oklch(0.80_0.18_300)]",
-    "tag.frontend": "bg-[oklch(0.85_0.10_200)]",
-    "tag.backend": "bg-[oklch(0.85_0.10_40)]",
-    "tag.react": "bg-[oklch(0.85_0.15_240)]",
+    [FriendsKey.tagFriend]: "bg-[oklch(0.85_0.15_160)]",
+    [FriendsKey.tagSchoolmate]: "bg-[oklch(0.80_0.12_250)]",
+    [FriendsKey.tagTeacher]: "bg-[oklch(0.90_0.20_100)]",
+    [FriendsKey.tagLover]: "bg-[oklch(0.85_0.15_330)]",
+    [FriendsKey.tagFamily]: "bg-[oklch(0.85_0.15_140)]",
+    [FriendsKey.tagSelf]: "bg-[oklch(0.80_0.18_300)]",
+    [FriendsKey.tagFrontend]: "bg-[oklch(0.85_0.10_200)]",
+    [FriendsKey.tagBackend]: "bg-[oklch(0.85_0.10_40)]",
+    [FriendsKey.tagReact]: "bg-[oklch(0.85_0.15_240)]",
     "common": "bg-[oklch(0.85_0.05_200)] text-black/80",
 };
 
@@ -50,7 +50,7 @@ const getIconName = (name: string) => {
             <div class="flex flex-wrap gap-2 mt-2">
                 {friend.labels.map(label => (
                     <span class={`text-xs px-2 py-1 rounded-md font-medium text-black/80 ${labelColors[label] || labelColors.common}`}>
-                        {i18n(label as I18nKey, Astro.currentLocale)}
+                        {i18n(label as string, Astro.currentLocale)}
                     </span>
                 ))}
             </div>

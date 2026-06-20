@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Play, Code2, Database, TerminalSquare, AlertCircle, CheckCircle2, RotateCcw, RefreshCw, Maximize2, X } from 'lucide-react';
 import { i18n } from '@/i18n/translation';
-import I18nKey from '@/i18n/i18nKey';
+import { JsPlaygroundKey } from '@/i18n/partials/js-playground/keys';
 import _Editor from 'react-simple-code-editor';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-javascript';
@@ -12,6 +12,8 @@ const Editor = (_Editor as any).default || _Editor;
 
 const syntaxStyles = `
   /* Always Dark Theme (One Dark style) for Editors */
+  .playground-editor ::selection { background: rgba(97, 175, 239, 0.4) !important; color: inherit !important; }
+  .playground-editor textarea::selection { background: rgba(97, 175, 239, 0.4) !important; color: inherit !important; }
   .playground-editor .token.comment, .playground-editor .token.prolog, .playground-editor .token.doctype, .playground-editor .token.cdata { color: #7f848e; }
   .playground-editor .token.punctuation { color: #abb2bf; }
   .playground-editor .token.keyword, .playground-editor .token.atrule { color: #c678dd; }
@@ -67,7 +69,7 @@ export default function JsPlayground({
     }
   }, [lang]);
 
-  const t = (key: I18nKey) => i18n(key, currentLang);
+  const t = (key: JsPlaygroundKey) => i18n(key, currentLang);
 
   const handleRun = () => {
     setIsRunning(true);
@@ -122,15 +124,15 @@ export default function JsPlayground({
           <div className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--primary)] transition-colors">
             <Code2 size={20} />
           </div>
-          <h3 className="font-bold tracking-tight text-black/90 dark:text-white/90 transition-colors">{t(I18nKey.jsPlayground)}</h3>
+          <h3 className="font-bold tracking-tight text-black/90 dark:text-white/90 transition-colors">{t(JsPlaygroundKey.jsPlayground)}</h3>
         </div>
         <button
           onClick={handleReset}
           className="btn-plain scale-animation flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold"
-          title={t(I18nKey.reset)}
+          title={t(JsPlaygroundKey.reset)}
         >
           <RotateCcw size={14} />
-          <span>{t(I18nKey.reset)}</span>
+          <span>{t(JsPlaygroundKey.reset)}</span>
         </button>
       </div>
 
@@ -142,7 +144,7 @@ export default function JsPlayground({
           {/* JS Code Area */}
           <div className="flex flex-col border-b border-[var(--line-divider)] last:border-0 relative transition-colors flex-[3] min-h-[15rem]">
             <div className="flex items-center justify-between px-4 py-2 bg-[var(--btn-regular-bg)] text-xs font-bold text-[var(--btn-content)] uppercase tracking-wider transition-colors flex-none">
-              <div className="flex items-center gap-1.5"><Code2 size={14} /> {t(I18nKey.jsCode)}</div>
+              <div className="flex items-center gap-1.5"><Code2 size={14} /> {t(JsPlaygroundKey.jsCode)}</div>
               <button className="hover:text-[var(--primary)] transition-colors" onClick={() => setExpandedView('code')} title="Expand"><Maximize2 size={14} /></button>
             </div>
             <div className="playground-editor w-full flex-1 overflow-y-auto bg-[var(--codeblock-bg)] font-mono text-sm leading-relaxed text-white/90 focus-within:bg-[var(--codeblock-bg)] transition-colors">
@@ -156,7 +158,7 @@ export default function JsPlayground({
                   minHeight: '100%',
                 }}
                 disabled={readOnlyCode}
-                placeholder={t(I18nKey.jsCodePlaceholder)}
+                placeholder={t(JsPlaygroundKey.jsCodePlaceholder)}
                 textareaClassName="focus:outline-none"
               />
             </div>
@@ -165,7 +167,7 @@ export default function JsPlayground({
           {/* JSON Data Area */}
           <div className="flex flex-col relative transition-colors flex-[1] min-h-[6rem]">
             <div className="flex items-center justify-between px-4 py-2 bg-[var(--btn-regular-bg)] text-xs font-bold text-[var(--btn-content)] uppercase tracking-wider transition-colors flex-none">
-              <div className="flex items-center gap-1.5"><Database size={14} /> {t(I18nKey.inputData)}</div>
+              <div className="flex items-center gap-1.5"><Database size={14} /> {t(JsPlaygroundKey.inputData)}</div>
               <button className="hover:text-[var(--primary)] transition-colors" onClick={() => setExpandedView('data')} title="Expand"><Maximize2 size={14} /></button>
             </div>
             <div className="playground-editor w-full flex-1 overflow-y-auto bg-[var(--codeblock-bg)] font-mono text-sm leading-relaxed text-white/90 focus-within:bg-[var(--codeblock-bg)] transition-colors">
@@ -179,7 +181,7 @@ export default function JsPlayground({
                   minHeight: '100%',
                 }}
                 disabled={readOnlyData}
-                placeholder={t(I18nKey.inputDataPlaceholder)}
+                placeholder={t(JsPlaygroundKey.inputDataPlaceholder)}
                 textareaClassName="focus:outline-none"
               />
             </div>
@@ -191,14 +193,14 @@ export default function JsPlayground({
         <div className="flex flex-col lg:col-span-2 h-[20rem] lg:h-[36rem] transition-colors">
           
           <div className="flex items-center gap-1.5 px-4 py-2 bg-[var(--btn-regular-bg)] text-xs font-bold text-[var(--btn-content)] uppercase tracking-wider border-b border-[var(--line-divider)] transition-colors flex-none">
-            <TerminalSquare size={14} /> {t(I18nKey.consoleOutput)}
+            <TerminalSquare size={14} /> {t(JsPlaygroundKey.consoleOutput)}
           </div>
 
           <div className="flex-1 p-4 font-mono text-sm overflow-y-auto bg-[var(--codeblock-bg)] text-white/90 transition-colors">
             {outputs.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center opacity-50">
                 <TerminalSquare size={32} className="mb-2" />
-                <span className="text-xs">{t(I18nKey.awaitingExecution)}</span>
+                <span className="text-xs">{t(JsPlaygroundKey.awaitingExecution)}</span>
               </div>
             ) : (
               <div className="flex flex-col gap-2">
@@ -241,7 +243,7 @@ export default function JsPlayground({
               ) : (
                 <Play size={18} className="fill-current" />
               )}
-              {isRunning ? t(I18nKey.executing) : t(I18nKey.runCode)}
+              {isRunning ? t(JsPlaygroundKey.executing) : t(JsPlaygroundKey.runCode)}
             </button>
           </div>
         </div>
@@ -258,7 +260,7 @@ export default function JsPlayground({
                   {expandedView === 'code' ? <Code2 size={20} /> : <Database size={20} />}
                 </div>
                 <h3 className="font-bold tracking-tight text-black/90 dark:text-white/90">
-                  {expandedView === 'code' ? t(I18nKey.jsCode) : t(I18nKey.inputData)}
+                  {expandedView === 'code' ? t(JsPlaygroundKey.jsCode) : t(JsPlaygroundKey.inputData)}
                 </h3>
               </div>
               <button
@@ -277,7 +279,7 @@ export default function JsPlayground({
                 padding={24}
                 style={{ fontFamily: 'inherit', minHeight: '100%', fontSize: '1.1rem' }}
                 disabled={expandedView === 'code' ? readOnlyCode : readOnlyData}
-                placeholder={expandedView === 'code' ? t(I18nKey.jsCodePlaceholder) : t(I18nKey.inputDataPlaceholder)}
+                placeholder={expandedView === 'code' ? t(JsPlaygroundKey.jsCodePlaceholder) : t(JsPlaygroundKey.inputDataPlaceholder)}
                 textareaClassName="focus:outline-none"
               />
             </div>

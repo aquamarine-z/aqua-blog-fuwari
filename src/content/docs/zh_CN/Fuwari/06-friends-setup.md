@@ -22,11 +22,13 @@ sidebar_position: 6
 在 `friendsConfig` 数组中，每一个大括号 `{ ... }` 就代表了一张友情链接卡片。它的基本结构如下：
 
 ```typescript
+import { FriendsKey } from "@/i18n/partials/friends/keys";
+
 export const friendsConfig: Friend[] = [
     {
         name: "Aquamarine",                 // 必填：友链的名称（如昵称）
         avatar: "https://github.com/...png", // 必填：对方的头像链接 (推荐使用图片 URL 或相对路径)
-        labels: ['tag.self', "tag.frontend"], // 必填：用于描述对方属性的标签数组
+        labels: [FriendsKey.tagSelf, FriendsKey.tagFrontend], // 必填：用于描述对方属性的标签数组
         links: [                            // 必填：对方的各种链接地址
             { name: 'Github', link: "https://github.com/aquamarine-z" },
             { name: 'Blog', link: "https://aquamarine-z.github.io/aqua-blog/" }
@@ -40,7 +42,7 @@ export const friendsConfig: Friend[] = [
 
 * **name**: 对方的昵称或名称。
 * **avatar**: 头像图片的 URL，支持外部链接（如 GitHub 头像链接）或本地相对路径（如 `/assets/friends-avatar/xxx.png`）。
-* **labels**: 为你的好友打上的标签（Tag）。系统内置了一些国际化标签（如 `'tag.friend'`, `'tag.schoolmate'` 等）。关于如何自定义标签，请参考《深度定制》章节。
+* **labels**: 为你的好友打上的标签（Tag）。为了支持多语言，标签必须通过引入 `FriendsKey`（例如 `FriendsKey.tagFriend`）来配置。关于如何自定义全新标签，请参考《深度定制》章节。
 * **links**: 这是一个包含对方所有社交/网站链接的数组。你只需要配置名称 (`name`) 和网址 (`link`)，系统会自动根据 `name` 匹配对应的 Icon（如 Github 会自动显示 Github 的图标）。
 
 ## 3. 注意事项

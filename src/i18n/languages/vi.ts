@@ -44,15 +44,5 @@ export const vi: Translation = {
         [Key.customHue]: 'Custom Hue',
 [Key.themeColorNames]: ['Crimson', 'Amber', 'Gold', 'Aqua', 'Indigo', 'Violet', 'Rose'],
 
-    [Key.jsPlayground]: "JS Playground",
-    [Key.jsCode]: "Mã JavaScript",
-    [Key.inputData]: "Dữ liệu Đầu vào (JSON)",
-    [Key.consoleOutput]: "Đầu ra Bảng điều khiển",
-    [Key.awaitingExecution]: "Đang chờ thực thi...",
-    [Key.runCode]: "Chạy Mã",
-    [Key.executing]: "Đang thực thi...",
-    [Key.reset]: "Đặt lại",
 
-    [Key.jsCodePlaceholder]: "Nhập mã JavaScript vào đây...\nvd. return data.map(x => x * 2);",
-    [Key.inputDataPlaceholder]: "Nhập dữ liệu JSON vào đây...\nvd. [1, 2, 3]",
 };
