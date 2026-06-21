@@ -54,7 +54,7 @@ let links: NavBarLink[] = navBarConfig.links.map(
                 <div class="w-5 shrink min-w-[0.5rem]"></div>
             </div>
         </a>
-        <div class="hidden nav:flex min-w-0">
+        <div class="hidden nav:flex min-w-0 mr-4">
             {links.map((l) => {
                 return <a aria-label={l.name} href={l.external ? l.url : url(l.url)} target={l.external ? "_blank" : null}
                           class="btn-plain scale-animation rounded-lg h-11 font-bold active:scale-95 min-w-0 flex-shrink px-0"
