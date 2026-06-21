@@ -2,6 +2,7 @@ export enum HomeKey {
     title = 'title',
     subtitle = 'subtitle',
     description = 'description',
+    description2 = 'description2',
     readBlog = 'readBlog',
     viewDocs = 'viewDocs',
     techStack = 'techStack',

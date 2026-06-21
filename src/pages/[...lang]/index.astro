@@ -16,12 +16,18 @@ const lang = Astro.currentLocale || siteConfig.lang;
 
 import { HomeKey } from "../../i18n/partials/home/keys";
 const t = (key: HomeKey) => i18n(key, lang);
+
+const splitLang = (str: string) => {
+    const idx = str.indexOf('(');
+    if (idx === -1) return [str, ''];
+    return [str.substring(0, idx).trim(), str.substring(idx + 1, str.length - 1).trim()];
+};
 ---
 
 <MainGridLayout title={i18n(I18nKey.home, Astro.currentLocale)}>
     <div class="flex w-full rounded-[var(--radius)] overflow-hidden relative mb-6">
         <div class="card-base z-10 px-6 py-10 md:px-12 md:py-16 relative w-full flex flex-col md:flex-row gap-8 md:gap-12 items-center md:items-start transition-all">
-            <div class="w-36 h-36 md:w-52 md:h-52 shrink-0 rounded-full overflow-hidden border-[6px] border-[var(--primary)]/20 shadow-xl shadow-[var(--primary)]/10 hover:scale-105 hover:border-[var(--primary)]/40 transition-all duration-300">
+            <div class="w-36 h-36 md:w-52 md:h-52 shrink-0 rounded-full overflow-hidden border-[6px] border-[var(--primary)]/20 shadow-xl shadow-[var(--primary)]/10 hover:scale-105 hover:border-[var(--primary)]/40 hover:shadow-[0_0_20px_var(--primary)]/25 transition-all duration-300">
                 <ImageWrapper src={profileConfig.avatar || '/favicon.svg'} alt="Avatar" class="w-full h-full object-cover" />
             </div>
             
@@ -30,35 +36,41 @@ const t = (key: HomeKey) => i18n(key, lang);
                     {t(HomeKey.title)}
                 </h1>
                 
-                <h2 class="text-xl md:text-2xl font-semibold text-90 h-8 flex items-center">
+                <h2 class="text-base md:text-xl font-semibold text-90 h-8 flex items-center whitespace-nowrap overflow-hidden select-none">
                     <span id="typewriter" class="border-r-[3px] border-[var(--primary)] pr-1 animate-pulse"></span>
                 </h2>
                 
-                <p class="text-base md:text-lg text-75 leading-relaxed max-w-2xl" set:html={t(HomeKey.description)}>
-                </p>
+                <div class="flex flex-col gap-3 text-base md:text-lg text-75 leading-relaxed max-w-[65ch] text-pretty">
+                    <p set:html={t(HomeKey.description)}></p>
+                    <p set:html={t(HomeKey.description2)}></p>
+                </div>
                 
-                <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-2">
-                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 hover:-translate-y-0.5 transition-all font-medium cursor-default">
-                        <Icon name="fa6-brands:react" class="text-xl" /> React
+                <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-2 select-none">
+                    <div class="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-[var(--primary)]/5 text-[var(--primary)] hover:bg-[var(--primary)]/15 hover:text-[var(--primary)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 font-medium cursor-default group/chip">
+                        <Icon name="fa6-brands:react" class="text-lg text-[var(--primary)]/70 group-hover/chip:text-[var(--primary)] group-hover/chip:scale-110 transition-all duration-300" />
+                        <span>React</span>
                     </div>
-                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 hover:-translate-y-0.5 transition-all font-medium cursor-default">
-                        <Icon name="fa6-brands:vuejs" class="text-xl" /> Vue
+                    <div class="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-[var(--primary)]/5 text-[var(--primary)] hover:bg-[var(--primary)]/15 hover:text-[var(--primary)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 font-medium cursor-default group/chip">
+                        <Icon name="fa6-brands:vuejs" class="text-lg text-[var(--primary)]/70 group-hover/chip:text-[var(--primary)] group-hover/chip:scale-110 transition-all duration-300" />
+                        <span>Vue</span>
                     </div>
-                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 hover:-translate-y-0.5 transition-all font-medium cursor-default">
-                        <Icon name="material-symbols:palette-outline" class="text-xl" /> {t(HomeKey.design)}
+                    <div class="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-[var(--primary)]/5 text-[var(--primary)] hover:bg-[var(--primary)]/15 hover:text-[var(--primary)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 font-medium cursor-default group/chip">
+                        <Icon name="material-symbols:palette-outline" class="text-lg text-[var(--primary)]/70 group-hover/chip:text-[var(--primary)] group-hover/chip:scale-110 transition-all duration-300" />
+                        <span>{t(HomeKey.design)}</span>
                     </div>
-                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 hover:-translate-y-0.5 transition-all font-medium cursor-default">
-                        <Icon name="material-symbols:translate-rounded" class="text-xl" /> JLPT N1 & TOPIK 6
+                    <div class="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-[var(--primary)]/5 text-[var(--primary)] hover:bg-[var(--primary)]/15 hover:text-[var(--primary)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 font-medium cursor-default group/chip">
+                        <Icon name="material-symbols:translate-rounded" class="text-lg text-[var(--primary)]/70 group-hover/chip:text-[var(--primary)] group-hover/chip:scale-110 transition-all duration-300" />
+                        <span>JLPT N1 & TOPIK 6</span>
                     </div>
                 </div>
 
                 <div class="flex flex-wrap gap-4 mt-6 w-full justify-center md:justify-start">
-                    <a href={url(Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/blog/` : "/blog/")} class="group bg-[var(--primary)] text-white px-6 py-3.5 rounded-xl hover:brightness-110 shadow-lg shadow-[var(--primary)]/30 active:scale-95 transition-all font-bold flex items-center gap-2 text-lg">
+                    <a href={url(Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/blog/` : "/blog/")} class="group bg-[var(--primary)] text-white px-6 py-3.5 rounded-xl hover:brightness-110 shadow-lg shadow-[var(--primary)]/30 active:scale-[0.98] transition-all font-bold flex items-center gap-2 text-lg">
                         <Icon name="material-symbols:article-outline-rounded" class="text-xl" />
                         {t(HomeKey.readBlog)}
                         <Icon name="material-symbols:arrow-forward-rounded" class="text-xl transition-transform group-hover:translate-x-1" />
                     </a>
-                    <a href={url(Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/docs/intro/` : "/docs/intro/")} class="group bg-[var(--btn-regular-bg)] text-[var(--btn-content)] px-6 py-3.5 rounded-xl hover:bg-[var(--btn-regular-bg-hover)] shadow-md active:scale-95 transition-all font-bold flex items-center gap-2 text-lg">
+                    <a href={url(Astro.currentLocale && Astro.currentLocale !== siteConfig.lang ? `/${Astro.currentLocale}/docs/intro/` : "/docs/intro/")} class="group bg-[var(--btn-regular-bg)] text-[var(--primary)] px-6 py-3.5 rounded-xl hover:bg-[var(--btn-regular-bg-hover)] shadow-md active:scale-[0.98] transition-all font-bold flex items-center gap-2 text-lg">
                         <Icon name="material-symbols:menu-book-outline-rounded" class="text-xl" />
                         {t(HomeKey.viewDocs)}
                         <Icon name="material-symbols:arrow-forward-rounded" class="text-xl transition-transform group-hover:translate-x-1" />
@@ -68,41 +80,135 @@ const t = (key: HomeKey) => i18n(key, lang);
         </div>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="card-base p-8 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
-            <h3 class="text-2xl font-bold mb-5 flex items-center gap-3 text-[var(--primary)]">
+    <div class="grid grid-cols-1 md:grid-cols-2 md:grid-rows-[auto_auto_1fr] gap-6">
+        <div class="card-base p-8 hover:shadow-lg hover:-translate-y-1 hover:border-[var(--primary)]/10 border border-transparent transition-all duration-300 group flex flex-col gap-y-5 md:grid md:grid-rows-subgrid md:row-span-3">
+            <h3 class="text-2xl font-bold flex items-center gap-3 text-[var(--primary)] md:row-start-1">
                 <div class="p-2 rounded-lg bg-[var(--primary)]/10 group-hover:bg-[var(--primary)]/20 transition-colors">
                     <Icon name="material-symbols:code-blocks-outline-rounded" class="text-2xl" />
                 </div>
                 {t(HomeKey.techStack)}
             </h3>
-            <p class="text-75 mb-5 leading-relaxed">
+            <p class="text-75 leading-relaxed max-w-[65ch] md:row-start-2">
                 {t(HomeKey.techDesc)}
             </p>
-            <ul class="space-y-2 text-75">
-                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> React, Vue.js, Svelte</li>
-                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> Tailwind CSS, SCSS</li>
-                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> TypeScript, Node.js</li>
-                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> Astro, Next.js, Nuxt</li>
-            </ul>
+            <div class="grid grid-cols-2 gap-y-4 gap-x-6 md:row-start-3">
+                <div class="flex items-center gap-3.5 group/tech select-none py-1 cursor-default">
+                    <div class="text-75 group-hover/tech:text-[var(--primary)] group-hover/tech:scale-110 transition-all duration-300">
+                        <Icon name="fa6-brands:react" class="text-lg" />
+                    </div>
+                    <span class="font-medium text-90 group-hover/tech:text-[var(--primary)] transition-colors duration-300">React</span>
+                </div>
+                <div class="flex items-center gap-3.5 group/tech select-none py-1 cursor-default">
+                    <div class="text-75 group-hover/tech:text-[var(--primary)] group-hover/tech:scale-110 transition-all duration-300">
+                        <Icon name="fa6-brands:vuejs" class="text-lg" />
+                    </div>
+                    <span class="font-medium text-90 group-hover/tech:text-[var(--primary)] transition-colors duration-300">Vue.js</span>
+                </div>
+                <div class="flex items-center gap-3.5 group/tech select-none py-1 cursor-default">
+                    <div class="text-75 group-hover/tech:text-[var(--primary)] group-hover/tech:scale-110 transition-all duration-300">
+                        <Icon name="material-symbols:code-rounded" class="text-lg" />
+                    </div>
+                    <span class="font-medium text-90 group-hover/tech:text-[var(--primary)] transition-colors duration-300">TypeScript</span>
+                </div>
+                <div class="flex items-center gap-3.5 group/tech select-none py-1 cursor-default">
+                    <div class="text-75 group-hover/tech:text-[var(--primary)] group-hover/tech:scale-110 transition-all duration-300">
+                        <Icon name="material-symbols:palette-outline" class="text-lg" />
+                    </div>
+                    <span class="font-medium text-90 group-hover/tech:text-[var(--primary)] transition-colors duration-300">Tailwind CSS</span>
+                </div>
+                <div class="flex items-center gap-3.5 group/tech select-none py-1 cursor-default">
+                    <div class="text-75 group-hover/tech:text-[var(--primary)] group-hover/tech:scale-110 transition-all duration-300">
+                        <Icon name="material-symbols:rocket-launch-outline-rounded" class="text-lg" />
+                    </div>
+                    <span class="font-medium text-90 group-hover/tech:text-[var(--primary)] transition-colors duration-300">Astro</span>
+                </div>
+                <div class="flex items-center gap-3.5 group/tech select-none py-1 cursor-default">
+                    <div class="text-75 group-hover/tech:text-[var(--primary)] group-hover/tech:scale-110 transition-all duration-300">
+                        <Icon name="fa6-brands:node-js" class="text-lg" />
+                    </div>
+                    <span class="font-medium text-90 group-hover/tech:text-[var(--primary)] transition-colors duration-300">Node.js</span>
+                </div>
+                <div class="flex items-center gap-3.5 group/tech select-none py-1 cursor-default">
+                    <div class="text-75 group-hover/tech:text-[var(--primary)] group-hover/tech:scale-110 transition-all duration-300">
+                        <svg role="img" viewBox="0 0 24 24" class="w-[1.125rem] h-[1.125rem] fill-current" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14.314 0L2.3 12 6 15.7 21.684.013h-7.357zm.014 11.072L7.857 17.53l6.47 6.47H21.7l-6.46-6.468 6.46-6.46h-7.37z"/>
+                        </svg>
+                    </div>
+                    <span class="font-medium text-90 group-hover/tech:text-[var(--primary)] transition-colors duration-300">Flutter</span>
+                </div>
+                <div class="flex items-center gap-3.5 group/tech select-none py-1 cursor-default">
+                    <div class="text-75 group-hover/tech:text-[var(--primary)] group-hover/tech:scale-110 transition-all duration-300">
+                        <svg role="img" viewBox="0 0 24 24" class="w-[1.125rem] h-[1.125rem] fill-current" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.135.003a2.577 2.577 0 0 0-1.42.344L2.55 5.06a2.577 2.577 0 0 0-.953.967l3.957 2.17a1.765 1.765 0 0 1 .603-.588l4.951-2.86a1.761 1.761 0 0 1 1.76 0l4.951 2.86a1.753 1.753 0 0 1 .526.46l3.921-2.265a2.577 2.577 0 0 0-.816-.744L13.291.347a2.577 2.577 0 0 0-1.152-.34Zm-.145 4.912a1.36 1.36 0 0 0-.68.182L6.36 7.953a1.345 1.345 0 0 0-.454.435l1.92 1.055a1.05 1.05 0 0 1 .31-.275l3.34-1.928a1.054 1.054 0 0 1 1.051 0l3.336 1.928a1.066 1.066 0 0 1 .238.199l.018-.01-.002-.002 1.877-1.08a1.353 1.353 0 0 0-.373-.322l-4.95-2.86a1.357 1.357 0 0 0-.68-.178Zm10.432 1.149-3.92 2.26a1.757 1.757 0 0 1 .2.812v5.715c0 .627-.332 1.21-.88 1.528l-4.95 2.86a1.761 1.761 0 0 1-.64.214v4.524a2.577 2.577 0 0 0 1.059-.313l8.162-4.713a2.577 2.577 0 0 0 1.289-2.23V7.297a2.577 2.577 0 0 0-.318-1.228Zm-20.937.238a2.577 2.577 0 0 0-.227.99v9.43c0 .918.491 1.767 1.293 2.229l8.162 4.713a2.57 2.57 0 0 0 1.225.336v-4.531a1.761 1.761 0 0 1-.833-.235L6.156 16.38a1.765 1.765 0 0 1-.877-1.528V9.136a1.776 1.776 0 0 1 .131-.676Zm16.67 2.223-1.89 1.092a1.058 1.058 0 0 1 .124.46v3.856c0 .378-.2.72-.526.907l-3.336 1.93a1.04 1.04 0 0 1-.295.107v2.17c.152-.027.304-.078.44-.157l4.949-2.859a1.36 1.36 0 0 0 .68-1.18V9.136a1.36 1.36 0 0 0-.147-.607Zm-12.387.13a1.36 1.36 0 0 0-.088.481v5.715a1.36 1.36 0 0 0 .68 1.18l4.95 2.86c.194.112.412.166.627.177v-2.174a1.054 1.054 0 0 1-.46-.123L8.14 14.843a1.054 1.054 0 0 1-.532-.908v-3.853a.99.99 0 0 1 .077-.38l-.034-.013z"/>
+                        </svg>
+                    </div>
+                    <span class="font-medium text-90 group-hover/tech:text-[var(--primary)] transition-colors duration-300">Jetpack Compose</span>
+                </div>
+                <div class="flex items-center gap-3.5 group/tech select-none py-1 cursor-default">
+                    <div class="text-75 group-hover/tech:text-[var(--primary)] group-hover/tech:scale-110 transition-all duration-300">
+                        <svg role="img" viewBox="0 0 24 24" class="w-[1.125rem] h-[1.125rem] fill-current" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24 0H0v24h24L12.04 11.96 24 0zM12.36 1.18h8.81L.91 22.82V14.01z"/>
+                        </svg>
+                    </div>
+                    <span class="font-medium text-90 group-hover/tech:text-[var(--primary)] transition-colors duration-300">Kotlin</span>
+                </div>
+                <div class="flex items-center gap-3.5 group/tech select-none py-1 cursor-default">
+                    <div class="text-75 group-hover/tech:text-[var(--primary)] group-hover/tech:scale-110 transition-all duration-300">
+                        <Icon name="fa6-brands:rust" class="text-lg" />
+                    </div>
+                    <span class="font-medium text-90 group-hover/tech:text-[var(--primary)] transition-colors duration-300">Rust</span>
+                </div>
+            </div>
         </div>
         
-        <div class="card-base p-8 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
-            <h3 class="text-2xl font-bold mb-5 flex items-center gap-3 text-[var(--primary)]">
+        <div class="card-base p-8 hover:shadow-lg hover:-translate-y-1 hover:border-[var(--primary)]/10 border border-transparent transition-all duration-300 group flex flex-col gap-y-5 md:grid md:grid-rows-subgrid md:row-span-3">
+            <h3 class="text-2xl font-bold flex items-center gap-3 text-[var(--primary)] md:row-start-1">
                 <div class="p-2 rounded-lg bg-[var(--primary)]/10 group-hover:bg-[var(--primary)]/20 transition-colors">
                     <Icon name="material-symbols:translate-rounded" class="text-2xl" />
                 </div>
                 {t(HomeKey.languages)}
             </h3>
-            <p class="text-75 mb-5 leading-relaxed">
+            <p class="text-75 leading-relaxed max-w-[65ch] md:row-start-2">
                 {t(HomeKey.langDesc)}
             </p>
-            <ul class="space-y-2 text-75">
-                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {t(HomeKey.native)}</li>
-                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {t(HomeKey.english)}</li>
-                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {t(HomeKey.japanese)}</li>
-                <li class="flex items-center gap-3"><Icon name="material-symbols:check-circle-outline-rounded" class="text-[var(--primary)]" /> {t(HomeKey.korean)}</li>
-            </ul>
+            <div class="space-y-4 text-75 select-none md:row-start-3">
+                <div class="flex items-center gap-4 py-2 group/item">
+                    <div class="w-8 h-8 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center font-bold text-sm select-none shrink-0 transition-colors duration-300 group-hover/item:bg-[var(--primary)]/20">
+                        中
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-90 text-base leading-snug group-hover/item:text-[var(--primary)] transition-colors duration-300">{splitLang(t(HomeKey.native))[0]}</span>
+                        <span class="text-xs text-50 leading-none mt-1">{splitLang(t(HomeKey.native))[1]}</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 py-2 group/item">
+                    <div class="w-8 h-8 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center font-bold text-sm select-none shrink-0 transition-colors duration-300 group-hover/item:bg-[var(--primary)]/20">
+                        あ
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-90 text-base leading-snug group-hover/item:text-[var(--primary)] transition-colors duration-300">{splitLang(t(HomeKey.japanese))[0]}</span>
+                        <span class="text-xs text-50 leading-none mt-1">{splitLang(t(HomeKey.japanese))[1]}</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 py-2 group/item">
+                    <div class="w-8 h-8 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center font-bold text-sm select-none shrink-0 transition-colors duration-300 group-hover/item:bg-[var(--primary)]/20">
+                        한
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-90 text-base leading-snug group-hover/item:text-[var(--primary)] transition-colors duration-300">{splitLang(t(HomeKey.korean))[0]}</span>
+                        <span class="text-xs text-50 leading-none mt-1">{splitLang(t(HomeKey.korean))[1]}</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 py-2 group/item">
+                    <div class="w-8 h-8 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center font-bold text-sm select-none shrink-0 transition-colors duration-300 group-hover/item:bg-[var(--primary)]/20">
+                        En
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-90 text-base leading-snug group-hover/item:text-[var(--primary)] transition-colors duration-300">{splitLang(t(HomeKey.english))[0]}</span>
+                        <span class="text-xs text-50 leading-none mt-1">{splitLang(t(HomeKey.english))[1]}</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </MainGridLayout>
@@ -115,20 +221,28 @@ const t = (key: HomeKey) => i18n(key, lang);
 }
 </style>
 
-<script is:inline define:vars={{ initialSubtitle: t(HomeKey.subtitle) }}>
+<script is:inline define:vars={{ currentLang: Astro.currentLocale || 'zh_CN' }}>
     function initTypewriter() {
         const el = document.getElementById("typewriter");
         if (!el) return;
         
-        const allWords = [
-            initialSubtitle,
-            "フロントエンドエンジニア · 多言語話者",
-            "프론트엔드 개발자 · 다국어 구사자",
-            "Frontend Engineer · Polyglot",
-            "前端开发工程师 · 多语种学习者"
-        ];
-        // Remove duplicates so we don't type the same thing twice in a row
-        const words = [allWords[0], ...allWords.slice(1).filter(w => w !== allWords[0])];
+        const zh = "前端设计工程师 · 语言学探索者";
+        const en = "Frontend Design Engineer · Linguistics Explorer";
+        const ja = "フロントエンドデザイナー · 言語学探求者";
+        const ko = "프론트엔드 디자인 엔지니어 · 언어학 탐구자";
+        
+        let words = [];
+        const l = (currentLang || "").toLowerCase();
+        
+        if (l.startsWith("zh")) {
+            words = [zh, en, ja, ko];
+        } else if (l.startsWith("ja")) {
+            words = [ja, ko, zh, en];
+        } else if (l.startsWith("ko")) {
+            words = [ko, zh, en, ja];
+        } else {
+            words = [en, ja, ko, zh];
+        }
         
         let i = 0;
         let j = 0;
