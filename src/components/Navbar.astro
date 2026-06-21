@@ -46,16 +46,17 @@ let links: NavBarLink[] = navBarConfig.links.map(
     <div class:list={[
         className,
         "card-base !overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center justify-between px-4"]}>
-        <a href={currentLang === siteConfig.lang ? url('/') : url(`/${currentLang}/`)} class="btn-plain scale-animation rounded-lg h-[3.25rem] px-3.5 font-bold active:scale-95">
+        <a href={currentLang === siteConfig.lang ? url('/') : url(`/${currentLang}/`)} class="btn-plain scale-animation rounded-lg h-[3.25rem] font-bold active:scale-95" style="padding-left: clamp(0.5rem, 20vw - 13.75rem, 1.25rem); padding-right: clamp(0.5rem, 20vw - 13.75rem, 1.25rem)">
             <div class="flex flex-row text-[var(--primary)] items-center text-md">
                 <Icon name="material-symbols:home-outline-rounded" class="text-[1.75rem] mb-1 mr-2" />
                 {siteConfig.title}
             </div>
         </a>
-        <div class="hidden nav:flex min-w-0" style="gap: clamp(0.25rem, 5vw - 3.25rem, 2.5rem)">
+        <div class="hidden nav:flex min-w-0">
             {links.map((l) => {
                 return <a aria-label={l.name} href={l.external ? l.url : url(l.url)} target={l.external ? "_blank" : null}
-                          class="btn-plain scale-animation rounded-lg h-11 font-bold px-3 active:scale-95 min-w-0 flex-shrink"
+                          class="btn-plain scale-animation rounded-lg h-11 font-bold active:scale-95 min-w-0 flex-shrink"
+                          style="padding-left: clamp(0.5rem, 20vw - 13.75rem, 1.25rem); padding-right: clamp(0.5rem, 20vw - 13.75rem, 1.25rem)"
                 >
                     <div class="flex items-center max-w-[12rem] min-w-0">
                         <span class="overflow-hidden whitespace-nowrap">{l.name}</span>
