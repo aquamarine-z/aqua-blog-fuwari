@@ -1,9 +1,9 @@
 ---
 import type { MarkdownHeading } from "astro";
+import { stripBasePath } from "../../utils/url-utils";
 import Categories from "./Categories.astro";
 import Profile from "./Profile.astro";
 import Tag from "./Tags.astro";
-import { stripBasePath } from "../../utils/url-utils";
 
 interface Props {
 	class?: string;
@@ -12,8 +12,9 @@ interface Props {
 
 const className = Astro.props.class;
 const currentPath = stripBasePath(Astro.url.pathname);
-const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(currentPath) || 
-               currentPath.includes('/posts/docs');
+const isDocs =
+	/^\/([a-zA-Z_-]+\/)?docs\/?/.test(currentPath) ||
+	currentPath.includes("/posts/docs");
 ---
 <div id="sidebar" class:list={[className, "w-full"]}>
     <div class:list={["flex flex-col w-full gap-4 mb-4", {"hidden lg:flex": isDocs}]}>

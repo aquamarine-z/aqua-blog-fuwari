@@ -6,7 +6,7 @@ import { url } from "@utils/url-utils.ts";
 import { onMount } from "svelte";
 import type { SearchResult } from "@/global";
 
-export let lang: string = "en";
+export let lang = "en";
 
 let keywordDesktop = "";
 let keywordMobile = "";

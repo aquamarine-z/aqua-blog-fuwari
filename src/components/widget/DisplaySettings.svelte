@@ -5,7 +5,7 @@ import Icon from "@iconify/svelte";
 import { getDefaultHue, getHue, setHue } from "@utils/setting-utils";
 import { siteConfig } from "../../config";
 
-export let lang: string = "en";
+export let lang = "en";
 
 let hue = getHue();
 let displayHue = hue;
@@ -14,27 +14,36 @@ const defaultHue = getDefaultHue();
 const configHues = siteConfig.themeColor.colors || [0, 180, 250, 300, 340];
 
 let localizedNames = i18n(I18nKey.themeColorNames, lang) as unknown as string[];
-if (!Array.isArray(localizedNames) || localizedNames.length !== configHues.length) {
-    localizedNames = i18n(I18nKey.themeColorNames, siteConfig.lang) as unknown as string[];
+if (
+	!Array.isArray(localizedNames) ||
+	localizedNames.length !== configHues.length
+) {
+	localizedNames = i18n(
+		I18nKey.themeColorNames,
+		siteConfig.lang,
+	) as unknown as string[];
 }
-if (!Array.isArray(localizedNames) || localizedNames.length !== configHues.length) {
-    localizedNames = configHues.map((_, i) => `Color ${i + 1}`);
+if (
+	!Array.isArray(localizedNames) ||
+	localizedNames.length !== configHues.length
+) {
+	localizedNames = configHues.map((_, i) => `Color ${i + 1}`);
 }
 
 const colorPalettes = configHues.map((h, i) => ({
-    hue: h,
-    name: localizedNames[i]
+	hue: h,
+	name: localizedNames[i],
 }));
 
 function selectHue(h: number) {
 	hue = h;
-    displayHue = h;
+	displayHue = h;
 	setHue(h);
 }
 
 let timeout: any;
 $: if (hue || hue === 0) {
-    setHue(hue);
+	setHue(hue);
 }
 </script>
 

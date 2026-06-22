@@ -1,19 +1,18 @@
 ---
-import { getLangPaths } from '@utils/i18n-utils';
+import { getLangPaths } from "@utils/i18n-utils";
 export function getStaticPaths() {
-    return getLangPaths();
+	return getLangPaths();
 }
-
 
 import { render } from "astro:content";
 import Markdown from "@components/misc/Markdown.astro";
-import I18nKey from "../../i18n/i18nKey";
-import { i18n, getTranslation } from "../../i18n/translation";
-import MainGridLayout from "../../layouts/MainGridLayout.astro";
 import { getSpecEntry } from "@utils/content-utils";
-import { siteConfig } from "../../config";
-import { Icon } from "astro-icon/components";
 import { url } from "@utils/url-utils";
+import { Icon } from "astro-icon/components";
+import { siteConfig } from "../../config";
+import I18nKey from "../../i18n/i18nKey";
+import { getTranslation, i18n } from "../../i18n/translation";
+import MainGridLayout from "../../layouts/MainGridLayout.astro";
 
 const langCode = Astro.params.lang || siteConfig.lang;
 const aboutPost = await getSpecEntry("about", langCode);

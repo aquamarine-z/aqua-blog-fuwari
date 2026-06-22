@@ -6,16 +6,16 @@ import SideBar from "@components/widget/SideBar.astro";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 import ImageWrapper from "../components/misc/ImageWrapper.astro";
-import TOC from "../components/widget/TOC.astro";
 import Profile from "../components/widget/Profile.astro";
 import Tag from "../components/widget/Tags.astro";
+import TOC from "../components/widget/TOC.astro";
 import { siteConfig } from "../config";
-import { stripBasePath } from "../utils/url-utils";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_EXTEND,
 	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
 } from "../constants/constants";
+import { stripBasePath } from "../utils/url-utils";
 import Layout from "./Layout.astro";
 
 interface Props {
@@ -44,8 +44,9 @@ const mainPanelTop = siteConfig.banner.enable
 	: "5.5rem";
 
 const currentPath = stripBasePath(Astro.url.pathname);
-const isDocs = /^\/([a-zA-Z_-]+\/)?docs\/?/.test(currentPath) || 
-               currentPath.includes('/posts/docs');
+const isDocs =
+	/^\/([a-zA-Z_-]+\/)?docs\/?/.test(currentPath) ||
+	currentPath.includes("/posts/docs");
 ---
 
 <Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle}>

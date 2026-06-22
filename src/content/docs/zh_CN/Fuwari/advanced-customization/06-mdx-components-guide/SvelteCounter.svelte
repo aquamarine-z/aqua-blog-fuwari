@@ -1,8 +1,8 @@
 <script>
-  let count = 0;
-  function increment() {
-    count += 1;
-  }
+let count = 0;
+function increment() {
+	count += 1;
+}
 </script>
 
 <div class="p-4 border-2 border-orange-500 rounded-xl bg-orange-500/10 mb-4">

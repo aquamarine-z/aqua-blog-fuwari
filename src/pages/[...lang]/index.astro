@@ -1,26 +1,30 @@
 ---
-import { getLangPaths } from '@utils/i18n-utils';
-import { i18n } from "@i18n/translation";
 import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import { getLangPaths } from "@utils/i18n-utils";
 export function getStaticPaths() {
-    return getLangPaths();
+	return getLangPaths();
 }
 
-import MainGridLayout from "../../layouts/MainGridLayout.astro";
-import { siteConfig, profileConfig } from "../../config";
 import { Icon } from "astro-icon/components";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
+import { profileConfig, siteConfig } from "../../config";
+import MainGridLayout from "../../layouts/MainGridLayout.astro";
 import { url } from "../../utils/url-utils";
 
 const lang = Astro.currentLocale || siteConfig.lang;
 
 import { HomeKey } from "../../i18n/partials/home/keys";
+
 const t = (key: HomeKey) => i18n(key, lang);
 
 const splitLang = (str: string) => {
-    const idx = str.indexOf('(');
-    if (idx === -1) return [str, ''];
-    return [str.substring(0, idx).trim(), str.substring(idx + 1, str.length - 1).trim()];
+	const idx = str.indexOf("(");
+	if (idx === -1) return [str, ""];
+	return [
+		str.substring(0, idx).trim(),
+		str.substring(idx + 1, str.length - 1).trim(),
+	];
 };
 ---
 

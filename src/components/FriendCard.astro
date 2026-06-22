@@ -1,44 +1,46 @@
 ---
 import { Icon } from "astro-icon/components";
-import { i18n } from "../i18n/translation";
 import { FriendsKey } from "../i18n/partials/friends/keys";
+import { i18n } from "../i18n/translation";
 import { url } from "../utils/url-utils";
 
 export interface Friend {
-    name: string;
-    avatar: string;
-    labels: string[];
-    links: { name: string; icon?: string; link: string }[];
+	name: string;
+	avatar: string;
+	labels: string[];
+	links: { name: string; icon?: string; link: string }[];
 }
 
 interface Props {
-    friend: Friend;
+	friend: Friend;
 }
 
 const { friend } = Astro.props;
-const avatarUrl = friend.avatar.startsWith("/") ? url(friend.avatar) : friend.avatar;
+const avatarUrl = friend.avatar.startsWith("/")
+	? url(friend.avatar)
+	: friend.avatar;
 
 // Determine colors for labels based on the old labelDefaultColors mapping
 const labelColors: Record<string, string> = {
-    [FriendsKey.tagFriend]: "bg-[oklch(0.85_0.15_160)]",
-    [FriendsKey.tagSchoolmate]: "bg-[oklch(0.80_0.12_250)]",
-    [FriendsKey.tagTeacher]: "bg-[oklch(0.90_0.20_100)]",
-    [FriendsKey.tagLover]: "bg-[oklch(0.85_0.15_330)]",
-    [FriendsKey.tagFamily]: "bg-[oklch(0.85_0.15_140)]",
-    [FriendsKey.tagSelf]: "bg-[oklch(0.80_0.18_300)]",
-    [FriendsKey.tagFrontend]: "bg-[oklch(0.85_0.10_200)]",
-    [FriendsKey.tagBackend]: "bg-[oklch(0.85_0.10_40)]",
-    [FriendsKey.tagReact]: "bg-[oklch(0.85_0.15_240)]",
-    "common": "bg-[oklch(0.85_0.05_200)] text-black/80",
+	[FriendsKey.tagFriend]: "bg-[oklch(0.85_0.15_160)]",
+	[FriendsKey.tagSchoolmate]: "bg-[oklch(0.80_0.12_250)]",
+	[FriendsKey.tagTeacher]: "bg-[oklch(0.90_0.20_100)]",
+	[FriendsKey.tagLover]: "bg-[oklch(0.85_0.15_330)]",
+	[FriendsKey.tagFamily]: "bg-[oklch(0.85_0.15_140)]",
+	[FriendsKey.tagSelf]: "bg-[oklch(0.80_0.18_300)]",
+	[FriendsKey.tagFrontend]: "bg-[oklch(0.85_0.10_200)]",
+	[FriendsKey.tagBackend]: "bg-[oklch(0.85_0.10_40)]",
+	[FriendsKey.tagReact]: "bg-[oklch(0.85_0.15_240)]",
+	common: "bg-[oklch(0.85_0.05_200)] text-black/80",
 };
 
 // Use specific icons based on link name
 const getIconName = (name: string) => {
-    const lower = name.toLowerCase();
-    if (lower.includes('github')) return 'fa6-brands:github';
-    if (lower.includes('blog')) return 'fa6-solid:blog';
-    if (lower.includes('line')) return 'fa6-brands:line';
-    return 'material-symbols:link-rounded';
+	const lower = name.toLowerCase();
+	if (lower.includes("github")) return "fa6-brands:github";
+	if (lower.includes("blog")) return "fa6-solid:blog";
+	if (lower.includes("line")) return "fa6-brands:line";
+	return "material-symbols:link-rounded";
 };
 ---
 

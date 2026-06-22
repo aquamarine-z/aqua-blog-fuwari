@@ -1,0 +1,32 @@
+
+function main(){
+    console.log(getNext(data))
+}
+//获取KMP算法中的Next数组
+function getNext(string){
+    let i=1,len=string.length;
+    let maxMatchLength=0;
+    let mpt=[0]
+    while(i<string.length){
+        if(string.charAt(i)===string.charAt(maxMatchLength)){
+            maxMatchLength++
+            mpt.push(maxMatchLength)
+            i++
+        }else{
+            if(maxMatchLength===0){
+                mpt.push(0)
+                i++
+            }else{
+                maxMatchLength=mpt[maxMatchLength-1]
+            }
+        }
+    }
+    // 全体右移一位且各位+1
+    let next = new Array(string.length)
+    next[0] = 0
+    for(let k=1; k<string.length; k++){
+        next[k] = mpt[k-1] + 1
+    }
+    return next
+}
+main()

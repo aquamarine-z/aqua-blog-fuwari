@@ -6,40 +6,45 @@ import { i18n } from "../i18n/translation";
 
 const currentLang = Astro.currentLocale || siteConfig.lang;
 
-const languages = (siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"]).map(code => {
-    let name = code;
-    try {
-        name = i18n(I18nKey.name, code);
-    } catch (e) {
-        // Keep code as fallback
-    }
-    return {
-        code,
-        name,
-        path: code === siteConfig.lang ? "/" : `/${code}/`
-    };
+const languages = (
+	siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"]
+).map((code) => {
+	let name = code;
+	try {
+		name = i18n(I18nKey.name, code);
+	} catch (e) {
+		// Keep code as fallback
+	}
+	return {
+		code,
+		name,
+		path: code === siteConfig.lang ? "/" : `/${code}/`,
+	};
 });
 
-const currentLangName = languages.find(l => l.code === currentLang)?.name || currentLang;
+const currentLangName =
+	languages.find((l) => l.code === currentLang)?.name || currentLang;
 
 // Build switch URLs for each language
 const { pathname } = Astro.url;
-const langsPattern = (siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"])
-    .filter(l => l !== siteConfig.lang)
-    .join('|');
-const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`, 'i');
+const langsPattern = (
+	siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"]
+)
+	.filter((l) => l !== siteConfig.lang)
+	.join("|");
+const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`, "i");
 
-const langUrls = languages.map(lang => {
-    // First, strip any existing language prefix to get the base path
-    let basePath = pathname.replace(regex, "/");
-    if (!basePath.startsWith("/")) basePath = "/" + basePath;
-    
-    let targetUrl = basePath;
-    if (lang.code !== siteConfig.lang) {
-        // Prepend the new language code
-        targetUrl = `/${lang.code}${basePath === '/' ? '/' : basePath}`;
-    }
-    return { ...lang, url: targetUrl, active: lang.code === currentLang };
+const langUrls = languages.map((lang) => {
+	// First, strip any existing language prefix to get the base path
+	let basePath = pathname.replace(regex, "/");
+	if (!basePath.startsWith("/")) basePath = "/" + basePath;
+
+	let targetUrl = basePath;
+	if (lang.code !== siteConfig.lang) {
+		// Prepend the new language code
+		targetUrl = `/${lang.code}${basePath === "/" ? "/" : basePath}`;
+	}
+	return { ...lang, url: targetUrl, active: lang.code === currentLang };
 });
 ---
 

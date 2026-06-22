@@ -35,7 +35,10 @@ export function getTagUrl(tag: string, type?: "blog" | "docs"): string {
 	return url(`/archive/?tag=${encodeURIComponent(tag.trim())}${typeParam}`);
 }
 
-export function getCategoryUrl(category: string | null, type?: "blog" | "docs"): string {
+export function getCategoryUrl(
+	category: string | null,
+	type?: "blog" | "docs",
+): string {
 	const typeParam = type ? `&type=${type}` : "";
 	if (
 		!category ||
@@ -43,7 +46,9 @@ export function getCategoryUrl(category: string | null, type?: "blog" | "docs"):
 		category.trim().toLowerCase() === i18n(I18nKey.uncategorized).toLowerCase()
 	)
 		return url(`/archive/?uncategorized=true${typeParam}`);
-	return url(`/archive/?category=${encodeURIComponent(category.trim())}${typeParam}`);
+	return url(
+		`/archive/?category=${encodeURIComponent(category.trim())}${typeParam}`,
+	);
 }
 
 export function getDir(path: string): string {

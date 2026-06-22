@@ -1,63 +1,74 @@
 ---
-import { getLangPaths } from '@utils/i18n-utils';
-
 import path from "node:path";
+import Giscus from "@components/Giscus.astro";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
+import TOC from "@components/widget/TOC.astro";
 import I18nKey from "@i18n/i18nKey";
-import { i18n, getTranslation } from "@i18n/translation";
+import { getTranslation, i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
-import { getSortedBlogPosts } from "@utils/content-utils";
+import {
+	flattenTreeSlugs,
+	getBlogCategoryTree,
+	getSortedBlogPosts,
+} from "@utils/content-utils";
+import { getLangPaths } from "@utils/i18n-utils";
 import { getDir, getPostUrlBySlug, url } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
-import { licenseConfig, giscusConfig } from "src/config";
+import { giscusConfig, licenseConfig } from "src/config";
 import ImageWrapper from "../../../components/misc/ImageWrapper.astro";
 import PostMetadata from "../../../components/PostMeta.astro";
 import { profileConfig, siteConfig } from "../../../config";
 import { formatDateToYYYYMMDD } from "../../../utils/date-utils";
-import TOC from "@components/widget/TOC.astro";
-import Giscus from "@components/Giscus.astro";
-
-import { getBlogCategoryTree, flattenTreeSlugs } from "@utils/content-utils";
 
 export async function getStaticPaths() {
 	const langPaths = getLangPaths();
-	return Promise.all(langPaths.map(async (lang) => {
-		const langCode = lang.params.lang || siteConfig.lang;
-		const allEntries = await getSortedBlogPosts(langCode, true);
-		const tree = await getBlogCategoryTree(langCode);
-		const slugs = flattenTreeSlugs(tree);
-		
-		const visibleEntries = allEntries.filter(entry => entry.availableLangs?.includes(langCode) || entry.availableLangs?.includes(siteConfig.lang));
-		for (let i = 0; i < visibleEntries.length; i++) {
-			const entry = visibleEntries[i];
-			if (i > 0) {
-				const prev = visibleEntries[i - 1];
-				entry.data.prevSlug = prev.slug;
-				entry.data.prevTitle = prev.data.title;
-			}
-			if (i < visibleEntries.length - 1) {
-				const next = visibleEntries[i + 1];
-				entry.data.nextSlug = next.slug;
-				entry.data.nextTitle = next.data.title;
-			}
-		}
+	return Promise.all(
+		langPaths.map(async (lang) => {
+			const langCode = lang.params.lang || siteConfig.lang;
+			const allEntries = await getSortedBlogPosts(langCode, true);
+			const tree = await getBlogCategoryTree(langCode);
+			const slugs = flattenTreeSlugs(tree);
 
-		const hiddenEntries = allEntries.filter(entry => !entry.availableLangs?.includes(langCode) && !entry.availableLangs?.includes(siteConfig.lang));
-		for (const entry of hiddenEntries) {
-			entry.data.prevSlug = "";
-			entry.data.prevTitle = "";
-			entry.data.nextSlug = "";
-			entry.data.nextTitle = "";
-		}
+			const visibleEntries = allEntries.filter(
+				(entry) =>
+					entry.availableLangs?.includes(langCode) ||
+					entry.availableLangs?.includes(siteConfig.lang),
+			);
+			for (let i = 0; i < visibleEntries.length; i++) {
+				const entry = visibleEntries[i];
+				if (i > 0) {
+					const prev = visibleEntries[i - 1];
+					entry.data.prevSlug = prev.slug;
+					entry.data.prevTitle = prev.data.title;
+				}
+				if (i < visibleEntries.length - 1) {
+					const next = visibleEntries[i + 1];
+					entry.data.nextSlug = next.slug;
+					entry.data.nextTitle = next.data.title;
+				}
+			}
 
-		return allEntries.map((entry) => {
-			return {
-				params: { lang: lang.params.lang || undefined, slug: entry.slug },
-				props: { entry },
-			};
-		});
-	})).then(results => results.flat());
+			const hiddenEntries = allEntries.filter(
+				(entry) =>
+					!entry.availableLangs?.includes(langCode) &&
+					!entry.availableLangs?.includes(siteConfig.lang),
+			);
+			for (const entry of hiddenEntries) {
+				entry.data.prevSlug = "";
+				entry.data.prevTitle = "";
+				entry.data.nextSlug = "";
+				entry.data.nextTitle = "";
+			}
+
+			return allEntries.map((entry) => {
+				return {
+					params: { lang: lang.params.lang || undefined, slug: entry.slug },
+					props: { entry },
+				};
+			});
+		}),
+	).then((results) => results.flat());
 }
 
 const { entry } = Astro.props;

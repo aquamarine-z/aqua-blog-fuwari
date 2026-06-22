@@ -45,15 +45,18 @@ if (r < page.lastPage - 2) pages.push(HIDDEN);
 if (r === page.lastPage - 2) pages.push(page.lastPage - 1);
 if (r < page.lastPage) pages.push(page.lastPage);
 
-let baseUrl = '';
+let baseUrl = "";
 if (page.currentPage === 1) {
-    baseUrl = page.url.current;
+	baseUrl = page.url.current;
 } else {
-    // page.url.current could be /blog/2/ or /blog/2
-    baseUrl = page.url.current.replace(new RegExp(`/${page.currentPage}/?$`), '/');
+	// page.url.current could be /blog/2/ or /blog/2
+	baseUrl = page.url.current.replace(
+		new RegExp(`/${page.currentPage}/?$`),
+		"/",
+	);
 }
 // Ensure baseUrl ends with a slash
-if (!baseUrl.endsWith('/')) baseUrl += '/';
+if (!baseUrl.endsWith("/")) baseUrl += "/";
 
 const getPageUrl = (p: number) => {
 	if (p === 1) return baseUrl;

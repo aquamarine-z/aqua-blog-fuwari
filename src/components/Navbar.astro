@@ -2,15 +2,15 @@
 import { Icon } from "astro-icon/components";
 import { navBarConfig, siteConfig } from "../config";
 import { LinkPresets } from "../constants/link-presets";
-import { LinkPreset, type NavBarLink } from "../types/config";
 import { i18n } from "../i18n/translation";
+import { LinkPreset, type NavBarLink } from "../types/config";
 import { url } from "../utils/url-utils";
+import LanguageSwitcher from "./LanguageSwitcher.astro";
 import LightDarkSwitch from "./LightDarkSwitch.svelte";
+import MusicPlayer from "./MusicPlayer.svelte";
 import Search from "./Search.svelte";
 import DisplaySettings from "./widget/DisplaySettings.svelte";
 import NavMenuPanel from "./widget/NavMenuPanel.astro";
-import LanguageSwitcher from "./LanguageSwitcher.astro";
-import MusicPlayer from "./MusicPlayer.svelte";
 
 const className = Astro.props.class;
 
@@ -21,7 +21,9 @@ let links: NavBarLink[] = navBarConfig.links.map(
 		if (typeof item === "number") {
 			const preset = LinkPresets[item];
 			link = {
-				name: preset.i18nKey ? i18n(preset.i18nKey, Astro.currentLocale) : preset.name,
+				name: preset.i18nKey
+					? i18n(preset.i18nKey, Astro.currentLocale)
+					: preset.name,
 				url: preset.url,
 				external: preset.external,
 				icon: preset.icon,
@@ -29,7 +31,7 @@ let links: NavBarLink[] = navBarConfig.links.map(
 		} else {
 			link = { ...item };
 		}
-		
+
 		if (currentLang !== siteConfig.lang && !link.external) {
 			if (link.url === "/") {
 				link.url = `/${currentLang}/`;

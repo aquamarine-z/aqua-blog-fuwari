@@ -1,97 +1,110 @@
 ---
-import type { GetStaticPaths } from "astro";
-import Pagination from "../../../components/control/Pagination.astro";
-import PostPage from "../../../components/PostPage.astro";
-import { PAGE_SIZE } from "../../../constants/constants";
-import MainGridLayout from "../../../layouts/MainGridLayout.astro";
-import { getSortedDocsPosts } from "../../../utils/content-utils";
 import path from "node:path";
+import Giscus from "@components/Giscus.astro";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
 import I18nKey from "@i18n/i18nKey";
-import { i18n, getTranslation } from "@i18n/translation";
+import { getTranslation, i18n } from "@i18n/translation";
+import { flattenTreeSlugs, getDocsCategoryTree } from "@utils/content-utils";
+import { getLangPaths } from "@utils/i18n-utils";
 import { getDir, getPostUrlBySlug, url } from "@utils/url-utils";
+import type { GetStaticPaths } from "astro";
 import { Icon } from "astro-icon/components";
-import { licenseConfig } from "src/config";
+import { giscusConfig, licenseConfig } from "src/config";
+import Pagination from "../../../components/control/Pagination.astro";
 import ImageWrapper from "../../../components/misc/ImageWrapper.astro";
 import PostMetadata from "../../../components/PostMeta.astro";
+import PostPage from "../../../components/PostPage.astro";
 import { profileConfig, siteConfig } from "../../../config";
+import { PAGE_SIZE } from "../../../constants/constants";
+import MainGridLayout from "../../../layouts/MainGridLayout.astro";
+import { getSortedDocsPosts } from "../../../utils/content-utils";
 import { formatDateToYYYYMMDD } from "../../../utils/date-utils";
-
-import { getLangPaths } from "@utils/i18n-utils";
-import { getDocsCategoryTree, flattenTreeSlugs } from "@utils/content-utils";
-import Giscus from "@components/Giscus.astro";
-import { giscusConfig } from "src/config";
 
 export async function getStaticPaths() {
 	const langPaths = getLangPaths();
 
-	return Promise.all(langPaths.map(async (lang) => {
-		const langCode = lang.params.lang || siteConfig.lang;
-		const allDocsPosts = await getSortedDocsPosts(langCode, true);
-		const tree = await getDocsCategoryTree(langCode);
-		const slugs = flattenTreeSlugs(tree);
-		
-		// 1. Static paths for individual doc articles
-		const articlePaths = allDocsPosts.map((entry) => {
-			const idx = slugs.indexOf(entry.slug);
-			if (idx !== -1) {
-				if (idx > 0) {
-					const prevSlug = slugs[idx - 1];
-					const prevPost = allDocsPosts.find(p => p.slug === prevSlug);
-					if (prevPost) {
-						entry.data.prevSlug = prevPost.slug;
-						entry.data.prevTitle = prevPost.data.title;
-					}
-				}
-				if (idx < slugs.length - 1) {
-					const nextSlug = slugs[idx + 1];
-					const nextPost = allDocsPosts.find(p => p.slug === nextSlug);
-					if (nextPost) {
-						entry.data.nextSlug = nextPost.slug;
-						entry.data.nextTitle = nextPost.data.title;
-					}
-				}
-			} else {
-				entry.data.prevSlug = "";
-				entry.data.prevTitle = "";
-				entry.data.nextSlug = "";
-				entry.data.nextTitle = "";
-			}
-			
-			const slugWithoutPrefix = entry.slug.startsWith("docs/") ? entry.slug.substring(5) : entry.slug;
-			return {
-				params: { lang: lang.params.lang || undefined, slug: slugWithoutPrefix || undefined },
-				props: { type: 'article', entry, page: null },
-			};
-		});
+	return Promise.all(
+		langPaths.map(async (lang) => {
+			const langCode = lang.params.lang || siteConfig.lang;
+			const allDocsPosts = await getSortedDocsPosts(langCode, true);
+			const tree = await getDocsCategoryTree(langCode);
+			const slugs = flattenTreeSlugs(tree);
 
-		// 2. Static paths for paginated lists
-		const totalPages = Math.ceil(allDocsPosts.length / PAGE_SIZE);
-		const paginationPaths = [];
-		for (let i = 1; i <= totalPages; i++) {
-			const pageData = allDocsPosts.slice((i - 1) * PAGE_SIZE, i * PAGE_SIZE);
-			const prefix = lang.params.lang ? `/${lang.params.lang}` : "";
-			const page = {
-				data: pageData,
-				currentPage: i,
-				size: PAGE_SIZE,
-				total: allDocsPosts.length,
-				lastPage: totalPages,
-				url: {
-					current: i === 1 ? `${prefix}/docs/` : `${prefix}/docs/${i}/`,
-					prev: i > 1 ? (i === 2 ? `${prefix}/docs/` : `${prefix}/docs/${i - 1}/`) : undefined,
-					next: i < totalPages ? `${prefix}/docs/${i + 1}/` : undefined,
+			// 1. Static paths for individual doc articles
+			const articlePaths = allDocsPosts.map((entry) => {
+				const idx = slugs.indexOf(entry.slug);
+				if (idx !== -1) {
+					if (idx > 0) {
+						const prevSlug = slugs[idx - 1];
+						const prevPost = allDocsPosts.find((p) => p.slug === prevSlug);
+						if (prevPost) {
+							entry.data.prevSlug = prevPost.slug;
+							entry.data.prevTitle = prevPost.data.title;
+						}
+					}
+					if (idx < slugs.length - 1) {
+						const nextSlug = slugs[idx + 1];
+						const nextPost = allDocsPosts.find((p) => p.slug === nextSlug);
+						if (nextPost) {
+							entry.data.nextSlug = nextPost.slug;
+							entry.data.nextTitle = nextPost.data.title;
+						}
+					}
+				} else {
+					entry.data.prevSlug = "";
+					entry.data.prevTitle = "";
+					entry.data.nextSlug = "";
+					entry.data.nextTitle = "";
 				}
-			};
-			paginationPaths.push({
-				params: { lang: lang.params.lang || undefined, slug: i === 1 ? undefined : String(i) },
-				props: { type: 'list', entry: null, page },
+
+				const slugWithoutPrefix = entry.slug.startsWith("docs/")
+					? entry.slug.substring(5)
+					: entry.slug;
+				return {
+					params: {
+						lang: lang.params.lang || undefined,
+						slug: slugWithoutPrefix || undefined,
+					},
+					props: { type: "article", entry, page: null },
+				};
 			});
-		}
 
-		return [...articlePaths, ...paginationPaths];
-	})).then(results => results.flat());
+			// 2. Static paths for paginated lists
+			const totalPages = Math.ceil(allDocsPosts.length / PAGE_SIZE);
+			const paginationPaths = [];
+			for (let i = 1; i <= totalPages; i++) {
+				const pageData = allDocsPosts.slice((i - 1) * PAGE_SIZE, i * PAGE_SIZE);
+				const prefix = lang.params.lang ? `/${lang.params.lang}` : "";
+				const page = {
+					data: pageData,
+					currentPage: i,
+					size: PAGE_SIZE,
+					total: allDocsPosts.length,
+					lastPage: totalPages,
+					url: {
+						current: i === 1 ? `${prefix}/docs/` : `${prefix}/docs/${i}/`,
+						prev:
+							i > 1
+								? i === 2
+									? `${prefix}/docs/`
+									: `${prefix}/docs/${i - 1}/`
+								: undefined,
+						next: i < totalPages ? `${prefix}/docs/${i + 1}/` : undefined,
+					},
+				};
+				paginationPaths.push({
+					params: {
+						lang: lang.params.lang || undefined,
+						slug: i === 1 ? undefined : String(i),
+					},
+					props: { type: "list", entry: null, page },
+				});
+			}
+
+			return [...articlePaths, ...paginationPaths];
+		}),
+	).then((results) => results.flat());
 }
 
 const { type, entry, page } = Astro.props;
@@ -101,7 +114,7 @@ let headings: any[] = [];
 let remarkPluginFrontmatter: any = {};
 let jsonLd: any = {};
 
-if (type === 'article' && entry) {
+if (type === "article" && entry) {
 	const rendered = await entry.render();
 	Content = rendered.Content;
 	headings = rendered.headings;

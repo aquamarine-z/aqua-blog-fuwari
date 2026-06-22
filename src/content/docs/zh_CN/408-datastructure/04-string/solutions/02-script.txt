@@ -1,0 +1,51 @@
+
+function main(){
+    console.log(kmpMatch(data.string,data.substring))
+}
+function kmpMatch(string,substring){
+    let next=getNext(substring)
+    let i=0,j=0
+    while(i<string.length && j<substring.length){
+        // 若 j 为 -1 (退无可退) 或字符匹配成功，i 和 j 均前进一步
+        if(j===-1 || string.charAt(i)===substring.charAt(j)){
+            j++
+            i++
+        }else{
+            // 匹配失败时，回退到 next[j] - 1 (减 1 是因为 JS 数组是 0 阶的)
+            j = next[j] - 1
+        }
+    }
+    // 若匹配成功，返回子串在主串中的起始下标
+    if(j>=substring.length){
+        return i-substring.length
+    }
+    return -1
+}
+main()
+//获取KMP算法中的Next数组
+function getNext(string){
+    let i=1,len=string.length;
+    let maxMatchLength=0;
+    let mpt=[0]
+    while(i<string.length){
+        if(string.charAt(i)===string.charAt(maxMatchLength)){
+            maxMatchLength++
+            mpt.push(maxMatchLength)
+            i++
+        }else{
+            if(maxMatchLength===0){
+                mpt.push(0)
+                i++
+            }else{
+                maxMatchLength=mpt[maxMatchLength-1]
+            }
+        }
+    }
+    // 全体右移一位且各位+1
+    let next = new Array(string.length)
+    next[0] = 0
+    for(let k=1; k<string.length; k++){
+        next[k] = mpt[k-1] + 1
+    }
+    return next
+}

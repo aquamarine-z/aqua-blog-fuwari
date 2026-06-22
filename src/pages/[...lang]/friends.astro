@@ -1,15 +1,14 @@
 ---
-import { getLangPaths } from '@utils/i18n-utils';
+import { getLangPaths } from "@utils/i18n-utils";
 export function getStaticPaths() {
-    return getLangPaths();
+	return getLangPaths();
 }
 
-import MainGridLayout from "../../layouts/MainGridLayout.astro";
 import FriendCard from "../../components/FriendCard.astro";
 import { friendsConfig } from "../../config";
-
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
+import MainGridLayout from "../../layouts/MainGridLayout.astro";
 
 const title = i18n(I18nKey.friends, Astro.currentLocale);
 ---

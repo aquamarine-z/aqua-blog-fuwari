@@ -4,82 +4,93 @@ import { i18n } from "@i18n/translation";
 import { getCategoryUrl } from "@utils/url-utils.ts";
 import { siteConfig } from "../config";
 
-const LANG_PREFIXES = (siteConfig.languages || [siteConfig.lang, 'en', 'ja', 'ko'])
-    .map(l => `${l}/`);
+const LANG_PREFIXES = (
+	siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"]
+).map((l) => `${l}/`);
 
 function getBaseSlug(slug: string): string {
-    for (const prefix of LANG_PREFIXES) {
-        if (slug.toLowerCase().startsWith(prefix.toLowerCase())) {
-            return slug.substring(prefix.length);
-        }
-    }
-    return slug;
+	for (const prefix of LANG_PREFIXES) {
+		if (slug.toLowerCase().startsWith(prefix.toLowerCase())) {
+			return slug.substring(prefix.length);
+		}
+	}
+	return slug;
 }
 
 function getPostLang(slug: string): string {
-    for (const prefix of LANG_PREFIXES) {
-        if (slug.toLowerCase().startsWith(prefix.toLowerCase())) {
-            return prefix.replace('/', '');
-        }
-    }
-    return siteConfig.lang;
+	for (const prefix of LANG_PREFIXES) {
+		if (slug.toLowerCase().startsWith(prefix.toLowerCase())) {
+			return prefix.replace("/", "");
+		}
+	}
+	return siteConfig.lang;
 }
 
-export type TranslatedPost<T extends "blog" | "docs" | "spec"> = CollectionEntry<T> & {
-    isFallback?: boolean;
-    availableLangs?: string[];
-    originalLang?: string;
-};
+export type TranslatedPost<T extends "blog" | "docs" | "spec"> =
+	CollectionEntry<T> & {
+		isFallback?: boolean;
+		availableLangs?: string[];
+		originalLang?: string;
+	};
 
 // Retrieve posts and sort them by publication date
-export async function getRawSortedBlogPosts(lang?: string, includeHidden = false): Promise<TranslatedPost<"blog">[]> {
+export async function getRawSortedBlogPosts(
+	lang?: string,
+	includeHidden = false,
+): Promise<TranslatedPost<"blog">[]> {
 	const allBlogPosts = await getCollection("blog", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
-	
-    const groups: Record<string, CollectionEntry<"blog">[]> = {};
-    for (const post of allBlogPosts) {
-        const base = getBaseSlug(post.slug);
-        if (!groups[base]) groups[base] = [];
-        groups[base].push(post);
-    }
 
-    const requestedLang = lang || siteConfig.lang;
-    const processed: TranslatedPost<"blog">[] = [];
+	const groups: Record<string, CollectionEntry<"blog">[]> = {};
+	for (const post of allBlogPosts) {
+		const base = getBaseSlug(post.slug);
+		if (!groups[base]) groups[base] = [];
+		groups[base].push(post);
+	}
 
-    for (const base in groups) {
-        const versions = groups[base];
-        const availableLangs = versions.map(v => getPostLang(v.slug));
-        
-        if (new Set(availableLangs).size !== availableLangs.length) {
-            throw new Error(`Conflict detected for blog post '${base}': multiple files exist for the same language. You cannot have the main language version in both the root directory and the main language folder.`);
-        }
-        
-        let bestPost = versions.find(v => getPostLang(v.slug) === requestedLang);
-        let isFallback = false;
-        
-        if (!bestPost) {
-            bestPost = versions.find(v => getPostLang(v.slug) === siteConfig.lang);
-            isFallback = true;
-        }
-        if (!bestPost) {
-            bestPost = versions[0];
-            isFallback = true;
-        }
+	const requestedLang = lang || siteConfig.lang;
+	const processed: TranslatedPost<"blog">[] = [];
 
-        if (!includeHidden && !availableLangs.includes(requestedLang) && !availableLangs.includes(siteConfig.lang)) {
-            continue;
-        }
+	for (const base in groups) {
+		const versions = groups[base];
+		const availableLangs = versions.map((v) => getPostLang(v.slug));
 
-        processed.push({
-            ...bestPost,
-            data: { ...bestPost.data },
-            slug: base as CollectionEntry<"blog">["slug"],
-            isFallback,
-            availableLangs,
-            originalLang: getPostLang(bestPost.slug)
-        });
-    }
+		if (new Set(availableLangs).size !== availableLangs.length) {
+			throw new Error(
+				`Conflict detected for blog post '${base}': multiple files exist for the same language. You cannot have the main language version in both the root directory and the main language folder.`,
+			);
+		}
+
+		let bestPost = versions.find((v) => getPostLang(v.slug) === requestedLang);
+		let isFallback = false;
+
+		if (!bestPost) {
+			bestPost = versions.find((v) => getPostLang(v.slug) === siteConfig.lang);
+			isFallback = true;
+		}
+		if (!bestPost) {
+			bestPost = versions[0];
+			isFallback = true;
+		}
+
+		if (
+			!includeHidden &&
+			!availableLangs.includes(requestedLang) &&
+			!availableLangs.includes(siteConfig.lang)
+		) {
+			continue;
+		}
+
+		processed.push({
+			...bestPost,
+			data: { ...bestPost.data },
+			slug: base as CollectionEntry<"blog">["slug"],
+			isFallback,
+			availableLangs,
+			originalLang: getPostLang(bestPost.slug),
+		});
+	}
 
 	const sorted = processed.sort((a, b) => {
 		const dateA = new Date(a.data.published);
@@ -89,54 +100,63 @@ export async function getRawSortedBlogPosts(lang?: string, includeHidden = false
 	return sorted;
 }
 
-export async function getRawSortedDocsPosts(lang?: string, includeHidden = false): Promise<TranslatedPost<"docs">[]> {
+export async function getRawSortedDocsPosts(
+	lang?: string,
+	includeHidden = false,
+): Promise<TranslatedPost<"docs">[]> {
 	const allDocsPosts = await getCollection("docs", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
-	
-    const groups: Record<string, CollectionEntry<"docs">[]> = {};
-    for (const post of allDocsPosts) {
-        const base = getBaseSlug(post.slug);
-        if (!groups[base]) groups[base] = [];
-        groups[base].push(post);
-    }
 
-    const requestedLang = lang || siteConfig.lang;
-    const processed: TranslatedPost<"docs">[] = [];
+	const groups: Record<string, CollectionEntry<"docs">[]> = {};
+	for (const post of allDocsPosts) {
+		const base = getBaseSlug(post.slug);
+		if (!groups[base]) groups[base] = [];
+		groups[base].push(post);
+	}
 
-    for (const base in groups) {
-        const versions = groups[base];
-        const availableLangs = versions.map(v => getPostLang(v.slug));
-        
-        if (new Set(availableLangs).size !== availableLangs.length) {
-            throw new Error(`Conflict detected for docs post '${base}': multiple files exist for the same language. You cannot have the main language version in both the root directory and the main language folder.`);
-        }
-        
-        let bestPost = versions.find(v => getPostLang(v.slug) === requestedLang);
-        let isFallback = false;
-        
-        if (!bestPost) {
-            bestPost = versions.find(v => getPostLang(v.slug) === siteConfig.lang);
-            isFallback = true;
-        }
-        if (!bestPost) {
-            bestPost = versions[0];
-            isFallback = true;
-        }
+	const requestedLang = lang || siteConfig.lang;
+	const processed: TranslatedPost<"docs">[] = [];
 
-        if (!includeHidden && !availableLangs.includes(requestedLang) && !availableLangs.includes(siteConfig.lang)) {
-            continue;
-        }
+	for (const base in groups) {
+		const versions = groups[base];
+		const availableLangs = versions.map((v) => getPostLang(v.slug));
 
-        processed.push({
-            ...bestPost,
-            data: { ...bestPost.data },
-            slug: base as CollectionEntry<"docs">["slug"],
-            isFallback,
-            availableLangs,
-            originalLang: getPostLang(bestPost.slug)
-        });
-    }
+		if (new Set(availableLangs).size !== availableLangs.length) {
+			throw new Error(
+				`Conflict detected for docs post '${base}': multiple files exist for the same language. You cannot have the main language version in both the root directory and the main language folder.`,
+			);
+		}
+
+		let bestPost = versions.find((v) => getPostLang(v.slug) === requestedLang);
+		let isFallback = false;
+
+		if (!bestPost) {
+			bestPost = versions.find((v) => getPostLang(v.slug) === siteConfig.lang);
+			isFallback = true;
+		}
+		if (!bestPost) {
+			bestPost = versions[0];
+			isFallback = true;
+		}
+
+		if (
+			!includeHidden &&
+			!availableLangs.includes(requestedLang) &&
+			!availableLangs.includes(siteConfig.lang)
+		) {
+			continue;
+		}
+
+		processed.push({
+			...bestPost,
+			data: { ...bestPost.data },
+			slug: base as CollectionEntry<"docs">["slug"],
+			isFallback,
+			availableLangs,
+			originalLang: getPostLang(bestPost.slug),
+		});
+	}
 
 	const sorted = processed.sort((a, b) => {
 		const dateA = new Date(a.data.published);
@@ -151,39 +171,44 @@ export async function getRawSortedDocsPosts(lang?: string, includeHidden = false
 	return sorted;
 }
 
-export async function getSpecEntry(slug: string, lang?: string): Promise<TranslatedPost<"spec"> | undefined> {
-    const allSpecs = await getCollection("spec");
-    
-    const versions = allSpecs.filter(post => getBaseSlug(post.slug) === slug);
-    if (versions.length === 0) return undefined;
+export async function getSpecEntry(
+	slug: string,
+	lang?: string,
+): Promise<TranslatedPost<"spec"> | undefined> {
+	const allSpecs = await getCollection("spec");
 
-    const requestedLang = lang || siteConfig.lang;
-    const availableLangs = versions.map(v => getPostLang(v.slug));
-    
-    if (new Set(availableLangs).size !== availableLangs.length) {
-        throw new Error(`Conflict detected for spec entry '${slug}': multiple files exist for the same language. You cannot have the main language version in both the root directory and the main language folder.`);
-    }
-    
-    let bestPost = versions.find(v => getPostLang(v.slug) === requestedLang);
-    let isFallback = false;
-    
-    if (!bestPost) {
-        bestPost = versions.find(v => getPostLang(v.slug) === siteConfig.lang);
-        isFallback = true;
-    }
-    if (!bestPost) {
-        bestPost = versions[0];
-        isFallback = true;
-    }
+	const versions = allSpecs.filter((post) => getBaseSlug(post.slug) === slug);
+	if (versions.length === 0) return undefined;
 
-    return {
-        ...bestPost,
-        data: { ...bestPost.data },
-        slug: slug as CollectionEntry<"spec">["slug"],
-        isFallback,
-        availableLangs,
-        originalLang: getPostLang(bestPost.slug)
-    };
+	const requestedLang = lang || siteConfig.lang;
+	const availableLangs = versions.map((v) => getPostLang(v.slug));
+
+	if (new Set(availableLangs).size !== availableLangs.length) {
+		throw new Error(
+			`Conflict detected for spec entry '${slug}': multiple files exist for the same language. You cannot have the main language version in both the root directory and the main language folder.`,
+		);
+	}
+
+	let bestPost = versions.find((v) => getPostLang(v.slug) === requestedLang);
+	let isFallback = false;
+
+	if (!bestPost) {
+		bestPost = versions.find((v) => getPostLang(v.slug) === siteConfig.lang);
+		isFallback = true;
+	}
+	if (!bestPost) {
+		bestPost = versions[0];
+		isFallback = true;
+	}
+
+	return {
+		...bestPost,
+		data: { ...bestPost.data },
+		slug: slug as CollectionEntry<"spec">["slug"],
+		isFallback,
+		availableLangs,
+		originalLang: getPostLang(bestPost.slug),
+	};
 }
 
 export async function getRawSortedAllPosts(lang?: string) {
@@ -202,7 +227,7 @@ export async function getRawSortedAllPosts(lang?: string) {
 // --------------------------------------------------------
 
 export type CategoryTreeType = {
-	type: 'folder' | 'file';
+	type: "folder" | "file";
 	name: string;
 	folderName?: string;
 	url?: string;
@@ -212,11 +237,11 @@ export type CategoryTreeType = {
 };
 
 export function flattenTreeSlugs(items: CategoryTreeType[]): string[] {
-	let slugs: string[] = [];
-	items.forEach(item => {
-		if (item.type === 'file' && item.slug) {
+	const slugs: string[] = [];
+	items.forEach((item) => {
+		if (item.type === "file" && item.slug) {
 			slugs.push(item.slug);
-		} else if (item.type === 'folder' && item.children) {
+		} else if (item.type === "folder" && item.children) {
 			if (item.slug) {
 				slugs.push(item.slug);
 			}
@@ -231,7 +256,9 @@ function sortTree(items: CategoryTreeType[]) {
 	for (const item of items) {
 		if (item.sidebar_position !== undefined) {
 			if (positionMap.has(item.sidebar_position)) {
-				throw new Error(`Sidebar position conflict! Both '${item.name}' and '${positionMap.get(item.sidebar_position)}' have sidebar_position: ${item.sidebar_position}`);
+				throw new Error(
+					`Sidebar position conflict! Both '${item.name}' and '${positionMap.get(item.sidebar_position)}' have sidebar_position: ${item.sidebar_position}`,
+				);
 			}
 			positionMap.set(item.sidebar_position, item.name);
 		}
@@ -247,11 +274,11 @@ function sortTree(items: CategoryTreeType[]) {
 		} else if (b.sidebar_position !== undefined) {
 			return 1;
 		}
-		
-		if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
+
+		if (a.type !== b.type) return a.type === "folder" ? -1 : 1;
 		return a.name.localeCompare(b.name);
 	});
-	items.forEach(item => {
+	items.forEach((item) => {
 		if (item.children) sortTree(item.children);
 	});
 }
@@ -259,16 +286,16 @@ function sortTree(items: CategoryTreeType[]) {
 function postProcessTree(items: CategoryTreeType[]) {
 	for (let i = items.length - 1; i >= 0; i--) {
 		const item = items[i];
-		if (item.type === 'folder') {
+		if (item.type === "folder") {
 			if (item.children && item.children.length > 0) {
 				postProcessTree(item.children);
 			}
-			
+
 			// Re-evaluate after children processing
 			if (!item.children || item.children.length === 0) {
 				if (item.url) {
 					// Empty folder but has a URL -> convert to file
-					item.type = 'file';
+					item.type = "file";
 					delete item.children;
 				} else {
 					// Truly empty, remove
@@ -282,27 +309,51 @@ function postProcessTree(items: CategoryTreeType[]) {
 export type PostForList = {
 	slug: string;
 	data: CollectionEntry<"blog">["data"] | CollectionEntry<"docs">["data"];
-    isFallback?: boolean;
-    availableLangs?: string[];
-    originalLang?: string;
+	isFallback?: boolean;
+	availableLangs?: string[];
+	originalLang?: string;
 };
 
-export async function getSortedBlogPostsList(lang?: string): Promise<PostForList[]> {
+export async function getSortedBlogPostsList(
+	lang?: string,
+): Promise<PostForList[]> {
 	const sortedFullPosts = await getRawSortedBlogPosts(lang);
-	return sortedFullPosts.map((post) => ({ slug: post.slug, data: post.data, isFallback: post.isFallback, availableLangs: post.availableLangs, originalLang: post.originalLang }));
+	return sortedFullPosts.map((post) => ({
+		slug: post.slug,
+		data: post.data,
+		isFallback: post.isFallback,
+		availableLangs: post.availableLangs,
+		originalLang: post.originalLang,
+	}));
 }
 
-export async function getSortedDocsPostsList(lang?: string): Promise<PostForList[]> {
+export async function getSortedDocsPostsList(
+	lang?: string,
+): Promise<PostForList[]> {
 	const sortedFullPosts = await getRawSortedDocsPosts(lang);
-	return sortedFullPosts.map((post) => ({ slug: post.slug, data: post.data, isFallback: post.isFallback, availableLangs: post.availableLangs, originalLang: post.originalLang }));
+	return sortedFullPosts.map((post) => ({
+		slug: post.slug,
+		data: post.data,
+		isFallback: post.isFallback,
+		availableLangs: post.availableLangs,
+		originalLang: post.originalLang,
+	}));
 }
 
-export async function getAllSortedPostsList(lang?: string): Promise<PostForList[]> {
+export async function getAllSortedPostsList(
+	lang?: string,
+): Promise<PostForList[]> {
 	const sortedFullPosts = await getRawSortedAllPosts(lang);
-	return sortedFullPosts.map((post) => ({ slug: post.slug, data: post.data, isFallback: post.isFallback, availableLangs: post.availableLangs, originalLang: post.originalLang }));
+	return sortedFullPosts.map((post) => ({
+		slug: post.slug,
+		data: post.data,
+		isFallback: post.isFallback,
+		availableLangs: post.availableLangs,
+		originalLang: post.originalLang,
+	}));
 }
 
-export type Tag = { name: string; count: number; };
+export type Tag = { name: string; count: number };
 
 export async function getBlogTagList(lang?: string): Promise<Tag[]> {
 	const allBlogPosts = await getRawSortedBlogPosts(lang);
@@ -313,7 +364,9 @@ export async function getBlogTagList(lang?: string): Promise<Tag[]> {
 			countMap[tag]++;
 		});
 	});
-	const keys: string[] = Object.keys(countMap).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+	const keys: string[] = Object.keys(countMap).sort((a, b) =>
+		a.toLowerCase().localeCompare(b.toLowerCase()),
+	);
 	return keys.map((key) => ({ name: key, count: countMap[key] }));
 }
 
@@ -326,7 +379,9 @@ export async function getDocsTagList(lang?: string): Promise<Tag[]> {
 			countMap[tag]++;
 		});
 	});
-	const keys: string[] = Object.keys(countMap).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+	const keys: string[] = Object.keys(countMap).sort((a, b) =>
+		a.toLowerCase().localeCompare(b.toLowerCase()),
+	);
 	return keys.map((key) => ({ name: key, count: countMap[key] }));
 }
 
@@ -337,11 +392,13 @@ export async function getAllTagList(lang?: string): Promise<Tag[]> {
 	for (const tag of [...blogTags, ...docsTags]) {
 		countMap[tag.name] = (countMap[tag.name] || 0) + tag.count;
 	}
-	const keys: string[] = Object.keys(countMap).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+	const keys: string[] = Object.keys(countMap).sort((a, b) =>
+		a.toLowerCase().localeCompare(b.toLowerCase()),
+	);
 	return keys.map((key) => ({ name: key, count: countMap[key] }));
 }
 
-export type Category = { name: string; count: number; url: string; };
+export type Category = { name: string; count: number; url: string };
 
 export async function getBlogCategoryList(lang?: string): Promise<Category[]> {
 	const allBlogPosts = await getRawSortedBlogPosts(lang);
@@ -352,10 +409,15 @@ export async function getBlogCategoryList(lang?: string): Promise<Category[]> {
 			count[ucKey] = count[ucKey] ? count[ucKey] + 1 : 1;
 			return;
 		}
-		const categoryName = typeof post.data.category === "string" ? post.data.category.trim() : String(post.data.category).trim();
+		const categoryName =
+			typeof post.data.category === "string"
+				? post.data.category.trim()
+				: String(post.data.category).trim();
 		count[categoryName] = count[categoryName] ? count[categoryName] + 1 : 1;
 	});
-	const lst = Object.keys(count).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+	const lst = Object.keys(count).sort((a, b) =>
+		a.toLowerCase().localeCompare(b.toLowerCase()),
+	);
 	return lst.map((c) => ({
 		name: c,
 		count: count[c],
@@ -372,10 +434,15 @@ export async function getDocsCategoryList(lang?: string): Promise<Category[]> {
 			count[ucKey] = count[ucKey] ? count[ucKey] + 1 : 1;
 			return;
 		}
-		const categoryName = typeof post.data.category === "string" ? post.data.category.trim() : String(post.data.category).trim();
+		const categoryName =
+			typeof post.data.category === "string"
+				? post.data.category.trim()
+				: String(post.data.category).trim();
 		count[categoryName] = count[categoryName] ? count[categoryName] + 1 : 1;
 	});
-	const lst = Object.keys(count).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+	const lst = Object.keys(count).sort((a, b) =>
+		a.toLowerCase().localeCompare(b.toLowerCase()),
+	);
 	return lst.map((c) => ({
 		name: c,
 		count: count[c],
@@ -386,7 +453,7 @@ export async function getDocsCategoryList(lang?: string): Promise<Category[]> {
 export async function getAllCategoryList(lang?: string): Promise<Category[]> {
 	const blogCats = await getBlogCategoryList(lang);
 	const docsCats = await getDocsCategoryList(lang);
-	const countMap: { [key: string]: { count: number, url: string } } = {};
+	const countMap: { [key: string]: { count: number; url: string } } = {};
 	for (const cat of [...blogCats, ...docsCats]) {
 		if (!countMap[cat.name]) {
 			countMap[cat.name] = { count: cat.count, url: cat.url };
@@ -394,33 +461,51 @@ export async function getAllCategoryList(lang?: string): Promise<Category[]> {
 			countMap[cat.name].count += cat.count;
 		}
 	}
-	const keys: string[] = Object.keys(countMap).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-	return keys.map((key) => ({ name: key, count: countMap[key].count, url: countMap[key].url }));
+	const keys: string[] = Object.keys(countMap).sort((a, b) =>
+		a.toLowerCase().localeCompare(b.toLowerCase()),
+	);
+	return keys.map((key) => ({
+		name: key,
+		count: countMap[key].count,
+		url: countMap[key].url,
+	}));
 }
 
-export async function getBlogCategoryTree(lang?: string): Promise<CategoryTreeType[]> {
+export async function getBlogCategoryTree(
+	lang?: string,
+): Promise<CategoryTreeType[]> {
 	const allPosts = await getRawSortedBlogPosts(lang);
 	const rootItems: CategoryTreeType[] = [];
 	allPosts.forEach((post) => {
-		const parts = post.id.split(/[\/\\]/);
-		if (post.originalLang && parts[0].toLowerCase() === post.originalLang.toLowerCase()) {
+		const parts = post.id.split(/[/\\]/);
+		if (
+			post.originalLang &&
+			parts[0].toLowerCase() === post.originalLang.toLowerCase()
+		) {
 			parts.shift();
 		}
 		parts.pop(); // remove filename
-		
+
 		let currentLevel = rootItems;
 		let parentFolder: CategoryTreeType | null = null;
-		
+
 		for (const folderName of parts) {
-			let folder = currentLevel.find(item => item.type === 'folder' && item.folderName === folderName);
+			let folder = currentLevel.find(
+				(item) => item.type === "folder" && item.folderName === folderName,
+			);
 			if (!folder) {
-				folder = { type: 'folder', name: folderName, folderName: folderName, children: [] };
+				folder = {
+					type: "folder",
+					name: folderName,
+					folderName: folderName,
+					children: [],
+				};
 				currentLevel.push(folder);
 			}
 			parentFolder = folder;
 			currentLevel = folder.children!;
 		}
-		
+
 		if (post.id.match(/index\.(md|mdx)$/i) && parentFolder) {
 			parentFolder.url = `/posts/${post.slug}/`;
 			parentFolder.slug = post.slug;
@@ -430,7 +515,7 @@ export async function getBlogCategoryTree(lang?: string): Promise<CategoryTreeTy
 			parentFolder.name = post.data.title;
 		} else {
 			currentLevel.push({
-				type: 'file',
+				type: "file",
 				name: post.data.title,
 				slug: post.slug,
 				url: `/posts/${post.slug}/`,
@@ -443,31 +528,43 @@ export async function getBlogCategoryTree(lang?: string): Promise<CategoryTreeTy
 	return rootItems;
 }
 
-export async function getDocsCategoryTree(lang?: string): Promise<CategoryTreeType[]> {
+export async function getDocsCategoryTree(
+	lang?: string,
+): Promise<CategoryTreeType[]> {
 	const allPosts = await getRawSortedDocsPosts(lang);
 	const rootItems: CategoryTreeType[] = [];
 	allPosts.forEach((post) => {
 		// Wait, previously this used post.id, but now we should use original post.id from fallback?
 		// No, we strip lang prefix from post.id manually to get correct structure!
-		const parts = post.id.split(/[\/\\]/);
-		if (post.originalLang && parts[0].toLowerCase() === post.originalLang.toLowerCase()) {
+		const parts = post.id.split(/[/\\]/);
+		if (
+			post.originalLang &&
+			parts[0].toLowerCase() === post.originalLang.toLowerCase()
+		) {
 			parts.shift();
 		}
 		parts.pop(); // remove filename
-		
+
 		let currentLevel = rootItems;
 		let parentFolder: CategoryTreeType | null = null;
-		
+
 		for (const folderName of parts) {
-			let folder = currentLevel.find(item => item.type === 'folder' && item.folderName === folderName);
+			let folder = currentLevel.find(
+				(item) => item.type === "folder" && item.folderName === folderName,
+			);
 			if (!folder) {
-				folder = { type: 'folder', name: folderName, folderName: folderName, children: [] };
+				folder = {
+					type: "folder",
+					name: folderName,
+					folderName: folderName,
+					children: [],
+				};
 				currentLevel.push(folder);
 			}
 			parentFolder = folder;
 			currentLevel = folder.children!;
 		}
-		
+
 		if (post.id.match(/index\.(md|mdx)$/i) && parentFolder) {
 			if (post.data.is_article) {
 				parentFolder.url = `/${post.slug}/`;
@@ -479,7 +576,7 @@ export async function getDocsCategoryTree(lang?: string): Promise<CategoryTreeTy
 			parentFolder.name = post.data.title;
 		} else {
 			currentLevel.push({
-				type: 'file',
+				type: "file",
 				name: post.data.title,
 				slug: post.slug,
 				url: `/${post.slug}/`,
@@ -487,13 +584,15 @@ export async function getDocsCategoryTree(lang?: string): Promise<CategoryTreeTy
 			});
 		}
 	});
-	
+
 	postProcessTree(rootItems);
 	sortTree(rootItems);
 	return rootItems;
 }
 
-export async function getAllCategoryTree(lang?: string): Promise<CategoryTreeType[]> {
+export async function getAllCategoryTree(
+	lang?: string,
+): Promise<CategoryTreeType[]> {
 	const blogTree = await getBlogCategoryTree(lang);
 	const docsTree = await getDocsCategoryTree(lang);
 	return [...blogTree, ...docsTree];

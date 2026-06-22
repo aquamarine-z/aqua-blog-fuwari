@@ -1,10 +1,10 @@
 <script lang="ts">
 import { onMount } from "svelte";
-
+import { siteConfig } from "../config";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
-import { siteConfig } from '../config';
 export let lang: string = siteConfig.lang;
+
 import { getPostUrlBySlug } from "../utils/url-utils";
 
 export let tags: string[] = [];
@@ -14,12 +14,14 @@ export let docsPosts: Post[] = [];
 
 let currentType: "blog" | "docs" = "blog";
 
-const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+const params = new URLSearchParams(
+	typeof window !== "undefined" ? window.location.search : "",
+);
 tags = params.has("tag") ? params.getAll("tag") : [];
 categories = params.has("category") ? params.getAll("category") : [];
 const uncategorized = params.get("uncategorized");
 if (params.get("type") === "docs") {
-    currentType = "docs";
+	currentType = "docs";
 }
 
 interface Post {
@@ -50,7 +52,7 @@ function formatTag(tagList: string[]) {
 }
 
 function updateGroups() {
-    let sourcePosts = currentType === "docs" ? docsPosts : blogPosts;
+	let sourcePosts = currentType === "docs" ? docsPosts : blogPosts;
 	let filteredPosts: Post[] = sourcePosts;
 
 	if (tags.length > 0) {
@@ -94,17 +96,17 @@ function updateGroups() {
 }
 
 onMount(async () => {
-    updateGroups();
+	updateGroups();
 });
 
 function handleTypeSwitch(type: "blog" | "docs") {
-    currentType = type;
-    if (typeof window !== "undefined") {
-        const url = new URL(window.location.href);
-        url.searchParams.set("type", type);
-        window.history.replaceState({}, "", url.toString());
-    }
-    updateGroups();
+	currentType = type;
+	if (typeof window !== "undefined") {
+		const url = new URL(window.location.href);
+		url.searchParams.set("type", type);
+		window.history.replaceState({}, "", url.toString());
+	}
+	updateGroups();
 }
 </script>
 

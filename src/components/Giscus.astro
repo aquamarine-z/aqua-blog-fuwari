@@ -1,15 +1,15 @@
 ---
-import { giscusConfig } from 'src/config';
+import { giscusConfig } from "src/config";
 
 interface Props {
-  term?: string;
-  lang?: string;
+	term?: string;
+	lang?: string;
 }
 
 let { term, lang = giscusConfig.lang } = Astro.props;
 
-if (lang === 'el') {
-  lang = 'gr';
+if (lang === "el") {
+	lang = "gr";
 }
 ---
 <div class="giscus-container mt-10">

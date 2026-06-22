@@ -1,20 +1,20 @@
+import { FriendsKey } from "./i18n/partials/friends/keys";
 import type {
 	ExpressiveCodeConfig,
+	Friend,
+	GiscusConfig,
 	LicenseConfig,
 	NavBarConfig,
 	ProfileConfig,
 	SiteConfig,
-	Friend,
-	GiscusConfig,
 } from "./types/config";
 import { LinkPreset } from "./types/config";
-import { FriendsKey } from "./i18n/partials/friends/keys";
 
 export const siteConfig: SiteConfig = {
 	title: "Aqua",
-	subtitle: 'The French version of Fuwari',
-	lang: 'zh_CN',         // 'en', 'zh_CN', 'zh_TW', 'ja', 'ko', 'es', 'th', etc.
-	languages: ["zh_CN","ja", "ko", "en", "fr","el" ,"he","ru"], // Add this array to precisely match language prefixes
+	subtitle: "The French version of Fuwari",
+	lang: "zh_CN", // 'en', 'zh_CN', 'zh_TW', 'ja', 'ko', 'es', 'th', etc.
+	languages: ["zh_CN", "ja", "ko", "en", "fr", "el", "he", "ru"], // Add this array to precisely match language prefixes
 	themeColor: {
 		hue: 300, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
 		fixed: false, // Hide the theme color picker for visitors
@@ -37,8 +37,8 @@ export const siteConfig: SiteConfig = {
 	},
 	favicon: [
 		{
-			src: '/favicon.png'
-		}
+			src: "/favicon.png",
+		},
 	],
 };
 
@@ -53,7 +53,7 @@ export const navBarConfig: NavBarConfig = {
 			name: "GitHub",
 			url: "https://github.com/aquamarine-z",
 			external: true,
-			icon: "fa6-brands:github"
+			icon: "fa6-brands:github",
 		},
 	],
 };
@@ -84,51 +84,54 @@ export const expressiveCodeConfig: ExpressiveCodeConfig = {
 };
 
 export const friendsConfig: Friend[] = [
-    {
-        name: "Aquamarine",
-        avatar: "https://github.com/aquamarine-z.png",
-        labels: [FriendsKey.tagSelf, FriendsKey.tagFrontend, FriendsKey.tagBackend, FriendsKey.tagReact],
-        links: [
-            { name: 'Github', link: "https://github.com/aquamarine-z" },
-            { name: 'Blog', link: "https://aquamarine-z.github.io/aqua-blog/" },
-            { name: 'Line', link: "https://line.me/ti/p/6fcWHiO0vg" }
-        ]
-    },
-    {
-        name: "Apricityx",
-        avatar: "/assets/friends-avatar/Apricityx.png",
-        labels: [FriendsKey.tagFriend, FriendsKey.tagSchoolmate],
-        links: [
-            { name: 'Github', link: "https://github.com/apricityx" },
-            { name: 'Blog', link: "https://blog.apricityx.top/" }
-        ]
-    },
-    {
-        name: "Winston Chen",
-        avatar: "/assets/friends-avatar/WinstonChen.png",
-        labels: [FriendsKey.tagFriend, FriendsKey.tagSchoolmate],
-        links: [
-            { name: 'Github', link: "https://github.com/WinstonCHEN1/" },
-            { name: 'Blog', link: "https://winstonchen1.github.io/" }
-        ]
-    },
-    {
-        name: "Syan Wang",
-        avatar: "/assets/friends-avatar/SyanWang.png",
-        labels: [FriendsKey.tagFriend, FriendsKey.tagSchoolmate],
-        links: [
-            { name: 'Github', link: "https://github.com/TheSorry404" },
-            { name: 'Blog', link: "https://40404.site/" }
-        ]
-    },
-    {
-        name: 'Mark',
-        avatar: 'https://github.com/pique2233.png',
-        labels: [FriendsKey.tagFriend, FriendsKey.tagSchoolmate],
-        links: [
-            { name: 'Github', link: 'https://github.com/pique2233' },
-        ]
-    }
+	{
+		name: "Aquamarine",
+		avatar: "https://github.com/aquamarine-z.png",
+		labels: [
+			FriendsKey.tagSelf,
+			FriendsKey.tagFrontend,
+			FriendsKey.tagBackend,
+			FriendsKey.tagReact,
+		],
+		links: [
+			{ name: "Github", link: "https://github.com/aquamarine-z" },
+			{ name: "Blog", link: "https://aquamarine-z.github.io/aqua-blog/" },
+			{ name: "Line", link: "https://line.me/ti/p/6fcWHiO0vg" },
+		],
+	},
+	{
+		name: "Apricityx",
+		avatar: "/assets/friends-avatar/Apricityx.png",
+		labels: [FriendsKey.tagFriend, FriendsKey.tagSchoolmate],
+		links: [
+			{ name: "Github", link: "https://github.com/apricityx" },
+			{ name: "Blog", link: "https://blog.apricityx.top/" },
+		],
+	},
+	{
+		name: "Winston Chen",
+		avatar: "/assets/friends-avatar/WinstonChen.png",
+		labels: [FriendsKey.tagFriend, FriendsKey.tagSchoolmate],
+		links: [
+			{ name: "Github", link: "https://github.com/WinstonCHEN1/" },
+			{ name: "Blog", link: "https://winstonchen1.github.io/" },
+		],
+	},
+	{
+		name: "Syan Wang",
+		avatar: "/assets/friends-avatar/SyanWang.png",
+		labels: [FriendsKey.tagFriend, FriendsKey.tagSchoolmate],
+		links: [
+			{ name: "Github", link: "https://github.com/TheSorry404" },
+			{ name: "Blog", link: "https://40404.site/" },
+		],
+	},
+	{
+		name: "Mark",
+		avatar: "https://github.com/pique2233.png",
+		labels: [FriendsKey.tagFriend, FriendsKey.tagSchoolmate],
+		links: [{ name: "Github", link: "https://github.com/pique2233" }],
+	},
 ];
 
 export const giscusConfig: GiscusConfig = {
@@ -145,4 +148,13 @@ export const giscusConfig: GiscusConfig = {
 	theme: "light",
 	lang: "zh-CN",
 	loading: "lazy",
+};
+
+export const musicConfig = {
+	tracks: [
+		{
+			title: "Already Free (Exultation)",
+			src: "/music/최정인 - Already Free (Exultation).flac",
+		},
+	],
 };

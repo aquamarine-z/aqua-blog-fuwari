@@ -1,129 +1,136 @@
 <script>
-    import { onDestroy, onMount, tick } from 'svelte';
-    import { siteConfig } from '../../config';
-    import { stripBasePath, url as withBaseUrl } from '../../utils/url-utils';
+import { onDestroy, onMount, tick } from "svelte";
+import { siteConfig } from "../../config";
+import { stripBasePath, url as withBaseUrl } from "../../utils/url-utils";
 
-    export let categories = [];
-    export let lang = siteConfig.lang;
-    export let currentUrl = '';
-    export let listenForUrlUpdates = true;
-    export let isRoot = true;
+export let categories = [];
+export let lang = siteConfig.lang;
+export let currentUrl = "";
+export let listenForUrlUpdates = true;
+export let isRoot = true;
 
-    let activeUrl = currentUrl;
+let activeUrl = currentUrl;
 
-    // Process categories when lang changes
-    $: {
-        const mainLang = siteConfig.lang;
-        
-        const langsPattern = (siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"])
-                .filter(l => l !== mainLang)
-                .join('|');
-            const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`);
-    }
+// Process categories when lang changes
+$: {
+	const mainLang = siteConfig.lang;
 
-    function getInternalUrl(value) {
-        if (!value) return '';
-        const mainLang = siteConfig.lang;
-        if (lang && lang !== mainLang && value.startsWith('/')) {
-            const langsPattern = (siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"])
-                .filter(l => l !== mainLang)
-                .join('|');
-            const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`);
-            if (!value.match(regex)) {
-                return `/${lang}${value}`;
-            }
-        }
-        return value;
-    }
+	const langsPattern = (
+		siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"]
+	)
+		.filter((l) => l !== mainLang)
+		.join("|");
+	const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`);
+}
 
-    function getUrl(value) {
-        const internalUrl = getInternalUrl(value);
-        return internalUrl ? withBaseUrl(internalUrl) : '';
-    }
+function getInternalUrl(value) {
+	if (!value) return "";
+	const mainLang = siteConfig.lang;
+	if (lang && lang !== mainLang && value.startsWith("/")) {
+		const langsPattern = (
+			siteConfig.languages || [siteConfig.lang, "en", "ja", "ko"]
+		)
+			.filter((l) => l !== mainLang)
+			.join("|");
+		const regex = new RegExp(`^\\/(${langsPattern})(\\/|$)`);
+		if (!value.match(regex)) {
+			return `/${lang}${value}`;
+		}
+	}
+	return value;
+}
 
-    function isNodeActive(node, url = activeUrl) {
-        if (node.type === 'file') {
-            let url1 = getInternalUrl(node.url) || '';
-            let url2 = stripBasePath(url || '');
-            if (url1.endsWith('/')) url1 = url1.slice(0, -1);
-            if (url2.endsWith('/')) url2 = url2.slice(0, -1);
-            // sometimes URL decoding is needed
-            url1 = decodeURI(url1);
-            url2 = decodeURI(url2);
-            return url1 === url2 && url1 !== '';
-        } else if (node.type === 'folder') {
-            let isActive = false;
-            if (node.url) {
-                let url1 = getInternalUrl(node.url) || '';
-                let url2 = stripBasePath(url || '');
-                if (url1.endsWith('/')) url1 = url1.slice(0, -1);
-                if (url2.endsWith('/')) url2 = url2.slice(0, -1);
-                url1 = decodeURI(url1);
-                url2 = decodeURI(url2);
-                isActive = (url1 === url2 && url1 !== '');
-            }
-            if (isActive) return true;
-            if (node.children) {
-                return node.children.some(child => isNodeActive(child, url));
-            }
-        }
-        return false;
-    }
+function getUrl(value) {
+	const internalUrl = getInternalUrl(value);
+	return internalUrl ? withBaseUrl(internalUrl) : "";
+}
 
-    function expandActive(nodes, url = activeUrl) {
-        let expanded = {};
-        for (const node of nodes) {
-            if (node.type === 'folder' && isNodeActive(node, url)) {
-                expanded[node.folderName || node.name] = true;
-                if (node.children) {
-                    const childrenExpanded = expandActive(node.children, url);
-                    expanded = { ...expanded, ...childrenExpanded };
-                }
-            }
-        }
-        return expanded;
-    }
+function isNodeActive(node, url = activeUrl) {
+	if (node.type === "file") {
+		let url1 = getInternalUrl(node.url) || "";
+		let url2 = stripBasePath(url || "");
+		if (url1.endsWith("/")) url1 = url1.slice(0, -1);
+		if (url2.endsWith("/")) url2 = url2.slice(0, -1);
+		// sometimes URL decoding is needed
+		url1 = decodeURI(url1);
+		url2 = decodeURI(url2);
+		return url1 === url2 && url1 !== "";
+	}
+	if (node.type === "folder") {
+		let isActive = false;
+		if (node.url) {
+			let url1 = getInternalUrl(node.url) || "";
+			let url2 = stripBasePath(url || "");
+			if (url1.endsWith("/")) url1 = url1.slice(0, -1);
+			if (url2.endsWith("/")) url2 = url2.slice(0, -1);
+			url1 = decodeURI(url1);
+			url2 = decodeURI(url2);
+			isActive = url1 === url2 && url1 !== "";
+		}
+		if (isActive) return true;
+		if (node.children) {
+			return node.children.some((child) => isNodeActive(child, url));
+		}
+	}
+	return false;
+}
 
-    // Initialize synchronously so it renders correctly on the server (SSR), preventing layout shifts on client!
-    let expandedCategories = expandActive(categories, activeUrl);
+function expandActive(nodes, url = activeUrl) {
+	let expanded = {};
+	for (const node of nodes) {
+		if (node.type === "folder" && isNodeActive(node, url)) {
+			expanded[node.folderName || node.name] = true;
+			if (node.children) {
+				const childrenExpanded = expandActive(node.children, url);
+				expanded = { ...expanded, ...childrenExpanded };
+			}
+		}
+	}
+	return expanded;
+}
 
-    function toggleCategory(node) {
-        const key = node.folderName || node.name;
-        expandedCategories = {
-            ...expandedCategories,
-            [key]: !expandedCategories[key]
-        };
-    }
+// Initialize synchronously so it renders correctly on the server (SSR), preventing layout shifts on client!
+let expandedCategories = expandActive(categories, activeUrl);
 
-    let cleanupUrlListener = () => {};
+function toggleCategory(node) {
+	const key = node.folderName || node.name;
+	expandedCategories = {
+		...expandedCategories,
+		[key]: !expandedCategories[key],
+	};
+}
 
-    onMount(() => {
-        if (!listenForUrlUpdates) return;
+let cleanupUrlListener = () => {};
 
-        const updateUrl = async (event) => {
-            const nextUrl = event.detail?.url;
-            if (!nextUrl || nextUrl === activeUrl) return;
+onMount(() => {
+	if (!listenForUrlUpdates) return;
 
-            activeUrl = nextUrl;
-            expandedCategories = expandActive(categories, nextUrl);
+	const updateUrl = async (event) => {
+		const nextUrl = event.detail?.url;
+		if (!nextUrl || nextUrl === activeUrl) return;
 
-            if (isRoot) {
-                await tick();
-                document.dispatchEvent(new CustomEvent('category-tree:updated', {
-                    detail: { url: nextUrl },
-                }));
-            }
-        };
+		activeUrl = nextUrl;
+		expandedCategories = expandActive(categories, nextUrl);
 
-        document.addEventListener('category-tree:update-url', updateUrl);
-        cleanupUrlListener = () => {
-            document.removeEventListener('category-tree:update-url', updateUrl);
-        };
-    });
+		if (isRoot) {
+			await tick();
+			document.dispatchEvent(
+				new CustomEvent("category-tree:updated", {
+					detail: { url: nextUrl },
+				}),
+			);
+		}
+	};
 
-    onDestroy(() => {
-        cleanupUrlListener();
-    });
+	document.addEventListener("category-tree:update-url", updateUrl);
+	cleanupUrlListener = () => {
+		document.removeEventListener("category-tree:update-url", updateUrl);
+	};
+});
+
+onDestroy(() => {
+	cleanupUrlListener();
+});
 </script>
 
 <div class="category-tree">

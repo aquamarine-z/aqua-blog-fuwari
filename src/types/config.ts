@@ -99,7 +99,7 @@ export type ExpressiveCodeConfig = {
 };
 
 export type GiscusConfig = {
-  enable: boolean;
+	enable: boolean;
 	repo: string;
 	repoId: string;
 	category: string;
