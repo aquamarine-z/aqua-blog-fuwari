@@ -154,7 +154,7 @@ export const musicConfig = {
 	tracks: [
 		{
 			title: "Already Free (Exultation)",
-			src: "/music/최정인 - Already Free (Exultation).flac",
+			src: "/music/최정인 - Already Free (Exultation).mp3",
 		},
 	],
 };
