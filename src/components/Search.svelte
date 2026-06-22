@@ -66,12 +66,7 @@ const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
 		let searchResults: SearchResult[] = [];
 
 		if (import.meta.env.PROD && pagefindLoaded && window.pagefind) {
-			const langFilter = lang ? lang.toLowerCase().replace('_', '-') : 'zh-cn';
-			const response = await window.pagefind.search(keyword, {
-				filters: {
-					language: langFilter
-				}
-			});
+			const response = await window.pagefind.search(keyword);
 			searchResults = await Promise.all(
 				response.results.map((item) => item.data()),
 			);
