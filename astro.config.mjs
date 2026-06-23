@@ -30,7 +30,7 @@ import { i18nKeyPrefixPlugin } from "./src/astro-plugins/i18nKeyPrefixPlugin.mjs
 
 
 const astroConfig = {
-	site: "https://aquamarine-z.github.io",
+	site: "https://blog.aquamarinez.com",
 	base: "/",
 };
 
@@ -41,7 +41,7 @@ const withBase = (path) => {
 
 // https://astro.build/config
 export default defineConfig({
-	site: "https://aquamarine-z.github.io",
+	site: "https://blog.aquamarinez.com",
 	base: "/",
 	trailingSlash: "always",
 	i18n: {

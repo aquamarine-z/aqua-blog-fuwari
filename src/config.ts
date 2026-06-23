@@ -95,7 +95,7 @@ export const friendsConfig: Friend[] = [
 		],
 		links: [
 			{ name: "Github", link: "https://github.com/aquamarine-z" },
-			{ name: "Blog", link: "https://aquamarine-z.github.io/aqua-blog/" },
+			{ name: "Blog", link: "https://blog.aquamarinez.com/" },
 			{ name: "Line", link: "https://line.me/ti/p/6fcWHiO0vg" },
 		],
 	},
