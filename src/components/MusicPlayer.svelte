@@ -20,6 +20,7 @@
   let touchStartX = 0;
   let touchStartY = 0;
   let touchTimeout: ReturnType<typeof setTimeout>;
+  let showTimeout: ReturnType<typeof setTimeout>;
   let longPressed = false;
 
   // Subscribe to Zustand store changes using Svelte store contract for robust reactivity
@@ -33,6 +34,7 @@
   onDestroy(() => {
     if (closeTimeout) clearTimeout(closeTimeout);
     if (touchTimeout) clearTimeout(touchTimeout);
+    if (showTimeout) clearTimeout(showTimeout);
     if (typeof window !== 'undefined') {
       window.removeEventListener('click', handleClickOutside);
     }
@@ -116,15 +118,17 @@
   function showCardDelayed() {
     if (isTouchDevice) return; // Ignore hover events on touch devices
     if (closeTimeout) clearTimeout(closeTimeout);
-    showCard = true;
+    if (showTimeout) clearTimeout(showTimeout);
+    showTimeout = setTimeout(() => {
+      showCard = true;
+    }, 1000); // Show only after 1 second (1000ms) of hover
   }
 
   function hideCardDelayed() {
     if (isTouchDevice) return;
+    if (showTimeout) clearTimeout(showTimeout);
     if (closeTimeout) clearTimeout(closeTimeout);
-    closeTimeout = setTimeout(() => {
-      showCard = false;
-    }, 2000); // 2000ms buffer delay
+    showCard = false; // Disappear immediately on mouse leave
   }
 
   function cancelHideCard() {
@@ -154,7 +158,7 @@
           } catch (err) {}
         }
       }
-    }, 600); // 600ms long press threshold
+    }, 1000); // 1000ms long press threshold
   }
 
   function handleTouchMove(e: TouchEvent) {
