@@ -58,4 +58,10 @@ export const ko: Translation = {
 		"바이올렛",
 		"로즈",
 	],
+	[Key.displaySettings]: "디스플레이 설정",
+	[Key.playMusic]: "음악 재생",
+	[Key.pauseMusic]: "음악 일시 정지",
+	[Key.switchLanguage]: "언어 전환",
+	[Key.toggleColorMode]: "테마 모드 전환",
+	[Key.menu]: "메뉴",
 };

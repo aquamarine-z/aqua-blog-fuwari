@@ -58,4 +58,10 @@ export const en: Translation = {
 		"Violet",
 		"Rose",
 	],
+	[Key.displaySettings]: "Display Settings",
+	[Key.playMusic]: "Play Music",
+	[Key.pauseMusic]: "Pause Music",
+	[Key.switchLanguage]: "Switch Language",
+	[Key.toggleColorMode]: "Toggle Theme Mode",
+	[Key.menu]: "Menu",
 };

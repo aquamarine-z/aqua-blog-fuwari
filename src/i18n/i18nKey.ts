@@ -45,6 +45,12 @@ enum I18nKey {
 	customHue = "customHue",
 	themeColorNames = "themeColorNames",
 	name = "name",
+	displaySettings = "displaySettings",
+	playMusic = "playMusic",
+	pauseMusic = "pauseMusic",
+	switchLanguage = "switchLanguage",
+	toggleColorMode = "toggleColorMode",
+	menu = "menu",
 }
 
 export default I18nKey;

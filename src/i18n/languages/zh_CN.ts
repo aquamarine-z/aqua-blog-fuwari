@@ -57,4 +57,10 @@ export const zh_CN: Translation = {
 		"暮云紫",
 		"樱花粉",
 	],
+	[Key.displaySettings]: "显示设置",
+	[Key.playMusic]: "播放音乐",
+	[Key.pauseMusic]: "暂停音乐",
+	[Key.switchLanguage]: "切换语言",
+	[Key.toggleColorMode]: "切换主题模式",
+	[Key.menu]: "菜单",
 };

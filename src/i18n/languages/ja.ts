@@ -58,4 +58,10 @@ export const ja: Translation = {
 		"バイオレット",
 		"ローズ",
 	],
+	[Key.displaySettings]: "表示設定",
+	[Key.playMusic]: "音楽を再生",
+	[Key.pauseMusic]: "音楽を一時停止",
+	[Key.switchLanguage]: "言語を切り替え",
+	[Key.toggleColorMode]: "テーマモードを切り替え",
+	[Key.menu]: "メニュー",
 };

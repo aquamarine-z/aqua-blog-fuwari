@@ -4,10 +4,13 @@
   import Icon from '@iconify/svelte';
   import { url } from '../utils/url-utils';
   import { fade, fly } from 'svelte/transition';
+  import I18nKey from '../i18n/i18nKey';
+  import { i18n } from '../i18n/translation';
 
   let audioRef: HTMLAudioElement;
   let containerRef: HTMLDivElement;
   
+  export let lang = 'zh_CN';
   let showCard = false;
   let closeTimeout: ReturnType<typeof setTimeout>;
   let isDragging = false;
@@ -271,7 +274,7 @@
   <!-- Collapsed state (Navbar Button) -->
   <button 
     aria-label="Toggle Music Player" 
-    title={$store.isPlaying ? "Pause Music" : "Play Music"}
+    title={$store.isPlaying ? i18n(I18nKey.pauseMusic, lang) : i18n(I18nKey.playMusic, lang)}
     class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90 flex items-center justify-center relative" 
     on:click={handleMouseClick}
     on:touchstart={handleTouchStart}
