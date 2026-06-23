@@ -25,8 +25,7 @@
   let touchTimeout: ReturnType<typeof setTimeout>;
   let showTimeout: ReturnType<typeof setTimeout>;
   let longPressed = false;
-  let mouseX = 0;
-  let mouseY = 0;
+
 
   // Subscribe to Zustand store changes using Svelte store contract for robust reactivity
   const store = {
@@ -125,12 +124,6 @@
     if (closeTimeout) clearTimeout(closeTimeout);
     if (showTimeout) clearTimeout(showTimeout);
 
-    if (containerRef) {
-      const rect = containerRef.getBoundingClientRect();
-      mouseX = e.clientX - rect.left;
-      mouseY = e.clientY - rect.top;
-    }
-
     showTimeout = setTimeout(() => {
       showCard = true;
     }, 1000); // Show only after 1 second (1000ms) of hover
@@ -140,14 +133,10 @@
     if (isTouchDevice) return;
     if (showTimeout) clearTimeout(showTimeout);
     if (closeTimeout) clearTimeout(closeTimeout);
-    showCard = false; // Disappear immediately on mouse leave
-  }
-
-  function handleMouseMove(e: MouseEvent) {
-    if (!showCard || !containerRef) return;
-    const rect = containerRef.getBoundingClientRect();
-    mouseX = e.clientX - rect.left;
-    mouseY = e.clientY - rect.top;
+    
+    closeTimeout = setTimeout(() => {
+      showCard = false;
+    }, 100); // 100ms delay to prevent accidental closing
   }
 
   function cancelHideCard() {
@@ -270,7 +259,7 @@
   }
 </script>
 
-<svelte:window on:mousemove={handleMouseMove} />
+
 
 <!-- Audio Element -->
 <audio 
@@ -313,14 +302,15 @@
   <!-- Expanded State (Glassmorphic Player Card) -->
   {#if showCard}
 
-    <!-- Safe Triangle SVG Overlay -->
+    <!-- Safe Triangle SVG Overlay (Static) -->
     <svg 
       class="absolute pointer-events-none overflow-visible z-40" 
       style="top: 0; left: -244px; width: 288px; height: 48px;"
     >
       <polygon 
-        points="{mouseX + 244},{mouseY} 0,48 288,48" 
+        points="244,0 288,0 288,48 0,48" 
         class="pointer-events-auto" 
+        pointer-events="all"
         fill="transparent" 
       />
     </svg>
@@ -465,8 +455,15 @@
     animation: spin-slow 12s linear infinite;
   }
 
+  @keyframes eq-bounce {
+    0%, 100% { height: 4px; }
+    50% { height: 28px; }
+  }
+
   .eq-bar {
-    animation: eq-bounce 1s ease-in-out infinite;
+    animation-name: eq-bounce;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
     height: 4px;
     width: 3px;
   }
