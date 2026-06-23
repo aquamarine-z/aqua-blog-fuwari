@@ -305,10 +305,10 @@
     <!-- Safe Triangle SVG Overlay (Static) -->
     <svg 
       class="absolute pointer-events-none overflow-visible z-40" 
-      style="top: 0; left: -244px; width: 288px; height: 48px;"
+      style="top: 44px; left: -244px; width: 288px; height: 4px;"
     >
       <polygon 
-        points="244,0 288,0 288,48 0,48" 
+        points="244,0 288,0 288,4 0,4" 
         class="pointer-events-auto" 
         pointer-events="all"
         fill="transparent" 
