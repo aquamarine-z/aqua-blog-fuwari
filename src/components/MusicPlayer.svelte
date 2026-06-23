@@ -25,6 +25,8 @@
   let touchTimeout: ReturnType<typeof setTimeout>;
   let showTimeout: ReturnType<typeof setTimeout>;
   let longPressed = false;
+  let mouseX = 0;
+  let mouseY = 0;
 
   // Subscribe to Zustand store changes using Svelte store contract for robust reactivity
   const store = {
@@ -118,10 +120,17 @@
   }
 
   // UI Interactive Handlers - PC Hover
-  function showCardDelayed() {
+  function showCardDelayed(e: MouseEvent) {
     if (isTouchDevice) return; // Ignore hover events on touch devices
     if (closeTimeout) clearTimeout(closeTimeout);
     if (showTimeout) clearTimeout(showTimeout);
+
+    if (containerRef) {
+      const rect = containerRef.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    }
+
     showTimeout = setTimeout(() => {
       showCard = true;
     }, 1000); // Show only after 1 second (1000ms) of hover
@@ -132,6 +141,13 @@
     if (showTimeout) clearTimeout(showTimeout);
     if (closeTimeout) clearTimeout(closeTimeout);
     showCard = false; // Disappear immediately on mouse leave
+  }
+
+  function handleMouseMove(e: MouseEvent) {
+    if (!showCard || !containerRef) return;
+    const rect = containerRef.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
   }
 
   function cancelHideCard() {
@@ -254,6 +270,8 @@
   }
 </script>
 
+<svelte:window on:mousemove={handleMouseMove} />
+
 <!-- Audio Element -->
 <audio 
   bind:this={audioRef}
@@ -294,6 +312,19 @@
 
   <!-- Expanded State (Glassmorphic Player Card) -->
   {#if showCard}
+
+    <!-- Safe Triangle SVG Overlay -->
+    <svg 
+      class="absolute pointer-events-none overflow-visible z-40" 
+      style="top: 0; left: -244px; width: 288px; height: 48px;"
+    >
+      <polygon 
+        points="{mouseX + 244},{mouseY} 0,48 288,48" 
+        class="pointer-events-auto" 
+        fill="transparent" 
+      />
+    </svg>
+
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div 
       transition:fly={{ y: 10, duration: 200 }}
