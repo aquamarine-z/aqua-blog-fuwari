@@ -341,18 +341,18 @@
         <!-- Music Visualization Spectrum (12 Bars) -->
         <div class="h-8 flex items-end justify-center gap-[3px] w-full px-4" aria-hidden="true">
           {#if $store.isPlaying}
-            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar eq-bar-1"></div>
-            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar eq-bar-2"></div>
-            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar eq-bar-3"></div>
-            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar eq-bar-4"></div>
-            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar eq-bar-5"></div>
-            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar eq-bar-6"></div>
-            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar eq-bar-7"></div>
-            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar eq-bar-8"></div>
-            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar eq-bar-9"></div>
-            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar eq-bar-10"></div>
-            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar eq-bar-11"></div>
-            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar eq-bar-12"></div>
+            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar" style="animation-delay: 0.1s; animation-duration: 0.85s;"></div>
+            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar" style="animation-delay: 0.35s; animation-duration: 1.15s;"></div>
+            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar" style="animation-delay: 0.0s; animation-duration: 0.95s;"></div>
+            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar" style="animation-delay: 0.55s; animation-duration: 0.75s;"></div>
+            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar" style="animation-delay: 0.2s; animation-duration: 1.05s;"></div>
+            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar" style="animation-delay: 0.45s; animation-duration: 0.8s;"></div>
+            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar" style="animation-delay: 0.15s; animation-duration: 1.3s;"></div>
+            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar" style="animation-delay: 0.6s; animation-duration: 0.7s;"></div>
+            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar" style="animation-delay: 0.3s; animation-duration: 1.1s;"></div>
+            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar" style="animation-delay: 0.05s; animation-duration: 0.9s;"></div>
+            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar" style="animation-delay: 0.5s; animation-duration: 1.25s;"></div>
+            <div class="w-[3px] bg-gradient-to-t from-[var(--primary)] to-[var(--primary)]/50 rounded-full eq-bar" style="animation-delay: 0.25s; animation-duration: 0.85s;"></div>
           {:else}
             {#each Array(12) as _}
               <div class="w-[3px] h-[3px] bg-neutral-200 dark:bg-neutral-800 rounded-full"></div>
@@ -465,28 +465,11 @@
     animation: spin-slow 12s linear infinite;
   }
 
-  @keyframes eq-bounce {
-    0%, 100% { height: 4px; }
-    50% { height: 28px; }
-  }
-
   .eq-bar {
     animation: eq-bounce 1s ease-in-out infinite;
     height: 4px;
     width: 3px;
   }
-  .eq-bar-1 { animation-delay: 0.1s; animation-duration: 0.85s; }
-  .eq-bar-2 { animation-delay: 0.35s; animation-duration: 1.15s; }
-  .eq-bar-3 { animation-delay: 0.0s; animation-duration: 0.95s; }
-  .eq-bar-4 { animation-delay: 0.55s; animation-duration: 0.75s; }
-  .eq-bar-5 { animation-delay: 0.2s; animation-duration: 1.05s; }
-  .eq-bar-6 { animation-delay: 0.45s; animation-duration: 0.8s; }
-  .eq-bar-7 { animation-delay: 0.15s; animation-duration: 1.3s; }
-  .eq-bar-8 { animation-delay: 0.6s; animation-duration: 0.7s; }
-  .eq-bar-9 { animation-delay: 0.3s; animation-duration: 1.1s; }
-  .eq-bar-10 { animation-delay: 0.05s; animation-duration: 0.9s; }
-  .eq-bar-11 { animation-delay: 0.5s; animation-duration: 1.25s; }
-  .eq-bar-12 { animation-delay: 0.25s; animation-duration: 0.85s; }
 
   /* Custom Range Inputs (Seek & Volume) */
   input[type="range"] {
