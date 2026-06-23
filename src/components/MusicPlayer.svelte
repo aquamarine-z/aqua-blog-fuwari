@@ -465,14 +465,13 @@
     animation: spin-slow 12s linear infinite;
   }
 
-  /* CSS Equalizer Animation (Detailed Audio Waveform Visualizer) */
-  @keyframes -global-eq-bounce {
+  @keyframes eq-bounce {
     0%, 100% { height: 4px; }
     50% { height: 28px; }
   }
 
   .eq-bar {
-    animation: -global-eq-bounce 1s ease-in-out infinite;
+    animation: eq-bounce 1s ease-in-out infinite;
     height: 4px;
     width: 3px;
   }
