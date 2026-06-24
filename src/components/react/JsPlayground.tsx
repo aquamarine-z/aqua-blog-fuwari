@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Prism from "prismjs";
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import _Editor from "react-simple-code-editor";
 import { JsPlaygroundKey } from "@/i18n/partials/js-playground/keys";
 import { i18n } from "@/i18n/translation";
@@ -34,6 +35,38 @@ const syntaxStyles = `
   .playground-editor .token.class-name, .playground-editor .token.property { color: #e5c07b; }
   .playground-editor .token.boolean, .playground-editor .token.number, .playground-editor .token.constant, .playground-editor .token.symbol, .playground-editor .token.deleted { color: #d19a66; }
   .playground-editor .token.variable, .playground-editor .token.entity, .playground-editor .token.url, .playground-editor .token.regex { color: #e06c75; }
+
+  /* Custom scrollbar styling for editors and console */
+  .playground-editor,
+  .playground-console,
+  .playground-editor textarea {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) transparent;
+  }
+  .playground-editor::-webkit-scrollbar,
+  .playground-console::-webkit-scrollbar,
+  .playground-editor textarea::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .playground-editor::-webkit-scrollbar-track,
+  .playground-console::-webkit-scrollbar-track,
+  .playground-editor textarea::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .playground-editor::-webkit-scrollbar-thumb,
+  .playground-console::-webkit-scrollbar-thumb,
+  .playground-editor textarea::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    opacity: 0.4;
+    border-radius: 9999px;
+  }
+  .playground-editor::-webkit-scrollbar-thumb:hover,
+  .playground-console::-webkit-scrollbar-thumb:hover,
+  .playground-editor textarea::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+    filter: brightness(1.2);
+  }
 `;
 
 interface JsPlaygroundProps {
@@ -162,20 +195,20 @@ export default function JsPlayground({
 	};
 
 	return (
-		<div className="w-full my-6 flex flex-col overflow-hidden rounded-[var(--radius-large)] bg-[var(--card-bg)] border border-[var(--line-divider)] shadow-lg transition-all duration-300 hover:shadow-xl group font-sans">
+		<div className="w-full my-8 flex flex-col overflow-hidden rounded-[var(--radius-large)] bg-[var(--card-bg)] border border-black/5 dark:border-white/5 group font-sans">
 			{/* Header */}
-			<div className="flex items-center justify-between border-b border-[var(--line-divider)] bg-[var(--btn-regular-bg)] px-4 py-3 backdrop-blur-sm transition-colors">
-				<div className="flex items-center gap-2">
-					<div className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--primary)] transition-colors">
+			<div className="flex items-center justify-between border-b border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] px-5 py-4 flex-none">
+				<div className="flex items-center gap-2.5">
+					<div className="p-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center">
 						<Code2 size={20} />
 					</div>
-					<h3 className="font-bold tracking-tight text-black/90 dark:text-white/90 transition-colors">
+					<h3 className="font-bold tracking-tight text-90 text-base md:text-lg m-0">
 						{t(JsPlaygroundKey.jsPlayground)}
 					</h3>
 				</div>
 				<button
 					onClick={handleReset}
-					className="btn-plain scale-animation flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold"
+					className="flex items-center gap-1.5 rounded-xl bg-[var(--btn-regular-bg)] hover:bg-[var(--btn-regular-bg)]/80 text-[var(--btn-content)] hover:text-[var(--primary)] px-3.5 py-2 text-xs font-bold transition-all active:scale-[0.98]"
 					title={t(JsPlaygroundKey.reset)}
 				>
 					<RotateCcw size={14} />
@@ -184,17 +217,17 @@ export default function JsPlayground({
 			</div>
 
 			<style>{syntaxStyles}</style>
-			<div className="grid grid-cols-1 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-[var(--line-divider)] transition-colors">
+			<div className="grid grid-cols-1 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-black/5 dark:divide-white/5 transition-colors">
 				{/* Left Column: Inputs */}
 				<div className="flex flex-col lg:col-span-3 h-[36rem]">
 					{/* JS Code Area */}
-					<div className="flex flex-col border-b border-[var(--line-divider)] last:border-0 relative transition-colors flex-[3] min-h-[15rem]">
-						<div className="flex items-center justify-between px-4 py-2 bg-[var(--btn-regular-bg)] text-xs font-bold text-[var(--btn-content)] uppercase tracking-wider transition-colors flex-none">
+					<div className="flex flex-col border-b border-black/5 dark:border-white/5 last:border-0 relative transition-colors flex-[3] min-h-[15rem]">
+						<div className="flex items-center justify-between px-4 py-2.5 bg-black/[0.02] dark:bg-white/[0.01] text-xs font-bold text-75 border-b border-black/5 dark:border-white/5 uppercase tracking-wider transition-colors flex-none">
 							<div className="flex items-center gap-1.5">
 								<Code2 size={14} /> {t(JsPlaygroundKey.jsCode)}
 							</div>
 							<button
-								className="hover:text-[var(--primary)] transition-colors"
+								className="hover:text-[var(--primary)] text-50 hover:opacity-100 transition-colors"
 								onClick={() => setExpandedView("code")}
 								title="Expand"
 							>
@@ -226,12 +259,12 @@ export default function JsPlayground({
 
 					{/* JSON Data Area */}
 					<div className="flex flex-col relative transition-colors flex-[1] min-h-[6rem]">
-						<div className="flex items-center justify-between px-4 py-2 bg-[var(--btn-regular-bg)] text-xs font-bold text-[var(--btn-content)] uppercase tracking-wider transition-colors flex-none">
+						<div className="flex items-center justify-between px-4 py-2.5 bg-black/[0.02] dark:bg-white/[0.01] text-xs font-bold text-75 border-b border-black/5 dark:border-white/5 uppercase tracking-wider transition-colors flex-none">
 							<div className="flex items-center gap-1.5">
 								<Database size={14} /> {t(JsPlaygroundKey.inputData)}
 							</div>
 							<button
-								className="hover:text-[var(--primary)] transition-colors"
+								className="hover:text-[var(--primary)] text-50 hover:opacity-100 transition-colors"
 								onClick={() => setExpandedView("data")}
 								title="Expand"
 							>
@@ -260,11 +293,11 @@ export default function JsPlayground({
 
 				{/* Right Column: Console & Controls */}
 				<div className="flex flex-col lg:col-span-2 h-[20rem] lg:h-[36rem] transition-colors">
-					<div className="flex items-center gap-1.5 px-4 py-2 bg-[var(--btn-regular-bg)] text-xs font-bold text-[var(--btn-content)] uppercase tracking-wider border-b border-[var(--line-divider)] transition-colors flex-none">
+					<div className="flex items-center gap-1.5 px-4 py-2.5 bg-black/[0.02] dark:bg-white/[0.01] text-xs font-bold text-75 uppercase tracking-wider border-b border-black/5 dark:border-white/5 transition-colors flex-none">
 						<TerminalSquare size={14} /> {t(JsPlaygroundKey.consoleOutput)}
 					</div>
 
-					<div className="flex-1 p-4 font-mono text-sm overflow-y-auto bg-[var(--codeblock-bg)] text-white/90 transition-colors">
+					<div className="playground-console flex-1 p-4 font-mono text-sm overflow-y-auto bg-[var(--codeblock-bg)] text-white/90 transition-colors">
 						{outputs.length === 0 ? (
 							<div className="flex h-full flex-col items-center justify-center opacity-50">
 								<TerminalSquare size={32} className="mb-2" />
@@ -310,11 +343,11 @@ export default function JsPlayground({
 					</div>
 
 					{/* Action Bar */}
-					<div className="p-4 border-t border-[var(--line-divider)] bg-[var(--card-bg)] backdrop-blur-sm transition-colors">
+					<div className="p-4 border-t border-black/5 dark:border-white/5 bg-[var(--card-bg)] backdrop-blur-sm transition-colors">
 						<button
 							onClick={handleRun}
 							disabled={isRunning}
-							className={`w-full flex items-center justify-center gap-2 rounded-[var(--radius-large)] px-4 py-3 font-bold text-white transition-all duration-300 active:scale-[0.98] ${
+							className={`w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-bold text-white transition-all duration-300 active:scale-[0.98] ${
 								isRunning
 									? "bg-[var(--primary)] opacity-70 cursor-not-allowed"
 									: "bg-[var(--primary)] hover:brightness-110 hover:shadow-lg shadow-[var(--primary)]/20"
@@ -333,21 +366,21 @@ export default function JsPlayground({
 				</div>
 			</div>
 
-			{/* Fullscreen Editor Modal */}
-			{expandedView && (
-				<div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-all duration-300">
-					<div className="w-full h-full max-w-6xl max-h-[90vh] flex flex-col rounded-[var(--radius-large)] bg-[var(--card-bg)] border border-[var(--line-divider)] shadow-2xl overflow-hidden font-sans">
+			{/* Fullscreen Editor Modal (Using React Portal to escape Swup transform container) */}
+			{expandedView && typeof document !== "undefined" && createPortal(
+				<div className="fixed inset-0 z-[2147483647] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-all duration-300 animate-in fade-in duration-200">
+					<div className="w-full h-full md:w-[95vw] md:h-[95vh] max-w-7xl max-h-none flex flex-col rounded-none md:rounded-2xl bg-[var(--card-bg)] border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden font-sans animate-in zoom-in-95 duration-200">
 						{/* Modal Header */}
-						<div className="flex items-center justify-between border-b border-[var(--line-divider)] bg-[var(--btn-regular-bg)] px-4 py-3">
-							<div className="flex items-center gap-2">
-								<div className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--primary)]">
+						<div className="flex items-center justify-between border-b border-black/5 dark:border-white/5 bg-[var(--btn-regular-bg)] px-5 py-4 flex-none">
+							<div className="flex items-center gap-2.5">
+								<div className="p-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center">
 									{expandedView === "code" ? (
 										<Code2 size={20} />
 									) : (
 										<Database size={20} />
 									)}
 								</div>
-								<h3 className="font-bold tracking-tight text-black/90 dark:text-white/90">
+								<h3 className="font-bold tracking-tight text-90 text-base md:text-lg">
 									{expandedView === "code"
 										? t(JsPlaygroundKey.jsCode)
 										: t(JsPlaygroundKey.inputData)}
@@ -355,7 +388,7 @@ export default function JsPlayground({
 							</div>
 							<button
 								onClick={() => setExpandedView(null)}
-								className="btn-plain scale-animation flex h-8 w-8 items-center justify-center rounded-md"
+								className="btn-plain scale-animation flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--btn-regular-bg)] hover:bg-black/5 dark:hover:bg-white/5 transition-all text-75 hover:text-[var(--primary)] active:scale-95"
 							>
 								<X size={18} />
 							</button>
@@ -380,7 +413,7 @@ export default function JsPlayground({
 								style={{
 									fontFamily: "inherit",
 									minHeight: "100%",
-									fontSize: "1.1rem",
+									fontSize: "1.05rem",
 								}}
 								disabled={expandedView === "code" ? readOnlyCode : readOnlyData}
 								placeholder={
@@ -392,8 +425,10 @@ export default function JsPlayground({
 							/>
 						</div>
 					</div>
-				</div>
+				</div>,
+				document.body
 			)}
 		</div>
 	);
 }
+

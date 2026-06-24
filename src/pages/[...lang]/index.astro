@@ -41,7 +41,7 @@ const splitLang = (str: string) => {
                 </h1>
                 
                 <h2 class="text-base md:text-xl font-semibold text-90 min-h-[3rem] md:min-h-[3.5rem] h-auto w-full max-w-[52ch] overflow-hidden select-none whitespace-normal">
-                    <span id="typewriter" class="pr-1 typewriter-cursor break-words"></span>
+                    <span id="typewriter" data-lang={Astro.currentLocale || 'zh_CN'} class="pr-1 typewriter-cursor break-words"></span>
                 </h2>
                 
                 <div class="flex flex-col gap-3 text-base md:text-lg text-75 leading-relaxed max-w-[52ch] text-pretty">
@@ -241,10 +241,14 @@ const splitLang = (str: string) => {
 }
 </style>
 
-<script is:inline define:vars={{ currentLang: Astro.currentLocale || 'zh_CN' }}>
+<script>
     function initTypewriter() {
         const el = document.getElementById("typewriter");
         if (!el) return;
+        
+        // Prevent duplicate initialization on the same element
+        if (el.dataset.typewriterInitialized === "true") return;
+        el.dataset.typewriterInitialized = "true";
         
         const zh = "前端设计工程师 · 语言学探索者";
         const en = "Frontend Design Engineer · Linguistics Explorer";
@@ -252,7 +256,8 @@ const splitLang = (str: string) => {
         const ko = "프론트엔드 디자인 엔지니어 · 언어학 탐구자";
         
         let words = [];
-        const l = (currentLang || "").toLowerCase();
+        const currentLang = el.dataset.lang || 'zh_CN';
+        const l = currentLang.toLowerCase();
         
         if (l.startsWith("zh")) {
             words = [zh, en, ja, ko];
@@ -269,7 +274,8 @@ const splitLang = (str: string) => {
         let isDeleting = false;
         
         function type() {
-            if (!document.getElementById("typewriter")) return; // element detached
+            // Check if the original element is still in the document
+            if (!el.isConnected) return; // element detached, stop loop
             
             const currentWord = words[i];
             
