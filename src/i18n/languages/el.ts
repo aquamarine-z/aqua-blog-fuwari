@@ -12,6 +12,7 @@ export const el: Translation = {
 
 	[Key.tags]: "Ετικέτες",
 	[Key.categories]: "Κατηγορίες",
+	[Key.docsDirectory]: "Κατάλογος",
 	[Key.recentPosts]: "Πρόσφατες Δημοσιεύσεις",
 
 	[Key.comments]: "Σχόλια",

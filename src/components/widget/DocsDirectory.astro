@@ -1,0 +1,22 @@
+---
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
+import { getDocsCategoryTree } from "../../utils/content-utils";
+import DocsDirectory from "./DocsDirectory.svelte";
+import WidgetLayout from "./WidgetLayout.astro";
+
+interface Props {
+	class?: string;
+	style?: string;
+}
+const className = Astro.props.class;
+const style = Astro.props.style;
+
+const categoryTree = await getDocsCategoryTree(Astro.currentLocale);
+---
+
+<WidgetLayout name={i18n(I18nKey.docsDirectory, Astro.currentLocale)} id="docs-directory" isCollapsed={false}
+                class={className} style={style}
+>
+	<DocsDirectory client:load categories={categoryTree} lang={Astro.currentLocale} currentUrl={Astro.url.pathname} />
+</WidgetLayout>

@@ -108,17 +108,17 @@ async function refreshSidebarSticky(targetUrl) {
 
 ### Docs 内部切换
 
-Docs 内部从一个文档跳到另一个文档时，`CategoryTree` 的数据结构没有变，只是当前 URL 变了。此时不应该重新 fetch 和替换整个侧边栏，否则移动端定位和树状态都会更容易抖动。
+Docs 内部从一个文档跳到另一个文档时，`DocsDirectory` 的数据结构没有变，只是当前 URL 变了。此时不应该重新 fetch 和替换整个侧边栏，否则移动端定位和树状态都会更容易抖动。
 
-因此 Docs 内部切换只派发一个新 URL：
+因此 Docs 内部切换只派发一个新 URL（推荐 `docs-directory:update-url`，兼容 `category-tree:update-url`）：
 
 ```js
-document.dispatchEvent(new CustomEvent('category-tree:update-url', {
+document.dispatchEvent(new CustomEvent('docs-directory:update-url', {
   detail: { url: nextPath },
 }));
 ```
 
-`CategoryTree.svelte` 收到新 URL 后，用原来的 active-path 逻辑重算展开状态：
+`DocsDirectory.svelte` 收到新 URL 后，用原来的 active-path 逻辑重算展开状态：
 
 ```js
 activeUrl = nextUrl;
@@ -229,10 +229,10 @@ if (isDocsInternalNavigation && visit.scroll) {
 }
 ```
 
-随后等待 `CategoryTree` 发出完成事件：
+随后等待 `DocsDirectory` 发出完成事件（推荐监听 `docs-directory:updated`，兼容 `category-tree:updated`）：
 
 ```js
-document.addEventListener('category-tree:updated', (event) => {
+document.addEventListener('docs-directory:updated', (event) => {
   const nextUrl = event.detail?.url;
   if (!pendingMobileDocsScrollUrl || nextUrl !== pendingMobileDocsScrollUrl) return;
 
@@ -241,11 +241,14 @@ document.addEventListener('category-tree:updated', (event) => {
 });
 ```
 
-`CategoryTree.svelte` 在根组件完成 `tick()` 后派发该事件：
+`DocsDirectory.svelte` 在根组件完成 `tick()` 后派发该事件：
 
 ```js
 if (isRoot) {
   await tick();
+  document.dispatchEvent(new CustomEvent('docs-directory:updated', {
+    detail: { url: nextUrl },
+  }));
   document.dispatchEvent(new CustomEvent('category-tree:updated', {
     detail: { url: nextUrl },
   }));
@@ -290,15 +293,15 @@ src/layouts/Layout.astro
 
 1. Navbar 和音乐播放器保持在 Swup containers 外。
 2. 语言切换链接使用 `data-no-swup`。
-3. Docs 内部切换不替换整个 sidebar，只更新 `CategoryTree` 的 URL 状态。
+3. Docs 内部切换不替换整个 sidebar，只更新 `DocsDirectory` 的 URL 状态。
 4. 非 Docs 与 Docs 边界切换必须同步 `#sidebar-sticky`。
-5. 移动端 Docs 定位必须等 `category-tree:updated` 后执行。
+5. 移动端 Docs 定位必须等 `docs-directory:updated` 后执行。
 
 ## 常见错误
 
 ### 把 `#sidebar` 加回 Swup containers
 
-这会让左侧个人信息卡片和 `CategoryTree` 都被 Swup 替换，短期看似简单，但会破坏持久化组件设计，并且容易与手动 sidebar sync 重复执行。
+这会让左侧个人信息卡片和 `DocsDirectory` 都被 Swup 替换，短期看似简单，但会破坏持久化组件设计，并且容易与手动 sidebar sync 重复执行。
 
 ### 只监听一个 Swup 事件
 
@@ -306,7 +309,7 @@ src/layouts/Layout.astro
 
 ### 在 Docs 内部切换时直接 `refreshSidebarSticky`
 
-这样会重新 fetch 和替换树组件，可能导致移动端滚动定位提前、树展开状态闪烁。Docs 内部应优先走 `category-tree:update-url`。
+这样会重新 fetch 和替换树组件，可能导致移动端滚动定位提前、树展开状态闪烁。Docs 内部应优先走 `docs-directory:update-url`。
 
 ### 修改 `expandActive` 为默认展开所有带 `index.md` 的目录
 
@@ -318,6 +321,6 @@ src/layouts/Layout.astro
 
 - `astro.config.mjs` 的 containers 是否仍排除 `#navbar-wrapper` 和 `#sidebar`。
 - `SideBar.astro` 是否仍只替换 `#sidebar-sticky`。
-- `CategoryTree.svelte` 是否仍用 `expandActive(categories, nextUrl)` 显式按 URL 重算。
+- `DocsDirectory.svelte` 是否仍用 `expandActive(categories, nextUrl)` 显式按 URL 重算。
 - `Layout.astro` 是否仍对移动端 Docs 内部跳转禁用 Swup 提前滚动。
 - 所有语言切换入口是否仍有 `data-no-swup`。

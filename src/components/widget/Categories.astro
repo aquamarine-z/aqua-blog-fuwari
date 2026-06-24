@@ -1,52 +1,32 @@
 ---
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
-import {
-	getBlogCategoryList,
-	getBlogCategoryTree,
-	getDocsCategoryTree,
-} from "../../utils/content-utils";
+import { getBlogCategoryList } from "../../utils/content-utils";
 import { getCategoryUrl } from "../../utils/url-utils";
 import ButtonLink from "../control/ButtonLink.astro";
-import CategoryTree from "./CategoryTree.svelte";
 import WidgetLayout from "./WidgetLayout.astro";
 
 interface Props {
 	class?: string;
 	style?: string;
-	isDocs?: boolean;
 }
 const className = Astro.props.class;
 const style = Astro.props.style;
-const isDocs = Astro.props.isDocs;
 
-let categories: any[] = [];
-let categoryTree: any[] = [];
-if (isDocs) {
-	categoryTree = await getDocsCategoryTree(Astro.currentLocale);
-} else {
-	categoryTree = await getBlogCategoryTree(Astro.currentLocale);
-	categories = await getBlogCategoryList(Astro.currentLocale);
-}
+const categories = await getBlogCategoryList(Astro.currentLocale);
 
 const COLLAPSED_HEIGHT = "7.5rem";
 const COLLAPSE_THRESHOLD = 5;
 
-// If it's the tree view, we don't collapse the widget
-const isCollapsed = !isDocs && categories.length >= COLLAPSE_THRESHOLD;
+const isCollapsed = categories.length >= COLLAPSE_THRESHOLD;
 ---
 
 <WidgetLayout name={i18n(I18nKey.categories, Astro.currentLocale)} id="categories" isCollapsed={isCollapsed} collapsedHeight={COLLAPSED_HEIGHT}
                 class={className} style={style}
 >
-	{isDocs ? (
-		<CategoryTree client:load categories={categoryTree} lang={Astro.currentLocale} currentUrl={Astro.url.pathname} />
-	) : (
-		categories.map((c) => (
-			<ButtonLink url={getCategoryUrl(c.name)} badge={String(c.count)} label={`View all posts in the ${c.name.trim()} category`}>
-				{c.name.trim()}
-			</ButtonLink>
-		))
-	)}
+	{categories.map((c) => (
+		<ButtonLink url={getCategoryUrl(c.name)} badge={String(c.count)} label={`View all posts in the ${c.name.trim()} category`}>
+			{c.name.trim()}
+		</ButtonLink>
+	))}
 </WidgetLayout>
-

@@ -433,13 +433,16 @@ function scrollToMobileDocsTarget() {
 
 let pendingMobileDocsScrollUrl: string | null = null;
 
-document.addEventListener('category-tree:updated', (event) => {
+const handleDocsUpdated = (event: Event) => {
     const nextUrl = (event as CustomEvent).detail?.url;
     if (!pendingMobileDocsScrollUrl || nextUrl !== pendingMobileDocsScrollUrl) return;
 
     pendingMobileDocsScrollUrl = null;
     scrollToMobileDocsTarget();
-});
+};
+
+document.addEventListener('docs-directory:updated', handleDocsUpdated);
+document.addEventListener('category-tree:updated', handleDocsUpdated);
 
 /* Load settings when entering the site */
 init();

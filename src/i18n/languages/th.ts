@@ -9,6 +9,7 @@ export const th: Translation = {
 
 	[Key.tags]: "ป้ายกำกับ",
 	[Key.categories]: "หมวดหมู่",
+	[Key.docsDirectory]: "สารบัญ",
 	[Key.recentPosts]: "โพสต์ล่าสุด",
 
 	[Key.comments]: "ความคิดเห็น",

@@ -28,20 +28,20 @@ This project uses `@swup/astro` for client-side page transitions, but several UI
 ### Sidebar Sync Rules
 - **Logic Location**: `src/components/widget/SideBar.astro`.
 - **Non-Docs -> Docs** and **Docs -> Non-Docs**: Fetch the target page HTML and replace only `#sidebar-sticky`.
-- **Docs -> Docs**: Do not fetch or replace the whole sidebar. Instead, dispatch `category-tree:update-url` with the new pathname.
+- **Docs -> Docs**: Do not fetch or replace the whole sidebar. Instead, dispatch `docs-directory:update-url` (and `category-tree:update-url` for backward compatibility) with the new pathname.
 - **Non-Docs -> Non-Docs**: Do not touch the sidebar.
 - **Event Coalescing**: Swup and Astro can emit multiple events for one navigation. `SideBar.astro` uses `requestAnimationFrame` to coalesce events before comparing the previous and next path. Do not remove this without replacing it with equivalent deduplication.
 
-### CategoryTree URL Recalculation
-- **Logic Location**: `src/components/widget/CategoryTree.svelte`.
-- **Expected Behavior**: On Docs internal navigation, the persistent `CategoryTree` receives the new URL and recalculates active/expanded state using `expandActive(categories, nextUrl)`.
+### DocsDirectory URL Recalculation
+- **Logic Location**: `src/components/widget/DocsDirectory.svelte`.
+- **Expected Behavior**: On Docs internal navigation, the persistent `DocsDirectory` receives the new URL and recalculates active/expanded state using `expandActive(categories, nextUrl)`.
 - **Important Rule**: Keep expansion based on the active path. Do not automatically expand every folder that has an `index.md`; `index.md` means the folder is readable, not that it should always be expanded.
-- **Completion Event**: After recalculating and awaiting Svelte `tick()`, the root tree dispatches `category-tree:updated`.
+- **Completion Event**: After recalculating and awaiting Svelte `tick()`, the root tree dispatches `docs-directory:updated` (and `category-tree:updated`).
 
 ### Mobile Docs Scroll Timing
 - **Logic Location**: `src/layouts/Layout.astro`.
 - **Anchor**: Mobile Docs pages scroll to `#swup-mobile-scroll-target`.
-- **Critical Sequence**: For mobile Docs internal navigation, Swup automatic reset is disabled first, then `CategoryTree` recalculates expansion, then `category-tree:updated` triggers the final scroll. Scrolling before the tree expands will produce incorrect positioning.
+- **Critical Sequence**: For mobile Docs internal navigation, Swup automatic reset is disabled first, then `DocsDirectory` recalculates expansion, then `docs-directory:updated` (or `category-tree:updated`) triggers the final scroll. Scrolling before the tree expands will produce incorrect positioning.
 
 ### Language Switching Must Bypass Swup
 - **Rule**: Language switch links must use `data-no-swup`.

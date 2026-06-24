@@ -51,6 +51,7 @@ enum I18nKey {
 	switchLanguage = "switchLanguage",
 	toggleColorMode = "toggleColorMode",
 	menu = "menu",
+	docsDirectory = "docsDirectory",
 }
 
 export default I18nKey;

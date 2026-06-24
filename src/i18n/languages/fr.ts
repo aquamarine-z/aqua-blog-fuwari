@@ -12,6 +12,7 @@ export const fr: Translation = {
 
 	[Key.tags]: "Étiquettes",
 	[Key.categories]: "Catégories",
+	[Key.docsDirectory]: "Table des matières",
 	[Key.recentPosts]: "Articles récents",
 
 	[Key.comments]: "Commentaires",

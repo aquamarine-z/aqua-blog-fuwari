@@ -12,6 +12,7 @@ export const he: Translation = {
 
 	[Key.tags]: "תגיות",
 	[Key.categories]: "קטגוריות",
+	[Key.docsDirectory]: "תוכן עניינים",
 	[Key.recentPosts]: "פוסטים אחרונים",
 
 	[Key.comments]: "תגובות",
