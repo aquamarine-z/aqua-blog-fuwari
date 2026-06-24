@@ -147,6 +147,22 @@ onDestroy(() => {
                         on:click|stopPropagation={() => toggleCategory(node)}
                         aria-label="Toggle"
                     >
+</script>
+
+<div class="category-tree">
+    {#each categories as node}
+        {#if node.type === 'folder'}
+            <div class="category-node">
+                <div
+                    class="category-header"
+                    class:expanded={expandedCategories[node.folderName || node.name]}
+                    class:active={isNodeActive(node, activeUrl)}
+                >
+                    <button 
+                        class="category-chevron-btn" 
+                        on:click|stopPropagation={() => toggleCategory(node)}
+                        aria-label="Toggle"
+                    >
                         <span class="category-chevron" class:rotated={expandedCategories[node.folderName || node.name]}>
                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                                 <path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -158,6 +174,7 @@ onDestroy(() => {
                         href={node.url ? getUrl(node.url) : undefined}
                         class="category-name-btn"
                         style={node.url ? "text-decoration: none;" : ""}
+                        title={node.name}
                         on:click={() => {
                             if (!node.url) toggleCategory(node);
                         }}
@@ -212,6 +229,7 @@ onDestroy(() => {
         font-size: 0.9rem;
         font-weight: 600;
         text-align: left;
+        min-width: 0;
     }
 
     .category-chevron-btn {
@@ -239,6 +257,7 @@ onDestroy(() => {
         display: flex;
         align-items: center;
         transition: none;
+        min-width: 0;
     }
 
     :global(.dark) .category-header {
@@ -320,6 +339,7 @@ onDestroy(() => {
         font-size: 0.8rem;
         line-height: 1.3;
         transition: all 0.15s ease;
+        min-width: 0;
     }
 
     :global(.dark) .category-leaf {
@@ -364,5 +384,7 @@ onDestroy(() => {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        flex: 1;
+        min-width: 0;
     }
 </style>
