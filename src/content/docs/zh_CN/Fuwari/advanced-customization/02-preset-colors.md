@@ -24,8 +24,8 @@ export const siteConfig: SiteConfig = {
   themeColor: {
     hue: 300, 
     fixed: false, 
-    // ⬇️ 修改这个数组，填入你想要的 HUE 值
-    colors: [0, 180, 250, 300, 340], 
+    // ⬇️ 修改这个数组，填入你想要的 HUE 值，默认为 7 个颜色
+    colors: [0, 50, 80, 180, 250, 300, 340], 
   },
 }
 ```
@@ -42,13 +42,13 @@ export const siteConfig: SiteConfig = {
 export const zh_CN: Translation = {
     // ...
     // ⬇️ 新增对应的名称数组，长度必须和 config.ts 中的 colors 数组一致！
-    [Key.themeColorNames]: ['炽焰红', '海蓝', '紫罗兰', '洋红', '玫瑰'],
+    [Key.themeColorNames]: ['枫叶赤', '琥珀橙', '银杏黄', '琉璃翠', '星河靛', '暮云紫', '樱花粉'],
 }
 ```
 
 接着，别忘了在其他语言文件（如 `en.ts`）中也加入对应的翻译版本：
 ```typescript
-    [Key.themeColorNames]: ['Crimson', 'Aqua', 'Indigo', 'Violet', 'Rose'],
+    [Key.themeColorNames]: ['Crimson', 'Amber', 'Gold', 'Aqua', 'Indigo', 'Violet', 'Rose'],
 ```
 
 ## 第三步：开启或关闭自定义无级调色条

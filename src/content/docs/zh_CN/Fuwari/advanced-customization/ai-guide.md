@@ -33,8 +33,8 @@ Before proposing code changes, familiarize yourself with the following core syst
 
 ## 2. Persistent BGM (Music Player) System
 - **Implementation**: The music player uses Svelte and persists across page transitions because the project uses Swup for client-side routing, and the Navbar (which houses the player) is deliberately kept outside the Swup replacement container.
-- **Location**: `src/components/MusicPlayer.svelte`.
-- **Modification**: To change the audio source, do not look in `config.ts`. You must directly modify the `<audio src="...">` tag inside `MusicPlayer.svelte`.
+- **Location**: `src/components/MusicPlayer.svelte` and `src/stores/musicStore.ts`.
+- **Modification**: To change the audio source or manage playlist tracks, configure the `musicConfig` object inside `src/config.ts`. The vanilla Zustand store `musicStore.ts` initializes the playlist using `musicConfig.tracks` and persists playback states in local storage. Do not hardcode tracks directly inside `MusicPlayer.svelte`.
 
 ## 3. Theme & Color Palette System
 - **Framework**: The project uses Tailwind CSS and OKLCH color spaces.

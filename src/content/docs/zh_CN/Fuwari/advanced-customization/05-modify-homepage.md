@@ -26,33 +26,28 @@ sidebar_position: 5
 
 ## 2. 如何修改主页的文字文案？
 
-为了配合系统的多语言 (i18n) 机制，主页的文案被统一写在了一个名为 `t` 的翻译字典对象中。
+为了配合系统的多语言 (i18n) 机制，主页的文字文案完全从 HTML 和组件逻辑中解耦，并被统一收纳到了**分块模块化翻译字典**中。
 
-在 `index.astro` 文件的顶部代码区（约第 18 行左右），你会看到类似下面这样的结构：
+你**不需要**修改 `index.astro` 文件。想要更改文字文案，请前往以下目录：
+`src/i18n/partials/home/`
 
-```typescript
-// Translations for the homepage
-const t = {
-    zh_CN: {
-        title: "Hi, 我是 Aquamarine",
-        subtitle: "前端开发者 & 语言爱好者",
-        description: "我专注于 <strong>前端设计</strong>，使用 <strong>React</strong> 和 <strong>Vue</strong> 构建美观且交互丰富的 Web 应用。...",
-        readBlog: "阅读博客",
-        viewDocs: "查看文档",
-        // ...更多字段
-    },
-    en: {
-        title: "Hi, I'm Aquamarine",
-        // ...英文翻译
-    },
-    // ...其它语言
-};
-```
+在这个文件夹下，你会看到：
+* `keys.ts`：主页文案对应的 `HomeKey` 枚举声明。
+* `zh_CN.ts`：主页的中文翻译包。
+* `en.ts`、`ja.ts`、`ko.ts` 等：主页的外语翻译包。
 
-**修改方法：**
-你只需要直接在这些字符串中修改文字即可！
-- 如果你懂 HTML，你可以在 `description` 等字段中随意穿插 `<strong>` (加粗), `<br>` (换行) 等标签来控制排版。
-- 如果你要修改某个主语言的文案，请一定记得把你启用的**外语**（如 `en`, `ja`）对应的文案也一并修改，保持结构对称。
+### ✍️ 修改文案步骤：
+1. 打开对应语言的翻译文件（例如中文版为 `src/i18n/partials/home/zh_CN.ts`）：
+   ```typescript
+   export const zh_CN = {
+       [HomeKey.title]: "Aquamarine",
+       [HomeKey.subtitle]: "前端设计工程师 · 语言学探索者",
+       [HomeKey.description]: "主要使用 <strong>React</strong> 与 <strong>Vue</strong> 进行前端开发...",
+       // ...
+   };
+   ```
+2. 直接在对应字段的大括号内修改字符串即可。如果需要加粗或者换行，可以使用 `<strong>`、`<br>` 等 HTML 标签。
+3. **保持对称**：如果你修改了主语言（如中文）的某条文案，推荐同步修改你启用的其他外语包（如 `en.ts`）里的对应 Key，以保持多语言体验的一致性。
 
 ---
 
