@@ -141,22 +141,7 @@ onDestroy(() => {
                     class="category-header"
                     class:expanded={expandedCategories[node.folderName || node.name]}
                     class:active={isNodeActive(node, activeUrl)}
-                >
-                    <button 
-                        class="category-chevron-btn" 
-                        on:click|stopPropagation={() => toggleCategory(node)}
-                        aria-label="Toggle"
-                    >
-</script>
-
-<div class="category-tree">
-    {#each categories as node}
-        {#if node.type === 'folder'}
-            <div class="category-node">
-                <div
-                    class="category-header"
-                    class:expanded={expandedCategories[node.folderName || node.name]}
-                    class:active={isNodeActive(node, activeUrl)}
+                    title={node.name}
                 >
                     <button 
                         class="category-chevron-btn" 
@@ -208,10 +193,12 @@ onDestroy(() => {
         display: flex;
         flex-direction: column;
         gap: 2px;
+        min-width: 0;
     }
 
     .category-node {
         border-radius: 0.5rem;
+        min-width: 0;
     }
 
     .category-header {
@@ -300,6 +287,7 @@ onDestroy(() => {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        min-width: 0;
     }
 
     .category-children {
@@ -311,6 +299,7 @@ onDestroy(() => {
         margin-top: 2px;
         margin-bottom: 4px;
         animation: slideDown 0.2s ease-out;
+        min-width: 0;
     }
 
     :global(.dark) .category-children {
@@ -381,6 +370,8 @@ onDestroy(() => {
     }
 
     .leaf-title {
+        flex: 1;
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;

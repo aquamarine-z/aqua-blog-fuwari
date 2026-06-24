@@ -1,13 +1,15 @@
 ---
-title: "🌐 4. 多语言与 Fallback (i18n & Fallback)"
+title: "4. 多语言与 Fallback (i18n & Fallback)"
 published: 2026-06-15
 description: "AI 指南：内容多语言、UI多语言及模块化 Partials 编译时自动注入前缀与回退兜底逻辑。"
 sidebar_position: 4
 ---
+本文档详细阐述了内容（Docs/Blog）多语言与界面（UI）多语言的设计差异、Fallback 机制以及编译期自动注入逻辑，以供 AI 在修改时参考。
 
-# AI 协作参考：多语言与 Fallback
+``````text
+# AI Collaboration Reference: Internationalization (i18n) & Fallback
 
-## 📌 Context & Rules
+## Context & Rules
 
 ### Content i18n vs UI i18n
 - **Content i18n (Articles/Docs)**: Governed by the file system. Translated posts and docs are physically placed in language-specific subdirectories like `src/content/blog/[lang]/` and `src/content/docs/[lang]/`. Translations are done directly in the `.md` or `.mdx` files.
@@ -27,3 +29,4 @@ sidebar_position: 4
 - **Adding Tags**: To add a new tag, you MUST register it in `src/i18n/i18nKey.ts` and add its translation to AT LEAST the main language file (e.g., `src/i18n/languages/zh_CN.ts`).
 - **Post Filtering (Hiding mechanism)**: Posts without a translation in the current language directory (e.g., `src/content/blog/en/`) are completely hidden from that language's feed. This filtering logic is executed in `src/utils/content-utils.ts` inside `getSortedPosts()`.
 - **Main Language Folder & Conflict**: For the main language (e.g., `zh_CN`), posts can be placed either in the root `src/content/blog/` or in `src/content/blog/zh_CN/`. Both map to the root routing without the language prefix. However, if two files share the same slug across these two locations, `content-utils.ts` will throw a conflict error during compilation to prevent silent overwriting.
+``````

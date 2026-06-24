@@ -1,13 +1,15 @@
 ---
-title: "🚀 6. Swup 路由与持久化边界 (Swup & Boundaries)"
+title: "6. Swup 路由与持久化边界 (Swup & Boundaries)"
 published: 2026-06-15
 description: "AI 指南：Swup transitions、侧边栏按需部分同步及移动端滚动定位时序。"
 sidebar_position: 6
 ---
+本文档阐释了 Swup 无刷新路由切换的实现原理、导航事件节流、侧边栏部分内容手动同步规则以及滚动定位时序，以供 AI 在修改时参考。
 
-# AI 协作参考：Swup 路由与持久化边界
+``````text
+# AI Collaboration Reference: Swup Routing & Persistent Boundaries
 
-## 📌 Context & Rules
+## Context & Rules
 
 This project uses `@swup/astro` for client-side page transitions, but several UI regions are intentionally kept outside Swup replacement to preserve state.
 
@@ -45,3 +47,4 @@ This project uses `@swup/astro` for client-side page transitions, but several UI
 - **Rule**: Language switch links must use `data-no-swup`.
 - **Affected Areas**: Top language selector, post/doc language availability links, and fallback buttons such as "this article does not exist in this language, switch to another language".
 - **Reason**: Language switching changes persistent i18n state across Navbar, Search, DisplaySettings, date picker text, and other UI. Treat language changes as full page navigations, not Swup transitions.
+``````
