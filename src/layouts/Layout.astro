@@ -680,12 +680,43 @@ async function getMermaid() {
 // Map of observed block elements to prevent duplicate observations
 const observedBlocks = new WeakSet();
 
+// Queue for sequential rendering to avoid blocking the main thread
+const renderQueue = [];
+let isProcessingQueue = false;
+
+function enqueueBlock(block) {
+	if (renderQueue.includes(block)) return;
+	renderQueue.push(block);
+	if (!isProcessingQueue) {
+		processQueue();
+	}
+}
+
+async function processQueue() {
+	if (renderQueue.length === 0) {
+		isProcessingQueue = false;
+		return;
+	}
+
+	isProcessingQueue = true;
+	const block = renderQueue.shift();
+
+	try {
+		await renderBlock(block);
+	} catch (e) {
+		console.error("Queue process error:", e);
+	}
+
+	// Yield control back to the browser to process input and paint before rendering the next diagram
+	setTimeout(processQueue, 50);
+}
+
 // Intersection Observer for viewport lazy loading
 const intersectionObserver = new IntersectionObserver((entries) => {
 	for (const entry of entries) {
 		if (entry.isIntersecting) {
 			const block = entry.target;
-			renderBlock(block);
+			enqueueBlock(block);
 		}
 	}
 }, {
@@ -693,8 +724,9 @@ const intersectionObserver = new IntersectionObserver((entries) => {
 });
 
 async function renderBlock(block) {
-	// If already rendered, skip
+	// If already rendered or detached, skip
 	if (block.getAttribute("data-rendered") === "true") return;
+	if (!block.isConnected) return;
 
 	const code = block.getAttribute("data-mermaid-code");
 	if (!code) return;
@@ -709,15 +741,21 @@ async function renderBlock(block) {
 	const id = `mermaid-${Math.random().toString(36).substring(2, 9)}`;
 	try {
 		const { svg } = await mermaid.render(id, code);
+		if (!block.isConnected) return;
 		block.innerHTML = svg;
 		block.setAttribute("data-rendered", "true");
 	} catch (err) {
 		console.error("Failed to render Mermaid diagram:", err);
-		block.innerHTML = `<div class="text-red-500 text-sm p-4 bg-red-100 dark:bg-red-950 rounded-xl">Error rendering diagram: ${err}</div>`;
+		if (block.isConnected) {
+			block.innerHTML = `<div class="text-red-500 text-sm p-4 bg-red-100 dark:bg-red-950 rounded-xl">Error rendering diagram: ${err}</div>`;
+		}
 	}
 }
 
 function setupMermaid() {
+	// Clear any pending render queue tasks on page change/reload
+	renderQueue.length = 0;
+
 	const blocks = document.querySelectorAll(".mermaid-block");
 	if (blocks.length === 0) return;
 
@@ -726,7 +764,7 @@ function setupMermaid() {
 			intersectionObserver.observe(block);
 			observedBlocks.add(block);
 		} else if (block.getAttribute("data-rendered") !== "true") {
-			renderBlock(block);
+			enqueueBlock(block);
 		}
 	}
 }
