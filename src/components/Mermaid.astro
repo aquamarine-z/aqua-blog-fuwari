@@ -1,0 +1,13 @@
+---
+interface Props {
+	code: string;
+}
+
+const { code } = Astro.props;
+---
+
+<div class="mermaid-block flex justify-center my-4" data-mermaid-code={code}>
+	<div class="animate-pulse bg-[var(--codeblock-bg)] rounded-xl w-full h-32 flex items-center justify-center text-sm text-[var(--text-color-light)]">
+		Rendering diagram...
+	</div>
+</div>

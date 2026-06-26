@@ -665,3 +665,89 @@ if (window.swup) {
 	document.addEventListener("swup:enable", setup)
 }
 </script>
+
+<script>
+async function renderAllMermaid() {
+	const blocks = document.querySelectorAll(".mermaid-block");
+	if (blocks.length === 0) return;
+
+	const { default: mermaid } = await import("mermaid");
+
+	const getMermaidTheme = () => {
+		return document.documentElement.classList.contains("dark") ? "dark" : "default";
+	};
+
+	mermaid.initialize({
+		startOnLoad: false,
+		theme: getMermaidTheme(),
+		securityLevel: "loose",
+	});
+
+	for (const block of blocks) {
+		const code = block.getAttribute("data-mermaid-code");
+		if (!code) continue;
+
+		const currentTheme = getMermaidTheme();
+		const renderedTheme = block.getAttribute("data-rendered-theme");
+		if (renderedTheme === currentTheme) continue;
+
+		const id = `mermaid-${Math.random().toString(36).substring(2, 9)}`;
+		try {
+			const { svg } = await mermaid.render(id, code);
+			block.innerHTML = svg;
+			block.setAttribute("data-rendered-theme", currentTheme);
+		} catch (err) {
+			console.error("Failed to render Mermaid diagram:", err);
+			block.innerHTML = `<div class="text-red-500 text-sm p-4 bg-red-100 dark:bg-red-950 rounded-xl">Error rendering diagram: ${err}</div>`;
+		}
+	}
+}
+
+// Observe theme change on <html>
+const observer = new MutationObserver(async () => {
+	const blocks = document.querySelectorAll(".mermaid-block");
+	if (blocks.length === 0) return;
+
+	const getMermaidTheme = () => {
+		return document.documentElement.classList.contains("dark") ? "dark" : "default";
+	};
+	const currentTheme = getMermaidTheme();
+
+	let themeChanged = false;
+	for (const block of blocks) {
+		if (block.getAttribute("data-rendered-theme") !== currentTheme) {
+			themeChanged = true;
+			break;
+		}
+	}
+
+	if (themeChanged) {
+		const { default: mermaid } = await import("mermaid");
+		mermaid.initialize({
+			theme: currentTheme,
+		});
+		renderAllMermaid();
+	}
+});
+
+const setupMermaid = () => {
+	renderAllMermaid();
+	
+	observer.disconnect();
+	observer.observe(document.documentElement, {
+		attributes: true,
+		attributeFilter: ["class"],
+	});
+};
+
+setupMermaid();
+
+if (window.swup) {
+	window.swup.hooks.on("page:view", setupMermaid);
+} else {
+	document.addEventListener("swup:enable", () => {
+		window.swup.hooks.on("page:view", setupMermaid);
+	});
+}
+</script>
+

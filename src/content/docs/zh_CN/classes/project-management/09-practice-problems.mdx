@@ -4,6 +4,8 @@ published: 2026-06-26
 description: "精选四道极具代表性的期末考试真题级例题（NPV可行性选择、CPM关键路径顺推逆推、EVM挣值分析预测、变更与版本控制对比简答），提供保姆级计算解析过程。"
 sidebar_position: 9
 ---
+import Mermaid from "@/components/Mermaid.astro";
+
 
 # ✍️ 第二部分：考试核心例题详解与演练 (Practice Problems)
 
@@ -124,7 +126,7 @@ $$\text{NPV} = -150,000 + 185,721 = \mathbf{+35,721} \text{ (元)}$$
 
 在项目管理考试中，这是标准解法。关键路径为黄色加粗边：
 
-```mermaid
+<Mermaid code={`
 flowchart LR
     Start([开始]) --> A["A (4天)"]
     A --> B["B (6天)"]
@@ -146,7 +148,7 @@ flowchart LR
     style G stroke:#f39c12,stroke-width:3px,fill:#fdf2e9
     
     linkStyle 0,1,3,5,7,9 stroke:#f39c12,stroke-width:3px;
-```
+`} />
 
 ---
 
@@ -154,7 +156,7 @@ flowchart LR
 
 如果我们**忽略 H 的 FF 复杂限制**，仅画出 A、B、C、D、E、F、G 的传统 AOE 图，则需要使用**虚活动（虚工作，Dummy Activity，工期为 0，用虚线表示）**来表达 D 和 E 共同制约 F 的关系：
 
-```mermaid
+<Mermaid code={`
 flowchart LR
     N1((①)) -- "A (4)" --> N2((②))
     N2 -- "B (6)" --> N3((③))
@@ -179,7 +181,7 @@ flowchart LR
     style N9 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
     
     linkStyle 0,1,3,5,7,8 stroke:#f39c12,stroke-width:3px;
-```
+`} />
 
 > [!NOTE]
 > * **虚工作（⑤ ➡️ ⑦，⑥ ➡️ ⑦）**：在 AOE 中必不可少，因为活动 F 的开始（⑦）同时依赖于 D 的结束（⑤）和 E 的结束（⑥）。如果不引入虚工作，直接连线会使网图逻辑发生混淆。
