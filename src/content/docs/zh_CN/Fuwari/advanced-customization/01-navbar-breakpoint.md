@@ -1,11 +1,11 @@
 ---
-title: '修改全局 Titlebar 折叠断点'
+title: '01. 修改全局 Titlebar 折叠断点'
 published: 2026-06-15
 description: '详解如何通过 Tailwind CSS 修改顶部导航栏（Titlebar/Navbar）进入手机模式的触发宽度。'
 sidebar_position: 1
 ---
 
-# 修改全局 Titlebar 折叠断点
+# 01. 修改全局 Titlebar 折叠断点
 
 在本项目中，顶部的全局导航栏（Titlebar/Navbar）控制着整个网站在桌面端和移动端两种模式之间的切换。当屏幕宽度小于设定值时，中间的文字链接会被隐藏，右侧会展示出一个“汉堡包”下拉菜单按钮，也就是进入了**手机模式**。
 

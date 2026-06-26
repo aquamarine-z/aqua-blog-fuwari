@@ -1,11 +1,11 @@
 ---
-title: "Swup 路由与持久化组件改造记录"
+title: "07. Swup 路由与持久化组件改造记录"
 published: 2026-06-16
 description: "记录本项目在 Fuwari 基础上对 Swup、侧边栏、Docs 目录树、移动端滚动和语言切换所做的二次改进。"
 sidebar_position: 7
 ---
 
-# Swup 路由与持久化组件改造记录
+# 07. Swup 路由与持久化组件改造记录
 
 本文记录本项目在 Fuwari 原主题基础上，对 Swup 页面切换机制做过的关键二次改进。这里不是 Swup 的入门教程，而是给后续维护者看的“改动地图”：哪些 DOM 交给 Swup 替换，哪些 UI 必须保持持久化，以及 Docs 侧边栏为什么不能简单放回 Swup 容器。
 

@@ -1,5 +1,5 @@
 ---
-title: 'Astro 插件机制与 Vite 编译时代码注入'
+title: '10. Astro 插件机制与 Vite 编译时代码注入'
 published: 2026-06-20
 description: 深入解析 Fuwari 博客的底层构建插件机制，以及负责 i18n 模块化的核心 Vite 插件的工作原理。
 tags: [深度定制, Astro, Vite, 插件]
@@ -7,7 +7,7 @@ category: 深度定制
 sidebar_position: 10
 ---
 
-# Astro 插件机制与 Vite 编译时代码注入
+# 10. Astro 插件机制与 Vite 编译时代码注入
 
 为了支持高度模块化和自动化的架构，Fuwari 项目在底层大量使用了 Astro 插件和 Vite 构建插件系统。本章将详细介绍我们抽离出的插件体系，以及负责驱动整个“i18n 分块模块化”机制的**核心 Vite 插件** `i18nKeyPrefixPlugin` 的运作原理。
 
