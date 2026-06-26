@@ -1,0 +1,165 @@
+---
+title: "第三章：经典软件架构风格与分布式设计"
+published: 2026-06-26
+description: "架构四个维度、单体级架构风格（分层、MVC、MVVM、管道过滤器）、分布式架构（SOA、微服务、REST约束与HATEOAS）、Spring框架技术对比。"
+sidebar_position: 3
+---
+
+import Mermaid from "@/components/Mermaid.astro";
+
+# ✍️ 第三章：经典软件架构风格与分布式设计
+
+---
+
+## 3.1 架构本质的四个维度 [PDF 3]
+
+1.  **系统结构（System Structure）**：系统组件、模块之间的物理/逻辑拓扑结构（通过架构风格落地） [PDF 3]。
+2.  **架构特征（Architecture Characteristics）**：系统的核心非功能性指标（性能、可靠性、安全性等） [PDF 3]。
+3.  **架构决策（Architecture Decisions）**：系统建设过程中，不可违背的技术红线与硬性设计约定 [PDF 3]。
+4.  **设计原则（Design Principles）**：指导技术选型的最佳实践和通用思想 [PDF 3]。
+
+---
+
+## 3.2 单体级架构风格 [PDF 3]
+
+### 3.2.1 分层架构（Layered Architecture） [PDF 3]
+
+*   **分层原则**：每一层承担专属职责，逐层依赖。
+*   **封闭层（Closed Layer）**：上层请求**不可跨越**此层，必须逐层向下传递（保证了各层的安全和独立性） [PDF 3]。
+*   **开放层（Open Layer）**：请求可以**直接穿透**此层，跨层调用下层组件（提升调用效率，但牺牲了高耦合度） [PDF 3]。
+
+### 3.2.2 MVC 架构 [PDF 3]
+
+*   **Model（模型）**：维护业务状态，处理数据。
+*   **View（视图）**：负责界面数据的可视化渲染，通常无状态。
+*   **Controller（控制器）**：拦截用户请求，调用 Model 处理业务逻辑，并决定将哪个 View 呈现给用户。
+
+### 3.2.3 MVVM 架构 [PDF 3]
+
+*   **核心特性**：专门为现代前端工程设计。
+*   **ViewModel**：作为 View 与 Model 之间的双向代理。依靠**双向数据绑定（Two-Way Data Binding）**，当 Model 的数据改变时，View 自动重绘；当用户操作 View 时，Model 自动更新。开发人员彻底摆脱了冗余的手动 DOM 操作。
+
+### 3.2.4 管道-过滤器架构（Pipeline Architecture） [PDF 3]
+
+*   **核心组件**：由一系列**无状态**的数据处理组件（Filter）与单向数据通道（Pipe）串联而成。
+*   **过滤器（Filter）类型** [PDF 3]：
+    *   **生产者（Producer）**：也称“源”（Source），作为管道起点，负责将外部数据导入管道 [PDF 3]。
+    *   **转换器（Transformer）**：对管道内传输的数据按规则进行格式转换 [PDF 3]。
+    *   **测试器（Tester）**：进行数据完整性/有效性校验，过滤不合规数据 [PDF 3]。
+    *   **消费者（Consumer）**：也称“汇”（Sink），管道的终点，负责将数据持久化或回显 [PDF 3]。
+
+---
+
+## 3.3 分布式及微服务架构风格 [PDF 3]
+
+### 3.3.1 传统面向服务架构（SOA） [PDF 3]
+
+*   **核心机制**：强调粗粒度的业务服务复用。使用 **WSDL** 进行服务自描述，通过 **SOAP**（基于 XML 的协议）在**企业服务总线（ESB）**上进行数据交换，并在 **UDDI** 注册中心进行服务注册与发现 [PDF 3]。
+
+### 3.3.2 现代微服务架构（Microservices） [PDF 3]
+
+微服务是 SOA 架构的轻量化、去中心化演进变体。其核心特征差异包括 [PDF 3]：
+
+1.  **去中心化总线**：去除重型 ESB 总线，改用轻量级 HTTP RESTful 或高性能 gRPC 协议 [PDF 3]。
+2.  **细粒度领域拆分**：按领域边界（DDD）进行高内聚拆分 [PDF 3]。
+3.  **服务独占数据库**：严格遵循“一服务一独立数据库”原则，数据完全物理隔离 [PDF 3]。
+4.  **云原生天然适配**：容器化（Docker/K8s）部署，支持独立灰度、弹性扩缩容 [PDF 3]。
+
+### 3.3.3 REST 架构的六大黄金约束 [PDF 3]
+
+REST（表述性状态转移）是一组以网络为基础的架构设计约束：
+
+1.  **Client-Server（客户-服务器）**：将用户界面与数据存储彻底解耦。
+2.  **Stateless（无状态）**：服务端不保留客户端的任何会话状态。每次请求必须包含执行该操作所需的全部上下文信息。
+3.  **Cacheability（可缓存性）**：响应信息必须显式标记为可缓存或不可缓存，以提升网络传输效率。
+4.  **Layered System（分层系统）**：客户端无法（也无需）感知其是否直接与源服务器相连，中间可部署 CDN、网关或反向代理。
+5.  **Uniform Interface（统一接口）**：通过标准的 HTTP 方法（`GET`, `POST`, `PUT`, `DELETE`）对唯一的资源标识符（URI）进行操作。
+6.  **Code-On-Demand（按需代码，可选）**：服务器可向下传送临时可执行代码（如 JavaScript 脚本）以扩展客户端功能。
+
+*   **HATEOAS 原则**：在响应体内不仅返回资源数据，还动态返回与该资源相关的下一阶段状态迁移 of 超链接（URI），实现应用状态的动态变迁 [PDF 3]。
+
+---
+
+## 3.4 企业级应用实现技术（以 Spring 框架为例） [PDF 3]
+
+### 3.4.1 Web 层框架对比 [PDF 3]
+
+*   **Spring MVC**：基于 **Servlet** 容器的同步、阻塞式调用模型。一请求一线程，并发吞吐量受限于线程池大小。
+*   **Spring WebFlux**：基于 **Reactor + Netty** 的异步、非阻塞事件驱动模型。利用极少数的核心线程即可支撑极高的并发吞吐量。
+
+### 3.4.2 分布式与无服务器架构 [PDF 3]
+
+*   **Spring Cloud**：提供了微服务治理的完整全家桶（如 Eureka 注册中心、Spring Cloud Gateway 网关等） [PDF 3]。
+*   **Spring Cloud Function（Serverless）**：将业务逻辑彻底抽象为 `Supplier`（无参有返回值）、`Function`（有参有返回值）和 `Consumer`（有参无返回值）三种基础函数，底层基础设施（冷启动、自动扩容）由云平台弹性管理 [PDF 3]。
+
+---
+
+## 3.5 UML 绘图指南：架构模式与组件部署拓扑图
+
+架构图用于描述系统的高层组件和网络节点组织形式，不属于标准的 UML 元模型，但有着明确的行业组织范式。
+
+### 3.5.1 企业级经典三层分层物理架构图 [PDF 3 - P3]
+
+**设计原则**：清晰划分代码结构、系统架构、以及技术栈的对应关系 [PDF 3]。
+
+<Mermaid code={`
+flowchart LR
+    subgraph Code [代码结构]
+        direction TB
+        C1["html/jsp"]
+        C2["servlet/service"]
+        C3["dao/entity/util"]
+    end
+
+    subgraph Arch [系统架构]
+        direction TB
+        A1["表示层 (UI)"]
+        A2["业务逻辑层 (BLL)"]
+        A3["数据访问层 (DAL)"]
+    end
+
+    subgraph Tech [技术栈]
+        direction TB
+        T1["JSP/HTML/JS/AJAX"]
+        T2["servlet/java/..."]
+        T3["JDBC/MyBatis/Hibernate"]
+    end
+
+    C1 --> A1
+    A1 --> T1
+    
+    A1 -- 请求 --> A2
+    A2 -- 反馈 --> A1
+    
+    C2 --> A2
+    A2 --> T2
+    
+    A2 -- 请求 --> A3
+    A3 -- 反馈 --> A2
+    
+    C3 --> A3
+    A3 --> T3
+
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    class C1,C2,C3,A1,A2,A3,T1,T2,T3 normal
+`} />
+
+### 3.5.2 Spring Cloud 微服务组件部署拓扑图 [PDF 3 - P41]
+
+**设计原则**：清晰表达网关、注册中心、业务服务集群间的动态心跳与路由分发关系。
+
+<Mermaid code={`
+flowchart TD
+    Browser["Browser (浏览器客户端)"] -- "HTTP 请求" --> Gateway["«Gateway»<br>API Gateway<br>(负责路由与负载均衡)"]
+    
+    Gateway -- "转发请求" --> Service1["«Service»<br>Student Service<br>(业务服务)"]
+    Gateway -- "转发请求" --> Service2["«Service»<br>Score Service<br>(业务服务)"]
+    
+    Service1 -- "注册 & 心跳" --> Eureka["«Eureka»<br>Eureka Server Cluster<br>(注册中心，保存所有实例信息)"]
+    Service2 -- "注册 & 心跳" --> Eureka
+
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    classDef critical fill:#fdf2e9,stroke:#f39c12,stroke-width:3px,color:#d35400
+    class Browser,Service1,Service2 normal
+    class Gateway,Eureka critical
+`} />

@@ -324,61 +324,6 @@ function initCustomScrollbar() {
 		}
 	});
 
-	const katexElements = document.querySelectorAll('.katex-display') as NodeListOf<HTMLElement>;
-
-	const katexObserverOptions = {
-		root: null,
-		rootMargin: '100px',
-		threshold: 0.1
-	};
-
-	const processKatexElement = (element: HTMLElement) => {
-		if (!element.parentNode) return;
-		if (element.hasAttribute('data-scrollbar-initialized')) return;
-
-		const container = document.createElement('div');
-		container.className = 'katex-display-container';
-		container.setAttribute('aria-label', 'scrollable container for formulas');
-
-		element.parentNode.insertBefore(container, element);
-		container.appendChild(element);
-
-		OverlayScrollbars(container, {
-			scrollbars: {
-				theme: 'scrollbar-base scrollbar-auto',
-				autoHide: 'leave',
-				autoHideDelay: 500,
-				autoHideSuspend: false
-			},
-			update: {
-				ignoreMutation: (mutation) => {
-					const target = mutation.target;
-					if (mutation.type === 'attributes') {
-						if (target === document.documentElement || target === document.body) {
-							const name = mutation.attributeName;
-							return name === 'class' || name === 'style' || name === 'data-theme';
-						}
-					}
-					return false;
-				}
-			}
-		});
-
-		element.setAttribute('data-scrollbar-initialized', 'true');
-	};
-
-	const katexObserver = new IntersectionObserver((entries, observer) => {
-		entries.forEach(entry => {
-			if (entry.isIntersecting) {
-			processKatexElement(entry.target as HTMLElement);
-			observer.unobserve(entry.target);
-			}
-		});
-	}, katexObserverOptions);
-
-	katexElements.forEach(element => {
-		katexObserver.observe(element);
-	});
 }
 
 function showBanner() {
@@ -701,59 +646,9 @@ async function getMermaid() {
 	return mermaidInstance;
 }
 
-// Map of observed block elements to prevent duplicate observations
-const observedBlocks = new WeakSet();
-
-// Queue for sequential rendering to avoid blocking the main thread
-const renderQueue = [];
-let isProcessingQueue = false;
-
-function enqueueBlock(block) {
-	if (renderQueue.includes(block)) return;
-	renderQueue.push(block);
-	if (!isProcessingQueue) {
-		processQueue();
-	}
-}
-
-async function processQueue() {
-	if (renderQueue.length === 0) {
-		isProcessingQueue = false;
-		return;
-	}
-
-	isProcessingQueue = true;
-	const block = renderQueue.shift();
-
-	try {
-		await renderBlock(block);
-	} catch (e) {
-		console.error("Queue process error:", e);
-	}
-
-	// Yield control back to the browser to process input and paint before rendering the next diagram
-	setTimeout(processQueue, 50);
-}
-
-// Intersection Observer for viewport lazy loading
-const intersectionObserver = new IntersectionObserver((entries) => {
-	for (const entry of entries) {
-		if (entry.isIntersecting) {
-			const block = entry.target;
-			enqueueBlock(block);
-		}
-	}
-}, {
-	rootMargin: "200px 0px", // Render slightly before coming into view
-});
-
-async function renderBlock(block) {
-	// If already rendered or detached, skip
-	if (block.getAttribute("data-rendered") === "true") return;
-	if (!block.isConnected) return;
-
-	const code = block.getAttribute("data-mermaid-code");
-	if (!code) return;
+async function renderMermaid() {
+	const blocks = document.querySelectorAll(".mermaid-block");
+	if (blocks.length === 0) return;
 
 	const mermaid = await getMermaid();
 	const isDark = document.documentElement.classList.contains("dark");
@@ -761,65 +656,47 @@ async function renderBlock(block) {
 		startOnLoad: false,
 		theme: isDark ? "dark" : "default",
 		securityLevel: "loose",
+		suppressErrors: true,
+		parseError: (err) => {
+			console.warn("Mermaid syntax error:", err);
+		}
 	});
 
-	const id = `mermaid-${Math.random().toString(36).substring(2, 9)}`;
-	try {
-		const { svg } = await mermaid.render(id, code);
-		if (!block.isConnected) return;
-		block.innerHTML = svg;
-		block.setAttribute("data-rendered", "true");
-	} catch (err) {
-		console.error("Failed to render Mermaid diagram:", err);
-		if (block.isConnected) {
-			block.innerHTML = `<div class="text-red-500 text-sm p-4 bg-red-100 dark:bg-red-950 rounded-xl">Error rendering diagram: ${err}</div>`;
-		}
-	}
-}
-
-function setupMermaid() {
-	// Clear any pending render queue tasks on page change/reload
-	renderQueue.length = 0;
-
-	const blocks = document.querySelectorAll(".mermaid-block");
-	if (blocks.length === 0) return;
-
 	for (const block of blocks) {
-		if (!observedBlocks.has(block)) {
-			intersectionObserver.observe(block);
-			observedBlocks.add(block);
-		} else if (block.getAttribute("data-rendered") !== "true") {
-			enqueueBlock(block);
+		const code = block.getAttribute("data-mermaid-code");
+		if (!code) continue;
+
+		const id = `mermaid-${Math.random().toString(36).substring(2, 9)}`;
+		try {
+			const { svg } = await mermaid.render(id, code);
+			if (svg.includes('id="mermaid-error') || svg.includes('class="error') || svg.includes('Syntax error')) {
+				block.innerHTML = `<div class="text-red-500 text-sm p-4 bg-red-100 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-xl font-mono whitespace-pre-wrap">Mermaid Syntax Error: Please check your diagram syntax.</div>`;
+			} else {
+				block.innerHTML = svg;
+			}
+		} catch (err) {
+			console.error("Failed to render Mermaid diagram:", err);
+			block.innerHTML = `<div class="text-red-500 text-sm p-4 bg-red-100 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-xl font-mono whitespace-pre-wrap">Error: ${err}</div>`;
 		}
 	}
 }
 
 // Initial load
-setupMermaid();
+renderMermaid();
 
 // Listen for theme changes to dynamically update Mermaid diagrams theme
 if (typeof window !== "undefined") {
-	window.addEventListener("theme-changed", () => {
-		const blocks = document.querySelectorAll(".mermaid-block");
-		for (const block of blocks) {
-			block.removeAttribute("data-rendered");
-			block.innerHTML = `
-				<div class="animate-pulse w-full h-32 flex items-center justify-center text-sm text-[var(--text-color-light)]">
-					Rendering diagram...
-				</div>
-			`;
-		}
-		setupMermaid();
-	});
+	window.addEventListener("theme-changed", renderMermaid);
 }
 
 // Swup hook
 if (window.swup) {
-	window.swup.hooks.on("page:view", setupMermaid);
+	window.swup.hooks.on("page:view", renderMermaid);
 } else {
 	document.addEventListener("swup:enable", () => {
-		window.swup.hooks.on("page:view", setupMermaid);
+		window.swup.hooks.on("page:view", renderMermaid);
 	});
 }
+
 </script>
 

@@ -1,0 +1,164 @@
+---
+title: "第一章：系统需求分析与用例建模设计"
+published: 2026-06-26
+description: "系统需求层次划分、用例模型（包含、扩展、泛化关系）、用例规约结构、分析类与系统操作契约讲解。"
+sidebar_position: 1
+---
+
+import Mermaid from "@/components/Mermaid.astro";
+
+# ✍️ 第一章：系统需求分析与用例建模设计
+
+---
+
+## 1.1 需求层次划分与捕获工具 [PDF 4]
+
+软件需求是一个从宏观商业价值向微观操作步骤逐步分解的演进过程：
+
+$$\text{业务目标} \rightarrow \text{业务流程} \rightarrow \text{操作流程} \rightarrow \text{业务规则}$$
+
+*   **业务目标（Business Goal）**：回答系统“为什么存在”。
+*   **业务流程（Business Process）**：实现业务目标所涉及的多角色、跨部门的协同活动。
+*   **操作流程（Operation Flow）**：单一角色在系统界面上的具体交互路径。
+*   **业务规则（Business Rule）**：限制或指导业务行为的约束条件（如：余额不足禁止取款）。
+
+#### 需求捕获三大核心工具：
+
+1.  **影响力地图（Impact Mapping）**：通过四个维度快速对齐业务价值：
+    *   **Why（业务目标）**：我们为什么要开发这个功能？
+    *   **Who（干系人）**：谁能帮助我们或阻碍我们达成目标？
+    *   **How（如何产生影响）**：干系人的行为应发生怎样的改变？
+    *   **What（交付物）**：我们需要交付什么具体功能来促成这种改变？
+2.  **用户故事（User Story）**：敏捷需求分析的基础格式：
+    $$\text{作为一名 [用户角色], 我希望 [执行某项操作], 以便 [获得某种业务价值]。}$$
+3.  **用例图（Use Case Diagram）**：以可视化的方式捕获系统的功能范围。
+
+---
+
+## 1.2 用例模型（Use Case Model） [PDF 4]
+
+用例用于描述外部参与者（Actor）与系统之间为了达到特定业务目标而进行的安全、完整的交互序列。
+
+#### 1.2.1 参与者与用例的识别方法：
+
+*   **目标法（Goal-directed Method）**：寻找“谁使用系统干什么”，每个用例必须对应一个明确且对参与者有实际业务价值的目标 [PDF 4]。
+*   **事件分析法（Event-driven Method）**：寻找系统边界外的“源点参与者”和“终点参与者”，分析外部事件如何触发系统的完整动作序列 [PDF 4]。
+
+#### 1.2.2 用例之间的三种核心关联关系：
+
+<Mermaid code={`
+flowchart TD
+    subgraph UseCaseRelations [用例关系示意图]
+        direction LR
+        Main(["主用例"]) -. "«include»" .-> Include(["包含用例<br>(必须执行的子步骤)"])
+        Extend(["扩展用例<br>(在特定条件下触发)"]) -. "«extend»" .-> Main
+        Child(["子用例<br>(特化具体实现)"]) -- "泛化关系" --> Parent(["父用例"])
+    end
+    
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    class Main,Include,Extend,Child,Parent normal
+`} />
+
+1.  **包含关系（`<<include>>`）**：
+    *   **语义**：主用例的流中包含了另一个用例的行为。
+    *   **执行规则**：主用例执行时，包含用例**必须执行**。通常用于提取多个用例中的公共子步骤（如：“提交采集任务”和“删除任务”都必须包含“身份验证”） [PDF 4]。
+2.  **扩展关系（`<<extend>>`）**：
+    *   **语义**：在基础用例的基础上，在特定的“扩展点（Extension Point）”根据条件选择性地触发。
+    *   **执行规则**：基础用例的执行**不依赖**于扩展用例。只有满足特定条件时才触发（如：“在线转账”成功后，只有用户勾选了“需要短信提醒”，系统才会触发“发送短信”用例） [PDF 4]。
+3.  **泛化关系（Generalization）**：
+    *   **语义**：子用例承接父用例的行为 and 结构，并提供更具体的实现（如：“在线支付”是父用例，“微信支付”、“支付宝支付”是其特化子用例） [PDF 4]。
+
+---
+
+## 1.3 用例规约（Use Case Specification）结构 [PDF 4]
+
+用例图仅展示结构，其详细的交互逻辑必须在用例规约中详细阐述。一份标准的用例规约应包含以下要素：
+
+*   **用例名称（Name）**：动宾短语（如：提交新闻采集任务）。
+*   **用例级别（Level）**：用户目标级、子功能级。
+*   **主要参与者（Primary Actor）**：发起该交互 of 外部角色。
+*   **前置条件（Pre-conditions）**：用例开始前系统必须满足的全局状态（如：用户必须处于登录状态）。
+*   **后置条件（Post-conditions）**：用例成功执行后，系统状态发生的改变（持久化改变）。
+*   **主要流程（Basic Flow）**：没有出现 any 异常的黄金交互路径。
+*   **替代/扩展流程（Alternative Flows）**：分支条件、输入错误或异常流程的处理路径。
+*   **非功能性需求（Non-functional Requirements）**：安全、性能、可用性等约束。
+
+---
+
+## 1.4 分析类与系统交互建模 [PDF 1, PDF 4]
+
+在分析阶段（OOA），系统结构被抽象为“鲁棒图”（Robustness Diagram）中的三类分析类：
+
+*   **边界类（Boundary Class）**：代表系统与外界（用户、其他系统、设备）的接口，负责接收输入和呈现输出（如：前端页面、API路由、网络套接字 `RegisterDialog`） [PDF 4, PDF 5]。
+*   **控制类（Control Class）**：代表系统内部的协调、业务逻辑控制、流程编排逻辑（如：`TaskController`, `AccountController`） [PDF 4, PDF 5]。
+*   **实体类（Entity Class）**：代表系统需要保存的长期数据结构和领域模型（如：`News`, `Account`, `NewsCollectionTask`） [PDF 4, PDF 5]。
+
+#### 💡 关于后端 Controller 角色的争议 [PDF 1]：
+
+*   在传统的 MVC 架构中，后端的 `Controller` 承载了 **API 接口接入**（系统交互，属于边界特性）与 **业务流程调度**（控制与流程编排特性）的双重职责。
+*   在现代**前后端分离**架构中，前端界面（如 Vue3、Uniapp 页面）已作为系统对外的唯一真实“边界类”。
+*   为了保持分析模型的简洁性，课程明确约定：**在时序图与分析类图中，统一将后端 Controller 归为“控制类”** [PDF 1]。
+
+---
+
+## 1.5 系统操作契约（System Operation Contract） [PDF 4, PDF 5]
+
+系统顺序图（SSD）描述了参与者触发的系统事件。针对每一个重要的系统事件，分析人员需编写系统操作契约。
+
+*   **契约的核心要素**：系统操作签名、前置条件、后置条件 [PDF 5]。
+*   **后置条件的黄金三法则**：后置条件必须是用过去时态描述的、执行完毕后系统状态的客观物理改变。只存在以下三种情形 [PDF 5]：
+    1.  **对象被创建或销毁**（Instantiated or Destroyed）：如 `NewsCollectionTask` 的实例 `task` 被创建。
+    2.  **对象的属性值发生变更**（Attribute modified）：如 `task.status` 被修改为 `PENDING`。
+    3.  **对象之间的连接关系（关联/链接）被创建或销毁**（Link formed or broken）：如 `task` 关联到了当前的 `User` 实例。
+
+---
+
+## 1.6 典型图表绘制实战：以“扫码租车”为例
+
+为了方便理解用例建模与系统顺序图（SSD）的具体绘制方法，以下提供对应的标准 UML 例图：
+
+### 1.6.1 扫码租车用例图
+
+该用例图展示了用户与系统主要功能的关系，包含了明显的包含（`<<include>>`）与扩展（`<<extend>>`）关系。
+
+<Mermaid code={`
+flowchart LR
+    subgraph SystemBoundary [共享电动车系统]
+        direction LR
+        UC_Rent(["扫码租车"])
+        UC_Check(["押金余额校验"])
+        UC_Policy(["自动生成保单"])
+        UC_Free(["免押金骑行"])
+        
+        UC_Rent -. "«include»" .-> UC_Check
+        UC_Rent -. "«include»" .-> UC_Policy
+        UC_Free -. "«extend»<br>(条件: 信用分 > 700)" .-> UC_Rent
+    end
+    
+    User(((用户))) --> UC_Rent
+    
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    class UC_Rent,UC_Check,UC_Policy,UC_Free normal
+`} />
+
+### 1.6.2 扫码租车系统顺序图 (SSD)
+
+系统顺序图（SSD）将整个系统作为一个黑盒，仅展示外部参与者（Actor）与系统（System）之间的跨边界消息流。
+
+<Mermaid code={`
+sequenceDiagram
+    autonumber
+    actor User as 用户
+    participant System as 共享电动车系统 (黑盒)
+
+    User->>System: 扫码 (车辆二维码)
+    
+    alt 信用分 <= 700
+        System-->>User: 提示进行押金余额校验
+        User->>System: 校验通过
+    else 信用分 > 700
+        System-->>User: 提示免押金骑行
+    end
+    
+    System-->>User: 电锁开启成功，开始计费
+`} />

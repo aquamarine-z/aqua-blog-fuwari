@@ -140,14 +140,17 @@ flowchart LR
     G --> End([结束])
     H --> End
 
-    %% 关键路径高亮
-    style A stroke:#f39c12,stroke-width:3px,fill:#fdf2e9
-    style B stroke:#f39c12,stroke-width:3px,fill:#fdf2e9
-    style D stroke:#f39c12,stroke-width:3px,fill:#fdf2e9
-    style F stroke:#f39c12,stroke-width:3px,fill:#fdf2e9
-    style G stroke:#f39c12,stroke-width:3px,fill:#fdf2e9
+    %% 节点与连线的主题自适应美化
+    classDef critical fill:#fdf2e9,stroke:#f39c12,stroke-width:3px,color:#d35400
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    classDef startEnd fill:#f8f9fa,stroke:#7f8c8d,stroke-width:1px,color:#2c3e50
+
+    class A,B,D,F,G critical
+    class C,E,H normal
+    class Start,End startEnd
     
-    linkStyle 0,1,3,5,7,9 stroke:#f39c12,stroke-width:3px;
+    linkStyle 0,1,3,5,7,9 stroke:#f39c12,stroke-width:3px
+    linkStyle 2,4,6,8,10 stroke:#dddddd,stroke-width:1px
 `} />
 
 ---
@@ -171,16 +174,15 @@ flowchart LR
     N7 -- "F (7)" --> N8((⑧))
     N8 -- "G (3)" --> N9((⑨))
 
-    %% 关键路径高亮
-    style N1 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
-    style N2 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
-    style N3 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
-    style N5 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
-    style N7 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
-    style N8 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
-    style N9 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
+    %% 节点与连线的主题自适应美化
+    classDef critical fill:#fdf2e9,stroke:#f39c12,stroke-width:2px,color:#d35400
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+
+    class N1,N2,N3,N5,N7,N8,N9 critical
+    class N4,N6 normal
     
-    linkStyle 0,1,3,5,7,8 stroke:#f39c12,stroke-width:3px;
+    linkStyle 0,1,3,5,7,8 stroke:#f39c12,stroke-width:3px
+    linkStyle 2,4,6 stroke:#dddddd,stroke-width:1px
 `} />
 
 > [!NOTE]

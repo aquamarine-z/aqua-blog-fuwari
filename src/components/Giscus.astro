@@ -17,7 +17,7 @@ if (lang === "el") {
   <script is:inline define:vars={{ config: giscusConfig, term, lang }}>
     function getGiscusTheme() {
       const isDark = document.documentElement.classList.contains('dark');
-      const hue = document.documentElement.style.getPropertyValue('--hue') || localStorage.getItem('hue') || '300';
+      const hue = getComputedStyle(document.documentElement).getPropertyValue('--hue') || '300';
       const baseTheme = isDark ? 'catppuccin_macchiato' : 'catppuccin_latte';
       const css = `
         @import url('https://giscus.app/themes/${baseTheme}.css');
@@ -74,15 +74,24 @@ if (lang === "el") {
 
     loadGiscus();
 
-    // Listen for theme changes to dynamically update Giscus theme via custom event
-    window.addEventListener("theme-changed", () => {
-      const iframe = document.querySelector('iframe.giscus-frame');
-      if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.postMessage(
-          { giscus: { setConfig: { theme: getGiscusTheme() } } },
-          'https://giscus.app'
-        );
+    // Listen for theme changes to dynamically update Giscus theme
+    const observer = new MutationObserver((mutations) => {
+      let shouldUpdate = false;
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class' || mutation.attributeName === 'style') {
+          shouldUpdate = true;
+        }
+      });
+      if (shouldUpdate) {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage(
+            { giscus: { setConfig: { theme: getGiscusTheme() } } },
+            'https://giscus.app'
+          );
+        }
       }
     });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
   </script>
 </div>

@@ -28,6 +28,12 @@ export function setHue(hue: number): void {
 }
 
 export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
+	// 在切换主题前，临时为文档根节点添加禁用文章过渡的标志类
+	// 这使得文章本体内成千上万个公式/代码高亮节点以纯静态方式瞬时切换，杜绝卡顿
+	if (typeof window !== "undefined") {
+		document.documentElement.classList.add("disable-article-transitions");
+	}
+
 	switch (theme) {
 		case LIGHT_MODE:
 			document.documentElement.classList.remove("dark");
@@ -53,6 +59,16 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
 	// Dispatch custom event for theme changes (e.g., for Mermaid rendering)
 	if (typeof window !== "undefined") {
 		window.dispatchEvent(new CustomEvent("theme-changed", { detail: { theme } }));
+	}
+
+	if (typeof window !== "undefined") {
+		// 强制触发一次重绘（Reflow），确保新主题颜色在“过渡禁用”的状态下被浏览器瞬间渲染完毕
+		void document.documentElement.offsetHeight;
+
+		// 在下一个事件循环中移除该标志类，使文章本体的日常鼠标悬浮等过渡动画重获新生
+		setTimeout(() => {
+			document.documentElement.classList.remove("disable-article-transitions");
+		}, 0);
 	}
 }
 

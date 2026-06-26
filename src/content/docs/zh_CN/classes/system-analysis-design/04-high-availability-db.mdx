@@ -1,0 +1,180 @@
+---
+title: "第四章：系统高可用、高扩展与数据库逻辑设计"
+published: 2026-06-26
+description: "全局异常处理机制与AOP操作审计日志设计、数据库一二三范式以及泛化继承关系映射物理方案。"
+sidebar_position: 4
+---
+
+import Mermaid from "@/components/Mermaid.astro";
+
+# ✍️ 第四章：系统高可用、高扩展与数据库逻辑设计
+
+---
+
+## 4.1 异常处理与统一拦截机制 [PDF 1]
+
+为了保证系统的高可用与代码整洁度，避免在业务代码中出现多层嵌套且冗余的 `try-catch` 块，系统推荐采用 **全局异常处理器 (Global Exception Handler) + 标准返回体 (Unified Result)** 的 AOP 架构：
+
+```
+[Repository] --(抛出底层异常)--> [Service] --(向上抛出自定义异常)--> [Controller]
+                                                                        |
+                                                                        v
+ [客户端] <-----------------(包装为标准化 JSON 响应)--------------- [全局异常处理器]
+```
+
+### 4.1.1 异常层次划分设计 [PDF 1]：
+系统业务异常应按照层次划分，通常由一个统一的业务基类向上派生：
+*   **业务异常基类（`BaseBusinessException`）**：继承自 `RuntimeException`，包含错误码（`code`）和用户友好的展示信息（`message`）。
+*   **系统级未知异常（`SystemException`）**：用于捕获非预期的底层运行时故障（如数据库连接中断、空指针异常），向用户返回模糊的友好提示（如“系统繁忙，请稍后再试”），防止底层敏感信息外泄。
+*   **第三方集成异常（`ThirdPartyException`）**：用于网络请求失败、爬虫抓取接口超时、外部第三方服务解析故障等特定场景。
+
+### 4.1.2 统一响应拦截实现原理 [PDF 1]：
+通过使用 Spring MVC 的 `@RestControllerAdvice` 声明全局异常处理类，利用 `@ExceptionHandler` 分别拦截并捕获业务基类异常与未知的系统异常。拦截后，将异常包装为格式统一 of `Result.fail(code, message)` 结构体并序列化为 JSON 格式回显给客户端，实现异常处理的集中化和标准化。
+
+---
+
+## 4.2 运维治理：系统运行日志 vs 操作审计日志 [PDF 1]
+
+为了实现高效的故障定位与安全合规审计，高可用系统必须做好系统日志的分类管理：
+
+### 4.2.1 系统运行日志（Running Log） [PDF 1]
+*   **职责范围**：记录系统的技术运行轨迹，包括每个接口的调用耗时、业务处理步骤、网络I/O细节及异常错误堆栈。
+*   **链路追踪**：配合分布式追踪 ID（`TraceId`）实现跨微服务节点的链路追踪。
+*   **采集与留存**：通常是海量半结构化数据，使用 ELK (Elasticsearch, Logstash, Kibana) 集群进行全量采集与近实时检索，由于占用空间大，留存期通常较短（如 30 天以内）。
+
+### 4.2.2 操作审计日志（Audit Log） [PDF 1]
+*   **职责范围**：专用于安全合规与用户行为追溯。只记录用户的关键敏感业务操作（如修改密码、重置安全令牌、提交爬虫采集任务、执行敏感转账等）。
+*   **记录要素**：完整记录“谁（Who）、何时（When）、在什么 IP（Where）、进行了什么操作（What）、操作结果（Result）”。
+*   **实现机制**：利用 Spring AOP 结合自定义注解（如 `@Audit`），在进入关键 Controller 方法时织入切面，在切面内异步或同步将审计记录写入专属的 MySQL 审计日志表中。作为高安全等级的合规资产，审计日志通常需要归档并长期保存。
+
+---
+
+## 4.3 数据库逻辑建模与物理映射 [PDF 4]
+
+### 4.3.1 第一、二、三范式形式化定义 [PDF 4]
+
+*   **第一范式（1NF）**：
+     关系中的每个属性都必须是原子性的，不可再分。
+     $$\forall R \in \text{关系}, \forall A \in R.Attributes, A \text{ 必须是不可分割的基本数据项。}$$
+
+*   **第二范式（2NF）**：
+     满足 1NF，且关系中的所有非主属性都必须完全函数依赖于候选键，不能存在对候选键的一部分（即部分依赖）的依赖。
+     $$R \in 1NF \text{ 且 } R \text{ 的所有非主属性完全函数依赖（Full Functional Dependency）于候选键（Candidate Key）。}$$
+     *   *消除由于复合主键（如：`学号, 课程号`）导致的“部分函数依赖”（如：`课程名` 只依赖于 `课程号`，必须拆分成两张表）。*
+
+*   **第三范式（3NF）**：
+     满足 2NF，且非主属性不能传递依赖于候选键（即不能存在 $A \rightarrow B, B \rightarrow C$ 的传递关系，其中 $A$ 为候选键）。
+     $$R \in 2NF \text{ 且 } R \text{ 的所有非主属性都不传递依赖（Transitive Dependency）于候选键。}$$
+     *   *如果出现传递依赖，必须将传递依赖的属性单独建表保存。*
+
+### 4.3.2 泛化/继承关系映射的两大主流物理方案 [PDF 2, PDF 4]
+
+面向对象模型中的继承（如 Account 是父类，Saving 和 Checking 是子类）在关系型数据库中不存在直接对应物，需要映射为二维表结构：
+
+1.  **单表策略（Single Table per Class Hierarchy）** [PDF 4]：
+    *   **方法**：基类与所有子类的数据合并保存在一张大表中，通过在表中引入一个鉴别器列（Discriminator Column，如 `account_type`）来区分当前行数据属于哪个具体的子类。
+    *   **优点**：结构极其简单，查询任意子类数据无需多表 `JOIN` 关联，物理读性能最好。
+    *   **缺点**：子类特有的专有列无法在物理数据库层施加 `NOT NULL` 约束（因为其他子类在此列必须填 NULL），且当子类较多时表结构会非常稀疏，造成较多的存储空间空洞。
+
+2.  **多表联合策略（Joined Subclass Strategy）** [PDF 4]：
+    *   **方法**：基类和每个具体的子类分别独立建表。基类表保存公共字段，子表仅保存子类特有字段。子表的主键同时作为外键（Foreign Key）指向基类表的主键。
+    *   **优点**：关系模式完全符合数据库范式设计，数据紧凑无冗余，子类特有属性可以施加严格的物理完整性约束（如 `NOT NULL`）。
+    *   **缺点**：在多态查询或查询具体子类数据时，必须进行大量的多表 `JOIN` 关联操作，在高并发、海量数据场景下会产生显著的性能损耗。
+
+---
+
+## 4.4 UML 绘图指南：状态图 (State Machine Diagrams)
+
+状态图用于刻画一个单一业务对象在其生命周期内，由于接收外部事件（Event）而发生的状态变迁（State Transition）。
+
+### 4.4.1 符号与语法规范 [PDF 1]
+
+1.  **初态（Initial State）**：实心黑色圆点。
+2.  **终态（Final State）**：双圆环（同心圆），中间为黑色实心圆点。
+3.  **状态（State）**：圆角矩形，写有状态的英文大写名称。
+4.  **状态迁移线（Transition）**：带箭头的实线。线上可标注：`事件 [条件] / 动作`（Event [Guard] / Action）。
+
+---
+
+### 4.4.2 核心图例深入拆解
+
+#### 图例 A：业务执行中的任务状态转换图（TaskStatus） [PDF 1 - P16]
+
+**状态清单**：`PENDING`（待执行）、`RUNNING`（执行中）、`SUCCESS`（执行成功）、`FAILED`（执行失败）。
+
+<Mermaid code={`
+stateDiagram-v2
+    [*] --> PENDING : 任务创建提交
+    PENDING --> RUNNING : 调度器开始执行
+    RUNNING --> SUCCESS : 采集与解析完成
+    RUNNING --> FAILED : 异常导致中断
+    FAILED --> PENDING : 人工或系统重试
+    SUCCESS --> [*]
+    FAILED --> [*]
+`} />
+
+#### 图例 B：新闻审核与发布生命周期状态转换图（NewsStatus） [PDF 1 - P17]
+
+**状态清单**：`CREATED`（已创建）、`REVIEWING`（审核中）、`PUBLISHED`（已发布）、`REJECTED`（已驳回）、`DISABLED`（已禁用）。
+
+<Mermaid code={`
+stateDiagram-v2
+    [*] --> CREATED : 采集入库
+    CREATED --> REVIEWING : 提交审核
+    REVIEWING --> PUBLISHED : 审核通过
+    REVIEWING --> REJECTED : 审核不通过
+    REJECTED --> CREATED : 修改重新提交
+    PUBLISHED --> DISABLED : 过期/违规下架
+    DISABLED --> [*]
+`} />
+
+---
+
+## 4.5 UML 绘图指南：活动图 (Activity Diagrams)
+
+活动图用于描述系统的工作流或算法流程，侧重于表达动作之间的控制流，类似于高级流程图。
+
+### 4.5.1 符号与语法规范 [PDF 1]
+
+1.  **起点与终点**：同状态图（实心圆点、同心圆）。
+2.  **动作状态（Action）**：圆角矩形。
+3.  **决策点（Decision）**：空心菱形。用于分流判断，流出线必须用中括号 `[...]` 标明守卫条件。
+4.  **控制流（Control Flow）**：带箭头的实线。
+
+---
+
+### 4.5.2 核心图例深入拆解
+
+#### 图例 A：新闻网页抓取算法控制流 [PDF 1 - P19]
+
+**逻辑流程**：判断抓取模式（静态/动态渲染） $\rightarrow$ 动态渲染使用外部内核，静态直接请求 $\rightarrow$ 校验 HTML 空值 $\rightarrow$ 业务返回。
+
+<Mermaid code={`
+flowchart TD
+    Start([开始]) --> CreateReq[根据URL创建请求]
+    CreateReq --> SetHeaders[设置请求头/超时/代理]
+    SetHeaders --> IsDynamic{是否动态页面?}
+    
+    IsDynamic -- "是 (JS渲染)" --> LoadJS[加载动态 JS 内容 <br> Playwright/Selenium]
+    IsDynamic -- "否 (静态页面)" --> DirectHTTP[直接发起 HTTP 请求]
+    
+    LoadJS --> GetHTML[获取最终 HTML 源码]
+    DirectHTTP --> GetHTML
+    
+    GetHTML --> IsSuccess{请求是否成功?}
+    
+    IsSuccess -- "成功" --> ValidateHTML[校验 HTML 内容非空]
+    IsSuccess -- "失败" --> LogErr[记录并抛出异常] --> Terminate1([终止])
+    
+    ValidateHTML --> IsValid{HTML 内容是否有效?}
+    IsValid -- "是" --> ReturnResult[返回内容给业务层] --> End([结束])
+    IsValid -- "否" --> ThrowExc[抛出内容异常] --> Terminate2([终止])
+
+    classDef startEnd fill:#f8f9fa,stroke:#7f8c8d,stroke-width:1px,color:#2c3e50
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    classDef critical fill:#fdf2e9,stroke:#f39c12,stroke-width:3px,color:#d35400
+    
+    class Start,End,Terminate1,Terminate2 startEnd
+    class CreateReq,SetHeaders,LoadJS,DirectHTTP,GetHTML,ValidateHTML,ReturnResult normal
+    class LogErr,ThrowExc critical
+`} />

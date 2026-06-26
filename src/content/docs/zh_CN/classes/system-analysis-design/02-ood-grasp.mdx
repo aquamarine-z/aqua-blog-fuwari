@@ -1,0 +1,248 @@
+---
+title: "第二章：面向对象设计与 GRASP 设计原则"
+published: 2026-06-26
+description: "GRASP五大核心职责分配模式、设计类图（DCD）与概念类图（CCD）对比，以及C++多态链表内存管理案例。"
+sidebar_position: 2
+---
+
+import Mermaid from "@/components/Mermaid.astro";
+
+# ✍️ 第二章：面向对象设计与 GRASP 设计原则
+
+---
+
+## 2.1 GRASP 五大核心模式深度剖析 [PDF 5]
+
+GRASP（通用职责分配软件模式）提供了最基础、最通用的职责分配准则：
+
+### 2.1.1 专家模式（Information Expert） [PDF 5]
+
+*   **核心思想**：将职责分配给拥有实现该职责所需信息的类。
+*   **推导逻辑**：当不确定某个方法（如 `calculateTotal()`）应写在哪个类中时，先列出该计算需要哪些数据，再看哪个类完整持有这些数据。
+*   **经典推导案例**：订单计算总额 [PDF 5]：
+    1.  `Order`（订单类）知道自己拥有的所有商品条目（`SaleLineItem`）列表。因此，`calculateTotal()` 的首要职责分配给 `Order` [PDF 5]。
+    2.  商品条目（`SaleLineItem`）知道当前条目的商品购买数量（`amount`），并且关联了商品规格。因此，计算单条目小计 `getSubTotal()` 的职责分配给 `SaleLineItem` [PDF 5]。
+    3.  商品规格（`ProductSpecification`）知道商品的单价（`price`）。因此，获取单价 `getPrice()` 的职责分配给 `ProductSpecification` [PDF 5]。
+
+### 2.1.2 创建者模式（Creator） [PDF 5]
+
+*   **核心思想**：确定谁负责创建类 A 的新实例。
+*   **分配准则**：当且仅当满足以下条件之一（条件越多越好）时，由类 B 负责创建类 A [PDF 5]：
+    *   B 包含或组成聚集 A（B contains/aggregates A）。
+    *   B 记录 A（B records A）。
+    *   B 紧密、频繁地使用 A（B closely uses A）。
+    *   B 拥有初始化 A 所需的数据（B has the initializing data for A）。
+*   **应用实例**：在用户注册场景中，应该由 `CustomerServiceImpl` 来创建 `Customer` 的实例，因为 `CustomerServiceImpl` 接收并持有了创建 `Customer` 所需的用户名、密码等初始化数据，并且需要将该实体传给 `CustomerDao` 进行记录 [PDF 5]。
+
+### 2.1.3 控制器模式（Controller） [PDF 5]
+
+*   **核心思想**：确定谁是系统边界外第一个接收并协调系统操作消息的内部对象。
+*   **候选者分类**：
+    1.  **外观控制器（Facade Controller）**：代表整个系统或核心设备（如：`System`, `Bank`）。
+    2.  **用例/会话控制器（Use Case / Session Controller）**：代表一个用例场景，命名通常为 `<UseCaseName>Controller` 或 `<UseCaseName>Handler` [PDF 5]。
+
+### 2.1.4 低耦合（Low Coupling） [PDF 5]
+
+*   **核心思想**：通过降低类之间的依赖程度，减少修改代码时产生的多米诺骨牌效应。
+*   **经典重构**：避免让前置消息分流器 `MesgMapper` 直接依赖并调用底层的各个实体类（如 `Customer`, `Store`）。应让其依赖中间层的 Service 接口，从而将 `MesgMapper` 与底层实体类的变更解耦 [PDF 5]。
+
+### 2.1.5 高内聚（High Cohesion） [PDF 5]
+
+*   **核心思想**：让一个类专注于做一类事。高内聚类的职责数量少、关联紧密。
+*   **反例（胖类）**：如果一个 `TaskController` 既负责接收 HTTP 请求，又负责解析 JSON，还负责执行复杂的爬虫抓取算法，最后还去直接调用 JDBC 保存数据，这就是典型的低内聚类，应立即按照职责拆分（Controller 只负责接口路由，爬虫算法拆入 Feature 模块，存储交由 Repository） [PDF 1, PDF 5]。
+
+---
+
+## 2.2 设计类图（DCD）与概念类图（CCD）的比较 [PDF 5]
+
+*   **概念类图（CCD）**：在需求分析阶段构建，描述客观世界的业务实体及其关联。类中没有具体数据类型、没有方法签名、没有可见性标识（`+` / `-` / `#`） [PDF 4, PDF 5]。
+*   **设计类图（DCD）**：面向技术实现。具有以下显著技术特征 [PDF 1, PDF 5]：
+    1.  **详细的方法与属性刻画**：每个属性和方法均有明确的可见性（`private` 属性，`public` 方法）、精确的数据类型（如 `Long`, `Date`）和返回值类型 [PDF 1, PDF 5]。
+    2.  **依赖倒置原则的体现**：上层不直接依赖下层实现类，而是依赖抽象接口。例如，`TaskController` 依赖 `TaskService` 接口，而非 `TaskServiceImpl` [PDF 1, PDF 5]。
+    3.  **技术辅助类的引入**：引入了大量概念类图中不存在的技术类，如持久层接口 `TaskRepository`、通用包装类 `Result<?>`、配置类等 [PDF 1, PDF 5]。
+
+---
+
+## 2.3 领域模型到代码实现：银行账户多态链表设计案例 [PDF 2]
+
+在 OOP 编码实现中，分析设计的成果（类图）需要无缝转化为底层代码。以下是课件中关于**银行账户多态链表管理**的设计要素：
+
+### 2.3.1 领域模型设计要素
+
+*   **抽象基类**：`Account`，拥有属性 `# acntNumber` 和 `# balance` [PDF 2]。
+*   **子类一**：`Saving`（储蓄账户），重写 `Withdrawal` 并实现余额检查逻辑 [PDF 2]。
+*   **子类二**：`Checking`（结算账户），增加属性 `# remittance`（汇款方式），并在重写 `Withdrawal` 时根据不同的结算方式（信汇、电汇）加收相应的手续费 [PDF 2]。
+*   **高可用/自管理链表设计**：为了让账户对象能够自我管理，基类 `Account` 内置了静态成员（记录存活的账户总数 `count`、链表首指针 `pFirst`）和成员级链表指针 `pNext`。在构造（对象创建）时通过“头插法”自动挂载到链表头部，在析构（对象销毁）时自动通过前驱节点断开连接，安全地从链表中移除自身，从而实现内存生命周期的自维护 [PDF 2]。
+
+---
+
+## 2.4 UML 绘图指南：类图与设计类图 (DCD)
+
+类图用于描述系统的静态结构。在分析阶段为**概念类图（CCD）**，在设计阶段为**设计类图（DCD）**。
+
+### 2.4.1 统一建模语言 (UML) 标准符号与关系规范
+
+#### 1. 类的三段式表示
+类在图中用矩形表示，从上到下分为三格：
+1.  **第一格：类名**。接口用 `<<interface>>` 标识，抽象类名用*斜体*表示。
+2.  **第二格：属性（Attributes）**。格式为：`可见性 属性名 : 数据类型 = 默认值`
+3.  **第三格：方法（Methods）**。格式为：`可见性 方法名(参数名 : 参数类型) : 返回值类型`
+*   **可见性标识**：`+` (Public), `-` (Private), `#` (Protected)。
+
+#### 2. 关系线与箭头标准（高分关键）
+
+| 关系类型 | 线型 | 箭头形状 | 语义与应用场景 |
+| :--- | :--- | :--- | :--- |
+| **泛化（Generalization/继承）** | 实线 | 空心三角形 | 子类继承父类（如 `Saving` 继承 `Account`） [PDF 2]。 |
+| **实现（Realization）** | 虚线 | 空心三角形 | 实现类实现抽象接口（如 `ServiceImpl` 实现 `Service`） [PDF 1]。 |
+| **关联（Association）** | 实线 | 开放实心箭头 | 类与类之间有结构化的连接关系，需标明多重度（如 `1`, `0..*`） [PDF 5]。 |
+| **依赖（Dependency）** | 虚线 | 开放实心箭头 | 一个类的方法中临时使用了另一个类（如 `Controller` 方法入参含实体） [PDF 1]。 |
+| **聚合（Aggregation）** | 实线 | 空心菱形（在整体端） | “整体-部分”关系，部分可以脱离整体存在（如 `TaskServiceImpl` 聚合了 `CrawlerService`） [PDF 1]。 |
+| **组合（Composition）** | 实线 | 实心黑色菱形（整体端）| 强“整体-部分”关系，部分不能脱离整体存在（如 `Order` 包含 `SaleLineItem`） [PDF 5]。 |
+
+---
+
+### 2.4.2 核心图例深入拆解
+
+#### 图例 A：提交新闻任务设计类图（DCD） [PDF 1 - P12]
+
+该图例展示了典型的三层架构中的类关系流向：`TaskPage` (边界) $\rightarrow$ `TaskController` (控制) $\rightarrow$ `TaskService` (接口) $\leftarrow$ `TaskServiceImpl` (实现) $\rightarrow$ `TaskRepository` (接口) $\rightarrow$ `NewsCollectionTask` (实体)。
+
+<Mermaid code={`
+classDiagram
+    class TaskPage {
+    }
+    class TaskController {
+        -taskService: TaskService
+        +submitTask() : Result
+    }
+    class TaskService {
+        <<interface>>
+        +submitTaskInfo(url, rule) : Long
+    }
+    class TaskServiceImpl {
+        -taskRepo: TaskRepository
+        +submitTaskInfo(url, rule) : Long
+    }
+    class TaskRepository {
+        <<interface>>
+        +save(task: Task) : void
+    }
+    class NewsCollectionTask {
+        -taskId: Long
+        -url: String
+        -status: String
+    }
+
+    TaskPage ..> TaskController : 依赖
+    TaskController --> TaskService : 关联
+    TaskServiceImpl ..|> TaskService : 实现
+    TaskServiceImpl --> TaskRepository : 关联
+    TaskServiceImpl ..> NewsCollectionTask : 依赖
+`} />
+
+#### 图例 B：爬取模块策略模式类图 [PDF 1 - P22]
+
+**设计原则**：上下文持有策略接口，具体策略类实现该接口，支持动态插拔。
+
+<Mermaid code={`
+classDiagram
+    class CrawlerContext {
+        -strategy: CrawlStrategy
+        +setStrategy(strategy: CrawlStrategy) : void
+        +executeCrawl(url: String) : String
+    }
+    class CrawlStrategy {
+        <<interface>>
+        +crawl(url: String) : String
+    }
+    class StaticCrawlStrategy {
+        +crawl(url: String) : String
+    }
+    class DynamicCrawlStrategy {
+        +crawl(url: String) : String
+    }
+
+    CrawlerContext o-- CrawlStrategy : 关联聚合
+    StaticCrawlStrategy ..|> CrawlStrategy : 实现
+    DynamicCrawlStrategy ..|> CrawlStrategy : 实现
+`} />
+
+---
+
+## 2.5 UML 绘图指南：序列图与对象交互图
+
+序列图属于动态行为模型，用于表达一组对象如何按照时间顺序协同完成某项系统操作。
+
+### 2.5.1 符号与语法规范 [PDF 5]
+
+1.  **参与者（Actor）**：火柴人，位于图的最左侧 [PDF 5]。
+2.  **生命线（Lifeline）**：矩形框表示对象，格式为 `对象名 : 类名`（若只写 `:类名` 表示匿名对象）。矩形框下方延伸出一条**垂直虚线** [PDF 5]。
+3.  **激活期（Activation Bar/会话控制）**：生命线虚线上的垂直窄矩形条，代表该对象正在占用 CPU 执行操作 [PDF 5]。
+4.  **消息线（Messages）**：
+    *   **同步调用（Synchronous）**：**实线+实心三角箭头**。调用者需挂起并等待返回。
+    *   **返回消息（Return）**：**虚线+开放式箭头**。
+    *   **异步调用（Asynchronous）**：**实线+开放式箭头**。
+    *   **自调用（Self-Call）**：从自己的激活条画出折线，指向自己的另一个激活条。
+
+---
+
+### 2.5.2 核心图例深入拆解
+
+#### 图例 A：提交新闻采集任务序列图 [PDF 1 - P9]
+
+**时序流程**：用户界面提交参数，控制层调业务层，业务层实例化实体，最后调持久层落库。
+
+<Mermaid code={`
+sequenceDiagram
+    autonumber
+    actor User as 前端用户
+    participant Page as 前端页面
+    participant Controller as TaskController
+    participant Service as TaskService
+    participant Repo as TaskRepository
+    participant Task as NewsCollectionTask
+
+    User->>Page: 录入信息
+    Page->>Controller: 提交HTTP请求
+    Controller->>Service: submitTask(任务信息)
+    Service->>Repo: 保存任务数据
+    Repo->>Task: 创建/保存
+    Task-->>Repo: 保存完成
+    Repo-->>Service: 返回任务ID
+    Service-->>Controller: 返回提交结果
+    Controller-->>Page: 响应结果
+    Page-->>User: 展示成功
+`} />
+
+#### 图例 B：执行新闻采集任务时序图（含 `loop` 组合碎片） [PDF 1 - P10]
+
+**语法重点**：必须使用框图包裹循环体，并附带循环条件。
+
+<Mermaid code={`
+sequenceDiagram
+    autonumber
+    participant Timer as 定时器
+    participant Scheduler as TaskScheduler
+    participant Service as TaskService
+    participant Crawler as CrawlerService
+    participant Parser as ParserService
+    participant Repo as NewsRepository
+
+    Timer->>Scheduler: 定时触发
+    Scheduler->>Service: 加载待执行任务
+    Service->>Repo: 查询待执行任务
+    Repo-->>Service: 返回任务列表
+    
+    loop 遍历待执行任务
+        Service->>Crawler: 抓取网页
+        Crawler-->>Service: 返回源码
+        Service->>Parser: 解析网页
+        Parser-->>Service: 返回结构化数据
+        Service->>Repo: 保存新闻
+        Repo->>Repo: 插入记录
+        Repo-->>Service: 新闻保存完成
+        Service->>Repo: 更新任务为“已完成”
+        Repo-->>Service: 更新完成
+    end
+`} />

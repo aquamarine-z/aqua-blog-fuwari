@@ -1,0 +1,273 @@
+---
+title: "第五章：高分期末大题特训与详解"
+published: 2026-06-26
+description: "精选三道期末考试大题（用例规约与SSD、GRASP设计与类图、策略模式DCD与微服务拓扑及日志设计）详细步骤解析。"
+sidebar_position: 5
+---
+
+import Mermaid from "@/components/Mermaid.astro";
+
+# ✍️ 第五章：高分期末大题特训与详解
+
+---
+
+## 🎯 题型一：分析模型设计（Use Case + Use Case Specification + SSD）
+
+### 📝 题目背景
+
+> 某共享电动车租用系统中，用户扫码开锁时，系统必须强制进行**押金余额校验**。如果用户信用分大于 700 分，则可选择性触发**免押金骑行**（免除校验）。成功开锁骑行后，若用户已开启“骑行意外险自动续保”，系统将自动完成保单生成（包含用例）。请完成：
+> 1. 绘制用例图。
+> 2. 为“扫码租车”写一份关键用例规约。
+> 3. 绘制该场景的系统顺序图（SSD）。
+
+---
+
+### 💡 详尽步骤解析
+
+#### 第一步：绘制用例图
+
+*   **参与者（Actor）**：用户
+*   **主用例**：扫码租车
+*   **被包含用例（`<<include>>`）**：押金余额校验、自动生成保单（根据题干，保单生成是“必须执行”的步骤）。
+*   **扩展用例（`<<extend>>`）**：免押金骑行（触发条件：信用分 > 700）。
+
+<Mermaid code={`
+flowchart LR
+    subgraph SystemBoundary [共享电动车系统]
+        direction LR
+        UC_Rent(["扫码租车"])
+        UC_Check(["押金余额校验"])
+        UC_Policy(["自动生成保单"])
+        UC_Free(["免押金骑行"])
+        
+        UC_Rent -. "«include»" .-> UC_Check
+        UC_Rent -. "«include»" .-> UC_Policy
+        UC_Free -. "«extend»<br>(条件: 信用分 > 700)" .-> UC_Rent
+    end
+    
+    User(((用户))) --> UC_Rent
+    
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    class UC_Rent,UC_Check,UC_Policy,UC_Free normal
+`} />
+
+#### 第二步：编写用例规约
+
+| 规约项 | 详细内容说明 |
+| :--- | :--- |
+| **用例名称** | 扫码租车 |
+| **主要参与者** | 用户 |
+| **前置条件** | 用户已登录系统，且系统处于就绪状态。 |
+| **主要流程（Basic Flow）** | 1. 用户扫描车辆上的二维码。<br />2. 系统读取车辆编码并上传。<br />3. 系统触发 **[包含：押金余额校验]** 流程，验证用户押金充足。<br />4. 系统向电锁发送指令，成功开锁。<br />5. 系统触发 **[包含：自动生成保单]** 流程。<br />6. 系统开始计费并提示用户开始骑行。 |
+| **扩展流程（Alternative）** | **3a. 信用分免押金（`<<extend>>`）**：<br />&nbsp;&nbsp;&nbsp;&nbsp;如果用户信用分 > 700，则跳过押金余额校验，直接进入步骤4。 |
+| **后置条件** | 车辆电锁已开启，系统生成预约订单并开始计费。 |
+
+#### 第三步：绘制系统顺序图（SSD）
+
+*   **要点**：必须把系统视为一个**整体黑盒**。
+
+<Mermaid code={`
+sequenceDiagram
+    autonumber
+    actor User as 用户
+    participant System as 共享电动车系统 (黑盒)
+
+    User->>System: 扫码 (车辆二维码)
+    
+    alt 信用分 <= 700
+        System-->>User: 提示进行押金余额校验
+        User->>System: 校验通过
+    else 信用分 > 700
+        System-->>User: 提示免押金骑行
+    end
+    
+    System-->>User: 电锁开启成功，开始计费
+`} />
+
+---
+
+## 🎯 题型二：面向对象详细设计（GRASP 推导 + DCD）
+
+### 📝 题目背景
+
+> 某预约宠物服务系统中，用户可通过页面进行“宠物预约挂号”。系统操作如下：
+> `inquirePetServices(serviceType)`：查询服务详情。
+> `makeAppointment(userId, serviceId, time)`：确认创建预约。
+> 请应用 **GRASP 设计原则**，分析并推导创建预约订单（`Appointment` 实体）的职责归属，画出完整的**设计类图（DCD）**。
+
+---
+
+### 💡 详尽步骤解析
+
+#### 第一步：职责分配推导过程（以 GRASP 原则进行推理论述）
+
+1.  **确定创建者（Creator）**：
+    *   我们需要决定谁来实例化 `Appointment`。
+    *   系统业务逻辑由 `AppointmentServiceImpl`（业务实现类）控制，它接收了创建预约所需的一切输入数据（`userId`, `serviceId`, `time`），且需要将生成的 `Appointment` 实例传给 `AppointmentRepository` 进行持久化。
+    *   因此，根据 **GRASP 创建者模式**，应将创建 `Appointment` 实例的职责分配给 `AppointmentServiceImpl`。
+2.  **降低耦合度（Low Coupling）**：
+    *   `AppointmentController` 不应直接去 `new` 实体类或直接操作数据库，而应仅依赖业务层抽象接口 `AppointmentService`，从而将表现层与业务处理解耦。
+3.  **信息专家（Information Expert）**：
+    *   如果需要验证用户是否有冲突的预约，该校验职责应分配给 `AppointmentRepository`，因为其作为数据访问专家，完整持有着该用户在数据库中的所有预约详情记录。
+
+#### 第二步：绘制设计类图（DCD）
+
+*   **注意要点**：方法、属性可见性，带空心三角的实线箭头表示接口实现（`Realization`），带箭头的实线表示依赖（`Dependency`）。
+
+<Mermaid code={`
+classDiagram
+    class AppointmentController {
+        -appointmentService: AppointmentService
+        +makeAppointment(uId, sId, time) : void
+    }
+    class AppointmentService {
+        <<interface>>
+        +createAppointment(uId, sId, time) : Long
+    }
+    class AppointmentServiceImpl {
+        -appointRepo: AppointmentRepository
+        +createAppointment(uId, sId, time) : Long
+    }
+    class AppointmentRepository {
+        <<interface>>
+        +save(app: Appointment) : void
+    }
+    class Appointment {
+        -appointmentId: Long
+        -userId: Long
+        -serviceId: Long
+        -appointTime: Date
+        +Appointment(uId, sId, time)
+    }
+
+    AppointmentController ..> AppointmentService : 依赖
+    AppointmentServiceImpl ..|> AppointmentService : 实现
+    AppointmentServiceImpl --> AppointmentRepository : 关联
+    AppointmentServiceImpl ..> Appointment : "依赖/创建"
+    AppointmentRepository ..> Appointment : 依赖
+`} />
+
+---
+
+## 🎯 题型三：微服务及分布式软件架构设计方案
+
+### 📝 题目背景
+
+> 某大型新闻聚合系统，每日面临数千万级别的网页抓取与解析请求。网页抓取支持**静态页面抓取（直接 HTTP）**与**动态页面抓取（基于 Playwright 动态渲染）**。
+> 解析模块同样支持**XPath规则提取**和**大语言模型（LLM）智能提取**。
+> 为了支撑海量吞吐、保障系统的高可用、可扩展与低耦合，请结合提供的课件架构知识：
+> 1. 利用**策略模式（Strategy Pattern）**，画出爬取模块的设计类图。
+> 2. 为该系统设计一个**微服务分布式拓扑结构图**。
+> 3. 详细设计抓取流程中，**系统运行日志与操作审计日志**的具体逻辑架构及存储结构设计。
+
+---
+
+### 💡 详尽步骤解析
+
+#### 第一步：爬取模块策略模式类图设计
+
+*   **要点**：通过策略模式，在运行时动态切换“静态抓取”与“动态渲染抓取”策略，彻底满足开闭原则（OCP） [PDF 1]。
+
+<Mermaid code={`
+classDiagram
+    class NewsCollectorService {
+        -crawlerContext: CrawlerContext
+        +collectNews(url: String) : String
+    }
+    class CrawlerContext {
+        -strategy: CrawlStrategy
+        +setStrategy(strategy: CrawlStrategy) : void
+        +executeCrawl(url: String) : String
+    }
+    class CrawlStrategy {
+        <<interface>>
+        +crawl(url: String) : String
+    }
+    class StaticCrawlStrategy {
+        +crawl(url: String) : String
+    }
+    class DynamicCrawlStrategy {
+        +crawl(url: String) : String
+    }
+
+    NewsCollectorService --> CrawlerContext : 使用
+    CrawlerContext o-- CrawlStrategy : 关联聚合
+    StaticCrawlStrategy ..|> CrawlStrategy : 实现
+    DynamicCrawlStrategy ..|> CrawlStrategy : 实现
+`} />
+
+#### 第二步：微服务分布式拓扑结构图
+
+*   **要点**：微服务拓扑图应完整展示客户端、网关、服务注册中心、各领域微服务和隔离数据库层 [PDF 3]。
+
+<Mermaid code={`
+flowchart TD
+    App["移动端 APP (Uniapp)"]
+    Web["浏览器端 (Vue3)"]
+    Gateway["API Gateway <br> (Spring Cloud Gateway - 鉴权/路由/限流)"]
+    TaskService["TaskService <br> (任务调度微服务)"]
+    NewsService["NewsService <br> (新闻发布微服务)"]
+    Registry["Eureka/Nacos Cluster <br> (服务注册中心)"]
+    TaskDB[(Task MySQL DB <br> 独占数据库)]
+    NewsDB[(News MongoDB <br> 独占数据库)]
+    MQ["消息队列 RocketMQ"]
+    CrawlerCluster["FeatureCrawlerService <br> (计算集群)"]
+
+    App -- "HTTPS" --> Gateway
+    Web -- "HTTPS" --> Gateway
+    
+    Gateway -- "转发请求" --> TaskService
+    Gateway -- "转发请求" --> NewsService
+    
+    TaskService -- "服务注册/心跳" --> Registry
+    NewsService -- "服务注册/心跳" --> Registry
+    Gateway -- "服务发现/心跳" --> Registry
+    
+    TaskService --> TaskDB
+    NewsService --> NewsDB
+    
+    TaskService -- "发送任务消息" --> MQ
+    MQ -- "拉取/执行任务" --> CrawlerCluster
+
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    classDef critical fill:#fdf2e9,stroke:#f39c12,stroke-width:3px,color:#d35400
+    
+    class App,Web,TaskService,NewsService,TaskDB,NewsDB,MQ,CrawlerCluster normal
+    class Gateway,Registry critical
+`} />
+
+#### 第三步：运行日志与操作审计日志存储方案设计 [PDF 1]
+
+##### 1. 系统运行日志（Running Log）结构设计
+
+*   **存储引擎**：Elasticsearch（分布式近实时搜索引擎），适合海量半结构化日志查询。
+*   **文档结构定义**：
+
+| 日志字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `timestamp` | Date | 日志记录的精确时间戳（UTC） |
+| `level` | String | 日志级别（INFO / WARN / ERROR / DEBUG） |
+| `traceId` | String | 分布式全链路追踪 ID（串联整个分布式调用栈） |
+| `serviceName`| String | 当前抛出日志的微服务名称 |
+| `thread` | String | 执行当前业务的系统线程名称 |
+| `message` | String | 精简的业务异常/运行信息描述 |
+| `stackTrace` | String | 出现异常时记录的详细错误堆栈（可选） |
+| `context` | Object | 当前调用参数上下文（如 `targetUrl`, `browserEngine` 等） |
+
+##### 2. 操作审计日志（Audit Log）物理表设计
+
+*   **存储引擎**：MySQL 等关系型数据库，要求 ACID 强一致性，不允许任意丢失审计记录。
+*   **关系表字段设计**：
+
+| 物理字段名 | 数据类型 | 约束条件 | 业务字段含义说明 |
+| :--- | :--- | :--- | :--- |
+| `audit_id` | BIGINT | PRIMARY KEY, AUTO_INCREMENT | 审计流水号主键 |
+| `user_id` | BIGINT | NOT NULL | 执行敏感操作的用户唯一 ID |
+| `username` | VARCHAR(50)| NOT NULL | 操作人用户名（便于列表直观检索） |
+| `operation_desc`| VARCHAR(100)| NOT NULL | 业务操作描述（如：启动分布式抓取任务）|
+| `api_path` | VARCHAR(255)| NOT NULL | 请求的后台 API 接口路由路径 |
+| `client_ip` | VARCHAR(45) | NOT NULL | 发起请求的客户端 IP 地址（支持 IPv6） |
+| `execution_status`| VARCHAR(10)| NOT NULL | 执行状态（SUCCESS / FAILED） |
+| `error_msg` | TEXT | DEFAULT NULL | 失败时记录的精简业务异常信息 |
+| `cost_time` | INT | NOT NULL | 此次操作的执行处理耗时（毫秒数） |
+| `create_time` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | 日志记录生成的客观物理时间 |
