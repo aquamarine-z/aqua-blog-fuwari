@@ -74,24 +74,15 @@ if (lang === "el") {
 
     loadGiscus();
 
-    // Listen for theme changes to dynamically update Giscus theme
-    const observer = new MutationObserver((mutations) => {
-      let shouldUpdate = false;
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class' || mutation.attributeName === 'style') {
-          shouldUpdate = true;
-        }
-      });
-      if (shouldUpdate) {
-        const iframe = document.querySelector('iframe.giscus-frame');
-        if (iframe && iframe.contentWindow) {
-          iframe.contentWindow.postMessage(
-            { giscus: { setConfig: { theme: getGiscusTheme() } } },
-            'https://giscus.app'
-          );
-        }
+    // Listen for theme changes to dynamically update Giscus theme via custom event
+    window.addEventListener("theme-changed", () => {
+      const iframe = document.querySelector('iframe.giscus-frame');
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage(
+          { giscus: { setConfig: { theme: getGiscusTheme() } } },
+          'https://giscus.app'
+        );
       }
     });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
   </script>
 </div>

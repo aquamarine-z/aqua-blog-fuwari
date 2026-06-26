@@ -111,6 +111,34 @@ const bannerOffset =
 
 		<!-- Set the theme before the page is rendered to avoid a flash -->
 		<script is:inline define:vars={{DEFAULT_THEME, LIGHT_MODE, DARK_MODE, AUTO_MODE, BANNER_HEIGHT_EXTEND, PAGE_WIDTH, configHue}}>
+			// Intercept MutationObserver to prevent third-party libraries (like OverlayScrollbars)
+			// from triggering heavy synchronous style recalculations when theme changes.
+			const OriginalMutationObserver = window.MutationObserver;
+			if (OriginalMutationObserver) {
+				window.MutationObserver = function (callback) {
+					return new OriginalMutationObserver((mutations, obs) => {
+						const filtered = [];
+						for (let i = 0; i < mutations.length; i++) {
+							const m = mutations[i];
+							const target = m.target;
+							if (target === document.documentElement || target === document.body) {
+								if (m.type === 'attributes') {
+									const name = m.attributeName;
+									if (name === 'class' || name === 'style' || name === 'data-theme') {
+										continue;
+									}
+								}
+							}
+							filtered.push(m);
+						}
+						if (filtered.length > 0) {
+							callback(filtered, obs);
+						}
+					});
+				};
+				window.MutationObserver.prototype = OriginalMutationObserver.prototype;
+			}
+
 			// Load the theme from local storage
 			const theme = localStorage.getItem('theme') || DEFAULT_THEME;
 			switch (theme) {
