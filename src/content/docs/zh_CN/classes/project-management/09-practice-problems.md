@@ -104,6 +104,91 @@ $$\text{NPV} = -150,000 + 185,721 = \mathbf{+35,721} \text{ (元)}$$
 
 ---
 
+### 🎨 项目网络图 (AON vs. AOE)
+
+在项目管理（如 PMBOK / 信息系统项目管理师）与计算机科学（数据结构）中，存在两种网络图绘制方法：
+
+1. **AON (Activity on Node，单代号网络图 / 前导图 PDM)**：
+   * **节点 (Nodes)** 表示**活动**（如活动 A, B）。
+   * **边 (Edges)** 表示活动之间的**逻辑依赖关系**（如 A 完工后才能做 B）。
+   * **优势**：极易表达复杂的依赖关系（如 FS, SS, FF, SF）和滞后量（Lag）。**项目管理考试与实际应用中 99% 使用 AON**。
+
+2. **AOE (Activity on Edge，双代号网络图)**：
+   * **边 (Edges)** 表示**活动**，边上标有工期。
+   * **节点 (Nodes)** 表示**事件**（即活动开始或结束的瞬间，为瞬时点）。
+   * **劣势**：**只适合表达普通的 FS (Finish-to-Start) 关系**。一旦遇到非 FS 关系（例如本题中 H 依赖于 F 的 **FF + 2 Lag**，即 H 结束必须在 F 结束 2 天后，导致 H 实际需要在 F 结束前就开始），在传统 AOE 图中就必须引入极为复杂的虚活动 (Dummy Activity) 或负权重边，极易出错且不符合常规拓扑排序。
+
+---
+
+#### 1. 推荐方案：AON (单代号网络图)
+
+在项目管理考试中，这是标准解法。关键路径为黄色加粗边：
+
+```mermaid
+flowchart LR
+    Start([开始]) --> A["A (4天)"]
+    A --> B["B (6天)"]
+    A --> C["C (5天)"]
+    B --> D["D (3天)"]
+    C --> E["E (2天)"]
+    D --> F["F (7天)"]
+    E --> F
+    F --> G["G (3天)"]
+    F -- "FF + 2天 Lag" --> H["H (4天)"]
+    G --> End([结束])
+    H --> End
+
+    %% 关键路径高亮
+    style A stroke:#f39c12,stroke-width:3px,fill:#fdf2e9
+    style B stroke:#f39c12,stroke-width:3px,fill:#fdf2e9
+    style D stroke:#f39c12,stroke-width:3px,fill:#fdf2e9
+    style F stroke:#f39c12,stroke-width:3px,fill:#fdf2e9
+    style G stroke:#f39c12,stroke-width:3px,fill:#fdf2e9
+    
+    linkStyle 0,1,3,5,7,9 stroke:#f39c12,stroke-width:3px;
+```
+
+---
+
+#### 2. AOE (双代号网络图) 绘制尝试（仅限 FS 简化版）
+
+如果我们**忽略 H 的 FF 复杂限制**，仅画出 A、B、C、D、E、F、G 的传统 AOE 图，则需要使用**虚活动（虚工作，Dummy Activity，工期为 0，用虚线表示）**来表达 D 和 E 共同制约 F 的关系：
+
+```mermaid
+flowchart LR
+    N1((①)) -- "A (4)" --> N2((②))
+    N2 -- "B (6)" --> N3((③))
+    N2 -- "C (5)" --> N4((④))
+    N3 -- "D (3)" --> N5((⑤))
+    N4 -- "E (2)" --> N6((⑥))
+    
+    %% 虚工作用虚线表示，工期为 0
+    N5 -.->|虚工作 0| N7((⑦))
+    N6 -.->|虚工作 0| N7
+    
+    N7 -- "F (7)" --> N8((⑧))
+    N8 -- "G (3)" --> N9((⑨))
+
+    %% 关键路径高亮
+    style N1 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
+    style N2 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
+    style N3 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
+    style N5 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
+    style N7 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
+    style N8 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
+    style N9 fill:#fdf2e9,stroke:#f39c12,stroke-width:2px
+    
+    linkStyle 0,1,3,5,7,8 stroke:#f39c12,stroke-width:3px;
+```
+
+> [!NOTE]
+> * **虚工作（⑤ ➡️ ⑦，⑥ ➡️ ⑦）**：在 AOE 中必不可少，因为活动 F 的开始（⑦）同时依赖于 D 的结束（⑤）和 E 的结束（⑥）。如果不引入虚工作，直接连线会使网图逻辑发生混淆。
+> * **FF 关系的局限性**：由于 H (FF) 关系的特殊性，AOE 无法直接以标准边形式绘制它（因为 H 并不是在 F 结束后才开始的 FS 关系）。
+> 
+> 因此，**计算和答题时，请以 AON (单代号网络图) 的顺推和逆推数据为准**。
+
+---
+
 **【📌 详细解答过程】**
 
 **第一步：正向推导 (Forward Pass) —— 计算 ES 和 EF**
