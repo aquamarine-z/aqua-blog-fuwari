@@ -111,34 +111,6 @@ const bannerOffset =
 
 		<!-- Set the theme before the page is rendered to avoid a flash -->
 		<script is:inline define:vars={{DEFAULT_THEME, LIGHT_MODE, DARK_MODE, AUTO_MODE, BANNER_HEIGHT_EXTEND, PAGE_WIDTH, configHue}}>
-			// Intercept MutationObserver to prevent third-party libraries (like OverlayScrollbars)
-			// from triggering heavy synchronous style recalculations when theme changes.
-			const OriginalMutationObserver = window.MutationObserver;
-			if (OriginalMutationObserver) {
-				window.MutationObserver = function (callback) {
-					return new OriginalMutationObserver((mutations, obs) => {
-						const filtered = [];
-						for (let i = 0; i < mutations.length; i++) {
-							const m = mutations[i];
-							const target = m.target;
-							if (target === document.documentElement || target === document.body) {
-								if (m.type === 'attributes') {
-									const name = m.attributeName;
-									if (name === 'class' || name === 'style' || name === 'data-theme') {
-										continue;
-									}
-								}
-							}
-							filtered.push(m);
-						}
-						if (filtered.length > 0) {
-							callback(filtered, obs);
-						}
-					});
-				};
-				window.MutationObserver.prototype = OriginalMutationObserver.prototype;
-			}
-
 			// Load the theme from local storage
 			const theme = localStorage.getItem('theme') || DEFAULT_THEME;
 			switch (theme) {
@@ -784,9 +756,10 @@ async function renderBlock(block) {
 	if (!code) return;
 
 	const mermaid = await getMermaid();
+	const isDark = document.documentElement.classList.contains("dark");
 	mermaid.initialize({
 		startOnLoad: false,
-		theme: "dark", // Always render with dark theme, matching the code block aesthetics
+		theme: isDark ? "dark" : "default",
 		securityLevel: "loose",
 	});
 
@@ -823,6 +796,22 @@ function setupMermaid() {
 
 // Initial load
 setupMermaid();
+
+// Listen for theme changes to dynamically update Mermaid diagrams theme
+if (typeof window !== "undefined") {
+	window.addEventListener("theme-changed", () => {
+		const blocks = document.querySelectorAll(".mermaid-block");
+		for (const block of blocks) {
+			block.removeAttribute("data-rendered");
+			block.innerHTML = `
+				<div class="animate-pulse w-full h-32 flex items-center justify-center text-sm text-[var(--text-color-light)]">
+					Rendering diagram...
+				</div>
+			`;
+		}
+		setupMermaid();
+	});
+}
 
 // Swup hook
 if (window.swup) {
