@@ -217,6 +217,15 @@ import {
 } from "../constants/constants";
 import { siteConfig } from '../config';
 
+let backToTopBtn = null;
+let toc = null;
+let navbar = null;
+
+let cachedBannerHeight = 0;
+let cachedThreshold = 0;
+let isLgHome = false;
+let ticking = false;
+
 /* Preload fonts */
 // (async function() {
 // 	try {
@@ -374,6 +383,7 @@ function init() {
 	initCustomScrollbar();
 	showBanner();
 	fixLangRoutes();
+	refreshScrollElements();
 }
 
 function handleInitialScroll() {
@@ -451,6 +461,7 @@ const setup = () => {
 		initCustomScrollbar()
 		fixLangRoutes()
 		showBanner();
+		refreshScrollElements();
 		// Dispatch astro events to trigger hydration for client:only components
 		window.dispatchEvent(new Event('astro:only'));
 		window.dispatchEvent(new Event('astro:load'));
@@ -492,6 +503,7 @@ const setup = () => {
 		if (toc) {
 			toc.classList.add('toc-not-ready')
 		}
+		updateCachedDimensions();
 	});
 	window.swup.hooks.on('page:view', () => {
 		// hide the temp high element when the transition is done
@@ -521,55 +533,82 @@ if (window?.swup?.hooks) {
 	document.addEventListener('swup:enable', setup)
 }
 
-let backToTopBtn = document.getElementById('back-to-top-btn');
-let toc = document.getElementById('toc-wrapper');
-let navbar = document.getElementById('navbar-wrapper')
-function scrollFunction() {
-	let bannerHeight = window.innerHeight * (BANNER_HEIGHT / 100)
+function updateCachedDimensions() {
+	const innerHeight = window.innerHeight;
+	const innerWidth = window.innerWidth;
+	
+	cachedBannerHeight = innerHeight * (BANNER_HEIGHT / 100);
+	
+	let bannerHeightVal = BANNER_HEIGHT;
+	isLgHome = document.body.classList.contains('lg:is-home');
+	if (isLgHome && innerWidth >= 1024) {
+		bannerHeightVal = BANNER_HEIGHT_HOME;
+	}
+	
+	const NAVBAR_HEIGHT = 72;
+	const MAIN_PANEL_EXCESS_HEIGHT = MAIN_PANEL_OVERLAPS_BANNER_HEIGHT * 16;
+	cachedThreshold = innerHeight * (bannerHeightVal / 100) - NAVBAR_HEIGHT - MAIN_PANEL_EXCESS_HEIGHT - 16;
+}
+
+function refreshScrollElements() {
+	backToTopBtn = document.getElementById('back-to-top-btn');
+	toc = document.getElementById('toc-wrapper');
+	navbar = document.getElementById('navbar-wrapper');
+	updateCachedDimensions();
+}
+
+function updateScrollState() {
+	const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+	const innerWidth = window.innerWidth;
 
 	if (backToTopBtn) {
-		if (document.body.scrollTop > bannerHeight || document.documentElement.scrollTop > bannerHeight) {
-			backToTopBtn.classList.remove('hide')
+		if (scrollTop > cachedBannerHeight) {
+			backToTopBtn.classList.remove('hide');
 		} else {
-			backToTopBtn.classList.add('hide')
+			backToTopBtn.classList.add('hide');
 		}
 	}
 
 	if (bannerEnabled && toc) {
-		if (document.body.scrollTop > bannerHeight || document.documentElement.scrollTop > bannerHeight) {
-			toc.classList.remove('toc-hide')
+		if (scrollTop > cachedBannerHeight) {
+			toc.classList.remove('toc-hide');
 		} else {
-			toc.classList.add('toc-hide')
+			toc.classList.add('toc-hide');
 		}
 	}
 
-	if (!bannerEnabled) return
+	if (!bannerEnabled) return;
 	if (navbar) {
-		const NAVBAR_HEIGHT = 72
-		const MAIN_PANEL_EXCESS_HEIGHT = MAIN_PANEL_OVERLAPS_BANNER_HEIGHT * 16			// The height the main panel overlaps the banner
-
-		let bannerHeight = BANNER_HEIGHT
-		if (document.body.classList.contains('lg:is-home') && window.innerWidth >= 1024) {
-			bannerHeight = BANNER_HEIGHT_HOME
-		}
-		let threshold = window.innerHeight * (bannerHeight / 100) - NAVBAR_HEIGHT - MAIN_PANEL_EXCESS_HEIGHT - 16
-		if (document.body.scrollTop >= threshold || document.documentElement.scrollTop >= threshold) {
-			if (window.innerWidth >= 1024) {
-				navbar.classList.add('navbar-hidden')
+		if (scrollTop >= cachedThreshold) {
+			if (innerWidth >= 1024) {
+				navbar.classList.add('navbar-hidden');
 			}
 		} else {
-			navbar.classList.remove('navbar-hidden')
+			navbar.classList.remove('navbar-hidden');
 		}
 	}
 }
-window.onscroll = scrollFunction
 
-window.onresize = () => {
+function scrollFunction() {
+	if (!ticking) {
+		window.requestAnimationFrame(() => {
+			updateScrollState();
+			ticking = false;
+		});
+		ticking = true;
+	}
+}
+
+// Bind event listeners
+window.addEventListener('scroll', scrollFunction, { passive: true });
+
+window.addEventListener('resize', () => {
 	// calculate the --banner-height-extend, which needs to be a multiple of 4 to avoid blurry text
 	let offset = Math.floor(window.innerHeight * (BANNER_HEIGHT_EXTEND / 100));
 	offset = offset - offset % 4;
 	document.documentElement.style.setProperty('--banner-height-extend', `${offset}px`);
-}
+	updateCachedDimensions();
+});
 
 </script>
 
@@ -635,68 +674,5 @@ if (window.swup) {
 }
 </script>
 
-<script>
-let mermaidInstance = null;
 
-async function getMermaid() {
-	if (!mermaidInstance) {
-		const { default: mermaid } = await import("mermaid");
-		mermaidInstance = mermaid;
-	}
-	return mermaidInstance;
-}
-
-async function renderMermaid() {
-	const blocks = document.querySelectorAll(".mermaid-block");
-	if (blocks.length === 0) return;
-
-	const mermaid = await getMermaid();
-	const isDark = document.documentElement.classList.contains("dark");
-	mermaid.initialize({
-		startOnLoad: false,
-		theme: isDark ? "dark" : "default",
-		securityLevel: "loose",
-		suppressErrors: true,
-		parseError: (err) => {
-			console.warn("Mermaid syntax error:", err);
-		}
-	});
-
-	for (const block of blocks) {
-		const code = block.getAttribute("data-mermaid-code");
-		if (!code) continue;
-
-		const id = `mermaid-${Math.random().toString(36).substring(2, 9)}`;
-		try {
-			const { svg } = await mermaid.render(id, code);
-			if (svg.includes('id="mermaid-error') || svg.includes('class="error') || svg.includes('Syntax error')) {
-				block.innerHTML = `<div class="text-red-500 text-sm p-4 bg-red-100 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-xl font-mono whitespace-pre-wrap">Mermaid Syntax Error: Please check your diagram syntax.</div>`;
-			} else {
-				block.innerHTML = svg;
-			}
-		} catch (err) {
-			console.error("Failed to render Mermaid diagram:", err);
-			block.innerHTML = `<div class="text-red-500 text-sm p-4 bg-red-100 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-xl font-mono whitespace-pre-wrap">Error: ${err}</div>`;
-		}
-	}
-}
-
-// Initial load
-renderMermaid();
-
-// Listen for theme changes to dynamically update Mermaid diagrams theme
-if (typeof window !== "undefined") {
-	window.addEventListener("theme-changed", renderMermaid);
-}
-
-// Swup hook
-if (window.swup) {
-	window.swup.hooks.on("page:view", renderMermaid);
-} else {
-	document.addEventListener("swup:enable", () => {
-		window.swup.hooks.on("page:view", renderMermaid);
-	});
-}
-
-</script>
 
