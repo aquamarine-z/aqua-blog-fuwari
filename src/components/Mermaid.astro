@@ -6,8 +6,15 @@ interface Props {
 const { code } = Astro.props;
 ---
 
-<div class="mermaid-block flex justify-center my-4" data-mermaid-code={code}>
-	<div class="animate-pulse bg-[var(--codeblock-bg)] rounded-xl w-full h-32 flex items-center justify-center text-sm text-[var(--text-color-light)]">
+<div class="mermaid-block flex justify-center my-4 bg-[var(--codeblock-bg)] rounded-xl p-4 md:p-6 border border-black/10 dark:border-white/5 shadow-md" data-mermaid-code={code}>
+	<div class="animate-pulse w-full h-32 flex items-center justify-center text-sm text-[var(--text-color-light)]">
 		Rendering diagram...
 	</div>
 </div>
+
+<style is:global>
+.mermaid-block,
+.mermaid-block * {
+	transition: none !important;
+}
+</style>

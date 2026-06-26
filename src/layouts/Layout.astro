@@ -667,81 +667,74 @@ if (window.swup) {
 </script>
 
 <script>
-async function renderAllMermaid() {
-	const blocks = document.querySelectorAll(".mermaid-block");
-	if (blocks.length === 0) return;
+let mermaidInstance = null;
 
-	const { default: mermaid } = await import("mermaid");
+async function getMermaid() {
+	if (!mermaidInstance) {
+		const { default: mermaid } = await import("mermaid");
+		mermaidInstance = mermaid;
+	}
+	return mermaidInstance;
+}
 
-	const getMermaidTheme = () => {
-		return document.documentElement.classList.contains("dark") ? "dark" : "default";
-	};
+// Map of observed block elements to prevent duplicate observations
+const observedBlocks = new WeakSet();
 
+// Intersection Observer for viewport lazy loading
+const intersectionObserver = new IntersectionObserver((entries) => {
+	for (const entry of entries) {
+		if (entry.isIntersecting) {
+			const block = entry.target;
+			renderBlock(block);
+		}
+	}
+}, {
+	rootMargin: "200px 0px", // Render slightly before coming into view
+});
+
+async function renderBlock(block) {
+	// If already rendered, skip
+	if (block.getAttribute("data-rendered") === "true") return;
+
+	const code = block.getAttribute("data-mermaid-code");
+	if (!code) return;
+
+	const mermaid = await getMermaid();
 	mermaid.initialize({
 		startOnLoad: false,
-		theme: getMermaidTheme(),
+		theme: "dark", // Always render with dark theme, matching the code block aesthetics
 		securityLevel: "loose",
 	});
 
+	const id = `mermaid-${Math.random().toString(36).substring(2, 9)}`;
+	try {
+		const { svg } = await mermaid.render(id, code);
+		block.innerHTML = svg;
+		block.setAttribute("data-rendered", "true");
+	} catch (err) {
+		console.error("Failed to render Mermaid diagram:", err);
+		block.innerHTML = `<div class="text-red-500 text-sm p-4 bg-red-100 dark:bg-red-950 rounded-xl">Error rendering diagram: ${err}</div>`;
+	}
+}
+
+function setupMermaid() {
+	const blocks = document.querySelectorAll(".mermaid-block");
+	if (blocks.length === 0) return;
+
 	for (const block of blocks) {
-		const code = block.getAttribute("data-mermaid-code");
-		if (!code) continue;
-
-		const currentTheme = getMermaidTheme();
-		const renderedTheme = block.getAttribute("data-rendered-theme");
-		if (renderedTheme === currentTheme) continue;
-
-		const id = `mermaid-${Math.random().toString(36).substring(2, 9)}`;
-		try {
-			const { svg } = await mermaid.render(id, code);
-			block.innerHTML = svg;
-			block.setAttribute("data-rendered-theme", currentTheme);
-		} catch (err) {
-			console.error("Failed to render Mermaid diagram:", err);
-			block.innerHTML = `<div class="text-red-500 text-sm p-4 bg-red-100 dark:bg-red-950 rounded-xl">Error rendering diagram: ${err}</div>`;
+		if (!observedBlocks.has(block)) {
+			intersectionObserver.observe(block);
+			observedBlocks.add(block);
+		} else if (block.getAttribute("data-rendered") !== "true") {
+			renderBlock(block);
 		}
 	}
 }
 
-// Observe theme change on <html>
-const observer = new MutationObserver(async () => {
-	const blocks = document.querySelectorAll(".mermaid-block");
-	if (blocks.length === 0) return;
-
-	const getMermaidTheme = () => {
-		return document.documentElement.classList.contains("dark") ? "dark" : "default";
-	};
-	const currentTheme = getMermaidTheme();
-
-	let themeChanged = false;
-	for (const block of blocks) {
-		if (block.getAttribute("data-rendered-theme") !== currentTheme) {
-			themeChanged = true;
-			break;
-		}
-	}
-
-	if (themeChanged) {
-		const { default: mermaid } = await import("mermaid");
-		mermaid.initialize({
-			theme: currentTheme,
-		});
-		renderAllMermaid();
-	}
-});
-
-const setupMermaid = () => {
-	renderAllMermaid();
-	
-	observer.disconnect();
-	observer.observe(document.documentElement, {
-		attributes: true,
-		attributeFilter: ["class"],
-	});
-};
-
+// Initial load
 setupMermaid();
 
+// Swup hook
 if (window.swup) {
 	window.swup.hooks.on("page:view", setupMermaid);
 } else {

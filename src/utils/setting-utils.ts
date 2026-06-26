@@ -49,6 +49,11 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
 		"data-theme",
 		expressiveCodeConfig.theme,
 	);
+
+	// Dispatch custom event for theme changes (e.g., for Mermaid rendering)
+	if (typeof window !== "undefined") {
+		window.dispatchEvent(new CustomEvent("theme-changed", { detail: { theme } }));
+	}
 }
 
 export function setTheme(theme: LIGHT_DARK_MODE): void {
