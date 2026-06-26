@@ -310,6 +310,18 @@ function initCustomScrollbar() {
 			autoHideDelay: 500,
 			autoHideSuspend: false,
 		},
+		update: {
+			ignoreMutation: (mutation) => {
+				const target = mutation.target;
+				if (mutation.type === 'attributes') {
+					if (target === document.documentElement || target === document.body) {
+						const name = mutation.attributeName;
+						return name === 'class' || name === 'style' || name === 'data-theme';
+					}
+				}
+				return false;
+			}
+		}
 	});
 
 	const katexElements = document.querySelectorAll('.katex-display') as NodeListOf<HTMLElement>;
@@ -337,6 +349,18 @@ function initCustomScrollbar() {
 				autoHide: 'leave',
 				autoHideDelay: 500,
 				autoHideSuspend: false
+			},
+			update: {
+				ignoreMutation: (mutation) => {
+					const target = mutation.target;
+					if (mutation.type === 'attributes') {
+						if (target === document.documentElement || target === document.body) {
+							const name = mutation.attributeName;
+							return name === 'class' || name === 'style' || name === 'data-theme';
+						}
+					}
+					return false;
+				}
 			}
 		});
 
