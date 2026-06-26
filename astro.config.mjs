@@ -181,6 +181,9 @@ export default defineConfig({
 	},
 	vite: {
 		plugins: [i18nKeyPrefixPlugin()],
+		optimizeDeps: {
+			include: ["mermaid"],
+		},
 		build: {
 			rollupOptions: {
 				onwarn(warning, warn) {
