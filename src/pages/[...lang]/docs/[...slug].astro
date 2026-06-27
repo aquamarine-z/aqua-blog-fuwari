@@ -147,9 +147,9 @@ if (type === "article" && entry) {
 		<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={Astro.currentLocale || siteConfig.lang} setOGTypeArticle={true} headings={headings}>
 			<script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
 			<div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4">
-				<div id="post-container" class="card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full" data-available-langs={entry.availableLangs ? entry.availableLangs.join(',') : ''}>
+				<div id="post-container" class="card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full onload-animation" data-available-langs={entry.availableLangs ? entry.availableLangs.join(',') : ''}>
 					<!-- word count and reading time -->
-					<div class="flex flex-row text-black/30 dark:text-white/30 gap-5 mb-3 transition onload-animation">
+					<div class="flex flex-row text-black/30 dark:text-white/30 gap-5 mb-3 transition">
 						<div class="flex flex-row items-center">
 							<div class="transition h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-2">
 								<Icon name="material-symbols:notes-rounded"></Icon>
@@ -167,7 +167,7 @@ if (type === "article" && entry) {
 					</div>
 
 					<!-- title -->
-					<div class="relative onload-animation">
+					<div class="relative">
 						<div
 							data-pagefind-body data-pagefind-weight="10" data-pagefind-meta="title"
 							class="transition w-full block font-bold mb-3
@@ -181,7 +181,7 @@ if (type === "article" && entry) {
 					</div>
 
 					<!-- metadata -->
-					<div class="onload-animation">
+					<div>
 						<PostMetadata
 								class="mb-5"
 								published={entry.data.published}
@@ -222,11 +222,11 @@ if (type === "article" && entry) {
 
 					<!-- always show cover as long as it has one -->
 					{entry.data.image &&
-						<ImageWrapper id="post-cover" src={entry.data.image} basePath={path.join("content", entry.collection, getDir(entry.id))} class="mb-8 rounded-xl banner-container onload-animation"/>
+						<ImageWrapper id="post-cover" src={entry.data.image} basePath={path.join("content", entry.collection, getDir(entry.id))} class="mb-8 rounded-xl banner-container"/>
 					}
 
 					{entry.isFallback && entry.originalLang === siteConfig.lang && (
-                        <div class="mb-6 p-4 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 onload-animation">
+                        <div class="mb-6 p-4 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
                             <div class="flex items-center gap-2">
                                 <Icon name="material-symbols:warning-outline-rounded" class="text-xl" />
                                 <span>{i18n(I18nKey.fallbackToMainLang, Astro.currentLocale)}</span>
@@ -235,7 +235,7 @@ if (type === "article" && entry) {
                     )}
                     
                     {entry.isFallback && entry.originalLang !== siteConfig.lang && (
-                        <div class="mb-6 p-4 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 onload-animation">
+                        <div class="mb-6 p-4 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
                             <div class="flex items-center gap-2 mb-2">
                                 <Icon name="material-symbols:error-outline-rounded" class="text-xl" />
                                 <span>{i18n(I18nKey.noTranslationSwitchTo, Astro.currentLocale)}</span>
@@ -255,12 +255,12 @@ if (type === "article" && entry) {
                     )}
 
                     {!(entry.isFallback && entry.originalLang !== siteConfig.lang) && (
-                        <Markdown class="mb-6 markdown-content onload-animation">
+                        <Markdown class="mb-6 markdown-content">
                             <Content />
                         </Markdown>
                     )}
 
-					{licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
+					{licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container"></License>}
 				</div>
 			</div>
 

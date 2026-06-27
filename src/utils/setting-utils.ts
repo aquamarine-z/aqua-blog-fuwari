@@ -27,49 +27,62 @@ export function setHue(hue: number): void {
 	r.style.setProperty("--hue", String(hue));
 }
 
+let themeFrameId1: number | undefined;
+let themeFrameId2: number | undefined;
+
 export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
-	// 在切换主题前，临时为文档根节点添加禁用文章过渡的标志类
-	// 这使得文章本体内成千上万个公式/代码高亮节点以纯静态方式瞬时切换，杜绝卡顿
-	if (typeof window !== "undefined") {
-		document.documentElement.classList.add("disable-article-transitions");
+	if (typeof window === "undefined") {
+		return;
 	}
 
-	switch (theme) {
-		case LIGHT_MODE:
-			document.documentElement.classList.remove("dark");
-			break;
-		case DARK_MODE:
-			document.documentElement.classList.add("dark");
-			break;
-		case AUTO_MODE:
-			if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-				document.documentElement.classList.add("dark");
-			} else {
+	// 取消之前未完成的帧调度，防止多次连续点击导致时序混乱
+	if (themeFrameId1 !== undefined) {
+		cancelAnimationFrame(themeFrameId1);
+	}
+	if (themeFrameId2 !== undefined) {
+		cancelAnimationFrame(themeFrameId2);
+	}
+
+	// 第一帧：添加标志类禁用过渡（立即同步执行）
+	document.documentElement.classList.add("disable-article-transitions");
+
+	// 调度第二帧：切换主题模式并分发事件
+	themeFrameId1 = requestAnimationFrame(() => {
+		switch (theme) {
+			case LIGHT_MODE:
 				document.documentElement.classList.remove("dark");
-			}
-			break;
-	}
+				break;
+			case DARK_MODE:
+				document.documentElement.classList.add("dark");
+				break;
+			case AUTO_MODE:
+				if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+					document.documentElement.classList.add("dark");
+				} else {
+					document.documentElement.classList.remove("dark");
+				}
+				break;
+		}
 
-	// Set the theme for Expressive Code
-	document.documentElement.setAttribute(
-		"data-theme",
-		expressiveCodeConfig.theme,
-	);
+		// Set the theme for Expressive Code
+		document.documentElement.setAttribute(
+			"data-theme",
+			expressiveCodeConfig.theme,
+		);
 
-	// Dispatch custom event for theme changes (e.g., for Mermaid rendering)
-	if (typeof window !== "undefined") {
+		// Dispatch custom event for theme changes (e.g., for Mermaid rendering)
 		window.dispatchEvent(new CustomEvent("theme-changed", { detail: { theme } }));
-	}
 
-	if (typeof window !== "undefined") {
 		// 强制触发一次重绘（Reflow），确保新主题颜色在“过渡禁用”的状态下被浏览器瞬间渲染完毕
 		void document.documentElement.offsetHeight;
 
-		// 在下一个事件循环中移除该标志类，使文章本体的日常鼠标悬浮等过渡动画重获新生
-		setTimeout(() => {
+		// 调度第三帧：移除标志类，使文章本体的日常鼠标悬浮等过渡动画重获新生
+		themeFrameId2 = requestAnimationFrame(() => {
 			document.documentElement.classList.remove("disable-article-transitions");
-		}, 0);
-	}
+			themeFrameId1 = undefined;
+			themeFrameId2 = undefined;
+		});
+	});
 }
 
 export function setTheme(theme: LIGHT_DARK_MODE): void {

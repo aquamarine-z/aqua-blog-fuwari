@@ -151,4 +151,9 @@
   }
 }
 
+/* Disable transitions on code blocks and math formulas to boost Safari scroll performance */
+pre, pre *, code, code *, .katex, .katex * {
+    transition: none !important;
+}
+
 

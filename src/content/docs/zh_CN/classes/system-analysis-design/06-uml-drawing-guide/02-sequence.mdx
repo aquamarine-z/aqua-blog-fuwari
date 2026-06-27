@@ -1,0 +1,109 @@
+---
+title: "二、 系统顺序图（SSD）与对象交互序列图（Sequence Diagrams）"
+published: 2026-06-26
+description: "序列图与系统顺序图（SSD）的核心元素（参与者、生命线、激活期、组合碎片）、消息线与箭头规范以及多个实战例图（扫码租车SSD、新闻任务时序图等）全面解析。"
+sidebar_position: 2
+---
+import Mermaid from "@/components/Mermaid.astro";
+
+用于描述系统交互在时间维度上的动态协作过程。分析阶段使用**系统顺序图（SSD）**，设计阶段使用**对象交互序列图**。
+
+### 1. 序列图核心元素含义说明
+
+*   **参与者（Actor）**：位于图的最左侧，发起业务请求的外部用户或系统角色。
+*   **生命线（Lifeline）**：顶部为矩形框，格式为 `对象名:类名`（若省略对象名，如 `:类名` 则表示匿名对象）。下方延伸的**垂直虚线**代表对象在系统运行中的生命周期存活时间。
+*   **激活期/控制焦点（Activation Bar / Focus of Control）**：生命线虚线上的**垂直窄矩形条**。代表该对象当前正在占用 CPU 时间片，执行某个操作或方法。
+*   **组合碎片（Combined Fragments）**：带标签的框图，用于控制消息流的执行逻辑：
+    *   `alt`：条件分支（相当于代码中的 `if-else`）。
+    *   `loop`：循环执行（相当于代码中的 `for/while` 循环，框左上角需标明循环守卫条件）。
+    *   `opt`：可选执行（相当于无 `else` 的单分支 `if`）。
+
+### 2. 消息线（Messages）与箭头规范
+
+*   **同步调用（Synchronous Call）**：**实线 + 实心三角箭头（`->>`）**。调用方发送消息后挂起，必须等待接收方处理完毕并返回结果。
+*   **返回消息（Return Message）**：**虚线 + 开放式箭头（`-->>`）**。代表某个同步方法执行完毕，将返回值传回给调用者。
+*   **异步调用（Asynchronous Call）**：**实线 + 开放式箭头**。调用方发出消息后立即继续执行，不等待接收方响应。
+*   **自调用（Self-Call）**：折线指向本对象的另一个激活条。代表对象内部的方法调用（如持久层类内部进行数据插入）。
+
+### 3. 实战例图
+
+#### 3.1 扫码租车系统顺序图（SSD）
+
+系统顺序图（SSD）的特征是**将整个系统作为唯一的黑色盒子**，只描述外部参与者与系统的跨边界交互事件。
+
+<Mermaid code={`
+sequenceDiagram
+    autonumber
+    actor User as 用户
+    participant System as 共享电动车系统 (黑盒)
+
+    User->>System: 扫码 (车辆二维码)
+    
+    alt 信用分 <= 700
+        System-->>User: 提示进行押金余额校验
+        User->>System: 校验通过
+    else 信用分 > 700
+        System-->>User: 提示免押金骑行
+    end
+    
+    System-->>User: 电锁开启成功，开始计费
+`} />
+
+#### 3.2 提交新闻采集任务序列图
+
+展示业务流程从边界类（页面）到控制类（Controller、Service），最后实例化实体并持久化落库的详细设计时序。
+
+<Mermaid code={`
+sequenceDiagram
+    autonumber
+    actor User as 前端用户
+    participant Page as 前端页面
+    participant Controller as TaskController
+    participant Service as TaskService
+    participant Repo as TaskRepository
+    participant Task as NewsCollectionTask
+
+    User->>Page: 录入信息
+    Page->>Controller: 提交HTTP请求
+    Controller->>Service: submitTask(任务信息)
+    Service->>Repo: 保存任务数据
+    Repo->>Task: 创建/保存
+    Task-->>Repo: 保存完成
+    Repo-->>Service: 返回任务ID
+    Service-->>Controller: 返回提交结果
+    Controller-->>Page: 响应结果
+    Page-->>User: 展示成功
+`} />
+
+#### 3.3 执行新闻任务时序图（含 Loop 循环）
+
+展示在定时器触发下，系统循环遍历待执行任务并调用外部爬虫和解析服务进行批量处理的时序设计。
+
+<Mermaid code={`
+sequenceDiagram
+    autonumber
+    participant Timer as 定时器
+    participant Scheduler as TaskScheduler
+    participant Service as TaskService
+    participant Crawler as CrawlerService
+    participant Parser as ParserService
+    participant Repo as NewsRepository
+
+    Timer->>Scheduler: 定时触发
+    Scheduler->>Service: 加载待执行任务
+    Service->>Repo: 查询待执行任务
+    Repo-->>Service: 返回任务列表
+    
+    loop 遍历待执行任务
+        Service->>Crawler: 抓取网页
+        Crawler-->>Service: 返回源码
+        Service->>Parser: 解析网页
+        Parser-->>Service: 返回结构化数据
+        Service->>Repo: 保存新闻
+        Note over Repo: 数据库操作: 插入记录
+        Repo->>Repo: 插入记录
+        Repo-->>Service: 新闻保存完成
+        Service->>Repo: 更新任务为“已完成”
+        Repo-->>Service: 更新完成
+    end
+`} />

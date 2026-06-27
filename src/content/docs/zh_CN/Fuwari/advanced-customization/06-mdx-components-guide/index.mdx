@@ -45,9 +45,9 @@ import ReactCounter from './ReactCounter.tsx';
 
 上面的代码块只是个演示，但由于本篇文章本身就是一个 `.mdx` 文件，所以我特地在这里真正地挂载了刚才演示的两个组件。你可以尝试点击它们：
 
-<SvelteCounter client:load />
+<SvelteCounter client:visible />
 
-<ReactCounter client:load />
+<ReactCounter client:visible />
 
 > [!TIP]
 > **文件组织最佳实践**：正如本篇文章的源码一样，如果你的某个 React 或 Svelte 组件是**专属于某篇文章**的（比如一个特制的演示动画），你可以直接将文章的 `.mdx` 改写为 `index.mdx`，并将组件文件放在同级目录下（如上面引入的 `./SvelteCounter.svelte`）。这种“文件夹即文章”的就近组织方式，比把所有组件塞进全局的 `src/components/` 要清晰整洁得多！

@@ -1,0 +1,60 @@
+---
+title: "一、 用例图（Use Case Diagrams）"
+published: 2026-06-26
+description: "用例图核心元素含义（系统边界、参与者、用例）、关系箭头（包含、扩展、泛化）以及共享电动车扫码租车实战案例解析。"
+sidebar_position: 1
+---
+import Mermaid from "@/components/Mermaid.astro";
+
+用例图用于捕获系统的静态功能范围，展现外部参与者与系统用例之间的交互关系。
+
+### 1. 用例图核心元素含义说明
+
+*   **系统边界（System Boundary）**：用**矩形**表示，代表系统的内部与外部的隔离界线。系统的所有用例必须画在边界内，外部参与者必须画在边界外。
+*   **参与者（Actor）**：用**火柴人（或小人符号）**表示，代表在系统边界之外与系统进行交互的外部实体（可以是人、外部硬件设备，或者其他第三方系统）。
+*   **用例（Use Case）**：用**椭圆**表示，代表系统能够为参与者提供的一个完整且具有独立业务价值的功能或交互流。
+
+### 2. 用例关系与 Mermaid 规范
+
+用例之间主要存在三种核心关联关系：
+
+*   **包含（`<<include>>`）**：**虚线箭头，从主用例指向包含用例**。表示主用例在执行时，包含用例**必须执行**。通常用于提取多个用例的公共子步骤。
+*   **扩展（`<<extend>>`）**：**虚线箭头，从扩展用例反向指向主用例**。表示在满足特定条件（扩展点）时，可选地触发扩展用例。主用例的执行不依赖于扩展用例。
+*   **泛化（Generalization）**：**实线带空心三角箭头，从子用例指向父用例**。表示子用例是父用例的一种特化具体实现，承接父用例的结构和行为。
+
+<Mermaid code={`
+flowchart TD
+    subgraph UseCaseRelations [用例关系示意图]
+        direction LR
+        Main(["主用例"]) -. "«include»" .-> Include(["包含用例<br>(必须执行的子步骤)"])
+        Extend(["扩展用例<br>(在特定条件下触发)"]) -. "«extend»" .-> Main
+        Child(["子用例<br>(特化具体实现)"]) -- "泛化关系" --> Parent(["父用例"])
+    end
+    
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    class Main,Include,Extend,Child,Parent normal
+`} />
+
+### 3. 实战案例：共享电动车扫码租车用例图
+
+*   **业务逻辑描述**：扫码租车必须校验押金余额、自动生成保单（包含关系）。如果信用分 > 700，可选择性触发免押金骑行以跳过押金校验（扩展关系）。
+
+<Mermaid code={`
+flowchart LR
+    subgraph SystemBoundary [共享电动车系统]
+        direction LR
+        UC_Rent(["扫码租车"])
+        UC_Check(["押金余额校验"])
+        UC_Policy(["自动生成保单"])
+        UC_Free(["免押金骑行"])
+        
+        UC_Rent -. "«include»" .-> UC_Check
+        UC_Rent -. "«include»" .-> UC_Policy
+        UC_Free -. "«extend»<br>(条件: 信用分 > 700)" .-> UC_Rent
+    end
+    
+    User(((用户))) --> UC_Rent
+    
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    class UC_Rent,UC_Check,UC_Policy,UC_Free normal
+`} />

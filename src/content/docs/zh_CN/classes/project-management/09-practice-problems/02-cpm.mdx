@@ -1,0 +1,179 @@
+---
+title: "例题二：项目进度与关键路径法（CPM）"
+published: 2026-06-26
+description: "计算各活动的 ES, EF, LS, LF，总时差（Total Slack），确定项目的最早完工工期与关键路径，并进行延误情境分析。"
+sidebar_position: 2
+---
+import Mermaid from "@/components/Mermaid.astro";
+
+**【题目背景】**
+您负责一个IT系统的关键开发，项目包含以下活动、工期（Duration）及活动之间的逻辑依赖关系：
+
+| 活动 (Activity) | 工期 (Duration/天) | 紧前依赖关系与关系类型 (Predecessor & Dependency Type) | 滞后量 (Lag/天) |
+| :---: | :---: | :--- | :---: |
+| **A** | 4 | 无紧前活动 (Starts project) | - |
+| **B** | 6 | A (FS) | - |
+| **C** | 5 | A (FS) | - |
+| **D** | 3 | B (FS) | - |
+| **E** | 2 | C (FS) | - |
+| **F** | 7 | D, E (FS) | - |
+| **G** | 3 | F (FS) | - |
+| **H** | 4 | F (FF) | 2 |
+
+**【考题要求】**
+1. 根据表格信息，顺推（Forward Pass） and 逆推（Backward Pass）计算各活动的 ES, EF, LS, LF。
+2. 计算每个活动的总时差（Total Slack）。
+3. 确定项目的最早完工工期（Project Duration）以及项目的关键路径（Critical Path）。
+4. **情境分析**：如果在项目执行过程中，由于技术团队问题，**活动 C 延误了 5 天才完成**，会对项目的整体完工工期产生什么影响？请详细写出原因。
+
+---
+
+### 🎨 项目网络图 (AON vs. AOE)
+
+在项目管理（如 PMBOK / 信息系统项目管理师）与计算机科学（数据结构）中，存在两种网络图绘制方法：
+
+1. **AON (Activity on Node，单代号网络图 / 前导图 PDM)**：
+   * **节点 (Nodes)** 表示**活动**（如活动 A, B）。
+   * **边 (Edges)** 表示活动之间的**逻辑依赖关系**（如 A 完工后才能做 B）。
+   * **优势**：极易表达复杂的依赖关系（如 FS, SS, FF, SF）和滞后量（Lag）。**项目管理考试与实际应用中 99% 使用 AON**。
+
+2. **AOE (Activity on Edge，双代号网络图)**：
+   * **边 (Edges)** 表示**活动**，边上标有工期。
+   * **节点 (Nodes)** 表示**事件**（即活动开始或结束的瞬间，为瞬时点）。
+   * **劣势**：**只适合表达普通的 FS (Finish-to-Start) 关系**。一旦遇到非 FS 关系（例如本题中 H 依赖于 F 的 **FF + 2 Lag**，即 H 结束必须在 F 结束 2 天后，导致 H 实际需要在 F 结束前就开始），在传统 AOE 图中就必须引入极为复杂的虚活动 (Dummy Activity) 或负权重边，极易出错且不符合常规拓扑排序。
+
+---
+
+#### 1. 推荐方案：AON (单代号网络图)
+
+在项目管理考试中，这是标准解法。关键路径为黄色加粗边：
+
+<Mermaid code={`
+flowchart LR
+    Start([开始]) --> A["A (4天)"]
+    A --> B["B (6天)"]
+    A --> C["C (5天)"]
+    B --> D["D (3天)"]
+    C --> E["E (2天)"]
+    D --> F["F (7天)"]
+    E --> F
+    F --> G["G (3天)"]
+    F -- "FF + 2天 Lag" --> H["H (4天)"]
+    G --> End([结束])
+    H --> End
+
+    %% 节点与连线的主题自适应美化
+    classDef critical fill:#fdf2e9,stroke:#f39c12,stroke-width:3px,color:#d35400
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    classDef startEnd fill:#f8f9fa,stroke:#7f8c8d,stroke-width:1px,color:#2c3e50
+
+    class A,B,D,F,G critical
+    class C,E,H normal
+    class Start,End startEnd
+    
+    linkStyle 0,1,3,5,7,9 stroke:#f39c12,stroke-width:3px
+    linkStyle 2,4,6,8,10 stroke:#dddddd,stroke-width:1px
+`} />
+
+---
+
+#### 2. AOE (双代号网络图) 绘制尝试（仅限 FS 简化版）
+
+如果我们**忽略 H 的 FF 复杂限制**，仅画出 A、B、C、D、E、F、G 的传统 AOE 图，则需要使用**虚活动（虚工作，Dummy Activity，工期为 0，用虚线表示）**来表达 D 和 E 共同制约 F 的关系：
+
+<Mermaid code={`
+flowchart LR
+    N1((①)) -- "A (4)" --> N2((②))
+    N2 -- "B (6)" --> N3((③))
+    N2 -- "C (5)" --> N4((④))
+    N3 -- "D (3)" --> N5((⑤))
+    N4 -- "E (2)" --> N6((⑥))
+    
+    %% 虚工作用虚线表示，工期为 0
+    N5 -.->|虚工作 0| N7((⑦))
+    N6 -.->|虚工作 0| N7
+    
+    N7 -- "F (7)" --> N8((⑧))
+    N8 -- "G (3)" --> N9((⑨))
+
+    %% 节点与连线的主题自适应美化
+    classDef critical fill:#fdf2e9,stroke:#f39c12,stroke-width:2px,color:#d35400
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+
+    class N1,N2,N3,N5,N7,N8,N9 critical
+    class N4,N6 normal
+    
+    linkStyle 0,1,3,5,7,8 stroke:#f39c12,stroke-width:3px
+    linkStyle 2,4,6 stroke:#dddddd,stroke-width:1px
+`} />
+
+> [!NOTE]
+> * **虚工作（⑤ ➡️ ⑦，⑥ ➡️ ⑦）**：在 AOE 中必不可少，因为活动 F 的开始（⑦）同时依赖于 D 的结束（⑤） and E 的结束（⑥）。如果不引入虚工作，直接连线会使网图逻辑发生混淆。
+> * **FF 关系的局限性**：由于 H (FF) 关系的特殊性，AOE 无法直接以标准边形式绘制它（因为 H 并不是在 F 结束后才开始的 FS 关系）。
+> 
+> 因此，**计算和答题时，请以 AON (单代号网络图) 的顺推和逆推数据为准**。
+
+---
+
+**【📌 详细解答过程】**
+
+**第一步：正向推导 (Forward Pass) —— 计算 ES 和 EF**
+* 设定项目开始时间 $\text{ES}_A = 0$
+* **Activity A**：$\text{EF}_A = \text{ES}_A + \text{Dur}_A = 0 + 4 = \mathbf{4}$
+* **Activity B**：$\text{ES}_B = \text{EF}_A = \mathbf{4}$；$\text{EF}_B = 4 + 6 = \mathbf{10}$
+* **Activity C**：$\text{ES}_C = \text{EF}_A = \mathbf{4}$；$\text{EF}_C = 4 + 5 = \mathbf{9}$
+* **Activity D**：$\text{ES}_D = \text{EF}_B = \mathbf{10}$；$\text{EF}_D = 10 + 3 = \mathbf{13}$
+* **Activity E**：$\text{ES}_E = \text{EF}_C = \mathbf{9}$；$\text{EF}_E = 9 + 2 = \mathbf{11}$
+* **Activity F**：有两个紧前活动 D（$\text{EF}=13$）和 E（$\text{EF}=11$）。
+  * 顺推取最大值：$\text{ES}_F = \max(13, 11) = \mathbf{13}$；$\text{EF}_F = 13 + 7 = \mathbf{20}$
+* **Activity G**：$\text{ES}_G = \text{EF}_F = \mathbf{20}$；$\text{EF}_G = 20 + 3 = \mathbf{23}$
+* **Activity H**：依赖关系是 F (FF)，且 Lag = 2。
+  * 意味着：H 的完工时间最早为 F 完工时间延后 2 天：$\text{EF}_H = \text{EF}_F + 2 = 20 + 2 = \mathbf{22}$。
+  * 倒算其最早开始时间：$\text{ES}_H = \text{EF}_H - \text{Dur}_H = 22 - 4 = \mathbf{18}$。
+
+* **项目总工期**（项目完成终点为 G 完工（第23天）与 H 完工（第22天）的最大值）：
+  $$\text{项目工期} = \max(\text{EF}_G, \text{EF}_H) = \max(23, 22) = \mathbf{23 \text{ 天}}$$
+
+---
+
+**第二步：逆向推导 (Backward Pass) —— 计算 LS 和 LF**
+* 设定项目总终点时间为 23 天。所以终点活动 G 和 H 的最大完工限期均为 23：$\text{LF}_G = 23$，$\text{LF}_H = 23$。
+* **Activity G**：$\text{LF}_G = \mathbf{23}$；$\text{LS}_G = \text{LF}_G - \text{Dur}_G = 23 - 3 = \mathbf{20}$
+* **Activity H**：
+  * 因为 H 的依赖关系是 F (FF) + 2，从逆推角度看，F 的最迟完工时间受 H 的限制：F 完工最迟不能超过 H 完工前 2 天。
+  * $\text{LF}_H = \mathbf{23}$；$\text{LS}_H = \text{LF}_H - \text{Dur}_H = 23 - 4 = \mathbf{19}$。
+* **Activity F**：后续活动为 G（$\text{LS}=20$）和 H（F的完工限制H的完工，即 $\text{LF}_F \le \text{LF}_H - 2 = 23 - 2 = 21$）。
+  * 逆推取最小值：$\text{LF}_F = \min(\text{LS}_G, \text{LF}_H - 2) = \min(20, 21) = \mathbf{20}$；$\text{LS}_F = 20 - 7 = \mathbf{13}$
+* **Activity D**：$\text{LF}_D = \text{LS}_F = \mathbf{13}$；$\text{LS}_D = 13 - 3 = \mathbf{10}$
+* **Activity E**：$\text{LF}_E = \text{LS}_F = \mathbf{13}$；$\text{LS}_E = 13 - 2 = \mathbf{11}$
+* **Activity B**：$\text{LF}_B = \text{LS}_D = \mathbf{10}$；$\text{LS}_B = 10 - 6 = \mathbf{4}$
+* **Activity C**：$\text{LF}_C = \text{LS}_E = \mathbf{11}$；$\text{LS}_C = 11 - 5 = \mathbf{6}$
+* **Activity A**：后续活动为 B（$\text{LS}=4$）和 C（$\text{LS}=6$）。
+  * 逆推取最小值：$\text{LF}_A = \min(\text{LS}_B, \text{LS}_C) = \min(4, 6) = \mathbf{4}$；$\text{LS}_A = 4 - 4 = \mathbf{0}$
+
+---
+
+**第三步：计算总时差（Total Slack = LS - ES）并确定关键路径**
+
+* **A**: $0 - 0 = \mathbf{0}$
+* **B**: $4 - 4 = \mathbf{0}$
+* **C**: $6 - 4 = \mathbf{2}$
+* **D**: $10 - 10 = \mathbf{0}$
+* **E**: $11 - 9 = \mathbf{2}$
+* **F**: $13 - 13 = \mathbf{0}$
+* **G**: $20 - 20 = \mathbf{0}$
+* **H**: $19 - 18 = \mathbf{1}$
+
+* **关键路径 (Critical Path)**：时差全部为 0 的路径：
+  $$\mathbf{A \rightarrow B \rightarrow D \rightarrow F \rightarrow G}$$
+* **总工期**：$\mathbf{23 \text{ 天}}$。
+
+---
+
+**第四步：情境分析（C 延误 5 天的影响）**
+* 目前活动 C 的**总时差 (Total Slack) 为 2 天**。这意味着在不影响整个项目最早完工（23天）的前提下，C 活动最多可以延误 2 天。
+* 现活动 C 延误了 5 天完成，超出了其拥有的 2 天时差。
+* **对总工期的影响**：
+  $$\text{项目工期延误天数} = \text{实际延误天数} - \text{可动用总时差} = 5 - 2 = \mathbf{3 \text{ 天}}$$
+  项目总工期将从原计划 of 23 天**延长至 26 天**（$23 + 3 = 26$）。
+  * *关键路径变化*：延误后，路径 $A \rightarrow C \rightarrow E \rightarrow F$ 上的时间消耗增加，此时 $A \rightarrow C \rightarrow E$ 会变成新的关键路径之一。

@@ -1,0 +1,101 @@
+---
+title: "六、 架构拓扑与部署图"
+published: 2026-06-26
+description: "三层架构层级图（UI - BLL - DAL）的代码结构、系统架构、技术栈映射，以及高可用 Spring Cloud 微服务分布式环境下的物理部署拓扑图全面解析。"
+sidebar_position: 6
+---
+import Mermaid from "@/components/Mermaid.astro";
+
+描述高层应用逻辑分层或物理网络节点的物理部署组织关系。
+
+### 1. 三层架构层级图（UI - BLL - DAL）
+
+用于明确代码结构（文件组织形式）、逻辑分层（职责边界）和所选技术栈的对应映射关系。
+
+<Mermaid code={`
+flowchart LR
+    subgraph Code [代码结构]
+        direction TB
+        C1["html/jsp"]
+        C2["servlet/service"]
+        C3["dao/entity/util"]
+    end
+
+    subgraph Arch [系统架构]
+        direction TB
+        A1["表示层 (UI)"]
+        A2["业务逻辑层 (BLL)"]
+        A3["数据访问层 (DAL)"]
+    end
+
+    subgraph Tech [技术栈]
+        direction TB
+        T1["JSP/HTML/JS/AJAX"]
+        T2["servlet/java/..."]
+        T3["JDBC/MyBatis/Hibernate"]
+    end
+
+    C1 --> A1
+    A1 --> T1
+    
+    A1 -- 请求 --> A2
+    A2 -- 反馈 --> A1
+    
+    C2 --> A2
+    A2 --> T2
+    
+    A2 -- 请求 --> A3
+    A3 -- 反馈 --> A2
+    
+    C3 --> A3
+    A3 --> T3
+
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    class C1,C2,C3,A1,A2,A3,T1,T2,T3 normal
+`} />
+
+### 2. Spring Cloud 微服务组件部署拓扑图
+
+展示微服务分布式环境下的高可用组织形式。
+
+*   **API网关（API Gateway）**：外部请求的唯一入口，负责路由分发、认证鉴权与流量拦截控制。
+*   **微服务（Microservice）**：高度自治、围绕独立业务领域构建的细粒度后端服务。
+*   **服务注册中心（Registry）**：保存所有可用服务实例的名册，管理实例心跳与服务注册发现。
+*   **独占数据库（Database）**：各微服务之间实行数据物理隔离，禁止跨库直接 `JOIN`。
+*   **消息队列（MQ）**：通过发布订阅机制实现微服务之间的异步解耦与削峰填谷。
+
+<Mermaid code={`
+flowchart TD
+    App["移动端 APP (Uniapp)"]
+    Web["浏览器端 (Vue3)"]
+    Gateway["API Gateway <br> (Spring Cloud Gateway - 鉴权/路由/限流)"]
+    TaskService["TaskService <br> (任务调度微服务)"]
+    NewsService["NewsService <br> (新闻发布微服务)"]
+    Registry["Eureka/Nacos Cluster <br> (服务注册中心)"]
+    TaskDB[(Task MySQL DB <br> 独占数据库)]
+    NewsDB[(News MongoDB <br> 独占数据库)]
+    MQ["消息队列 RocketMQ"]
+    CrawlerCluster["FeatureCrawlerService <br> (计算集群)"]
+
+    App -- "HTTPS" --> Gateway
+    Web -- "HTTPS" --> Gateway
+    
+    Gateway -- "转发请求" --> TaskService
+    Gateway -- "转发请求" --> NewsService
+    
+    TaskService -- "服务注册/心跳" --> Registry
+    NewsService -- "服务注册/心跳" --> Registry
+    Gateway -- "服务发现/心跳" --> Registry
+    
+    TaskService --> TaskDB
+    NewsService --> NewsDB
+    
+    TaskService -- "发送任务消息" --> MQ
+    MQ -- "拉取/执行任务" --> CrawlerCluster
+
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    classDef critical fill:#fdf2e9,stroke:#f39c12,stroke-width:3px,color:#d35400
+    
+    class App,Web,TaskService,NewsService,TaskDB,NewsDB,MQ,CrawlerCluster normal
+    class Gateway,Registry critical
+`} />

@@ -1,0 +1,97 @@
+---
+title: "三、 类图与设计类图（Class Diagrams / DCD）"
+published: 2026-06-26
+description: "类图的核心元素表示（类、属性、方法、可见性修饰符）、六大核心关系与箭头标准表（泛化、实现、组合、聚合、关联、依赖）以及实战设计类图案例解析。"
+sidebar_position: 3
+---
+import Mermaid from "@/components/Mermaid.astro";
+
+类图用于描述系统的静态结构。概念类图（CCD）侧重于现实概念，设计类图（DCD）面向技术编码实现。
+
+### 1. 类图核心元素含义说明
+
+#### 1.1 类的三段式表示
+类在图中用矩形框表示，从上到下分为三格：
+1.  **第一格：类名**。接口用 `<<interface>>` 双角括号标识，抽象类名用*斜体*表示。
+2.  **第二格：属性（Attributes）**。格式为：`可见性 属性名 : 数据类型 = 默认值`。
+3.  **第三格：方法（Methods）**。格式为：`可见性 方法名(参数名 : 参数类型) : 返回值类型`。
+
+#### 1.2 可见性修饰符（Visibility）
+*   `+`：**Public（公共）**。外部任意类均可直接访问和调用。
+*   `-`：**Private（私有）**。仅在本类内部可见，子类与外部均无法访问（DCD 的属性通常全部设为私有）。
+*   `#`：**Protected（受保护）**。仅在本类及子类（继承体系）内部可见。
+
+### 2. 六大核心关系与箭头标准
+
+UML 类图的关系强弱顺序为：**泛化 = 实现 > 组合 > 聚合 > 关联 > 依赖**。
+
+| 关系类型 | 线型 | 箭头形状 | 语义说明与代码实现特征 | Mermaid 语法 |
+| :--- | :--- | :--- | :--- | :--- |
+| **泛化（继承）** | 实线 | 空心三角形 | **子类指向父类**。表示子类继承父类的结构与行为。代码实现：`extends`。 | `SubClass --\|> SuperClass` |
+| **实现（Realization）** | 虚线 | 空心三角形 | **实现类指向接口**。表示类实现抽象接口中声明的方法。代码实现：`implements`。 | `ImplClass ..\|> Interface` |
+| **组合（Composition）** | 实线 | 实心黑色菱形 | **从部分指向整体（菱形在整体端）**。强“整体-部分”关系。部分与整体生死与共，部分不能脱离整体独立存在。代码实现：在 `Order` 实例化时直接 `new` 订单项。 | `Whole *-- Part` |
+| **聚合（Aggregation）** | 实线 | 空心菱形 | **从部分指向整体（菱形在整体端）**。“整体-部分”关系，但耦合度较弱，部分可以脱离整体而单独存在（如：部门与员工）。代码实现：外部传入参数包装为全局对象。 | `Whole o-- Part` |
+| **关联（Association）** | 实线 | 开放实心箭头 | **一类指向另一类**。类与类之间有结构化的、长期的连接关系。表示类 A 将类 B 的实例作为自己的全局成员属性。通常需标明多重度（如 `1`, `0..*`）。 | `ClassA --> ClassB` |
+| **依赖（Dependency）** | 虚线 | 开放实心箭头 | **一类指向另一类**。临时、弱使用关系。A 类的方法在运行期临时使用了 B 类的实例（如：B 作为 A 方法 of 入参、局部变量，或者 A 方法内静态调用了 B）。 | `ClassA ..> ClassB` |
+
+### 3. 实战例图
+
+#### 3.1 提交新闻任务设计类图（DCD）
+
+<Mermaid code={`
+classDiagram
+    class TaskPage {
+    }
+    class TaskController {
+        -taskService: TaskService
+        +submitTask() : Result
+    }
+    class TaskService {
+        <<interface>>
+        +submitTaskInfo(url, rule) : Long
+    }
+    class TaskServiceImpl {
+        -taskRepo: TaskRepository
+        +submitTaskInfo(url, rule) : Long
+    }
+    class TaskRepository {
+        <<interface>>
+        +save(task: Task) : void
+    }
+    class NewsCollectionTask {
+        -taskId: Long
+        -url: String
+        -status: String
+    }
+
+    TaskPage ..> TaskController : 依赖
+    TaskController --> TaskService : 关联
+    TaskServiceImpl ..|> TaskService : 实现
+    TaskServiceImpl --> TaskRepository : 关联
+    TaskServiceImpl ..> NewsCollectionTask : 依赖
+`} />
+
+#### 3.2 爬取模块策略模式类图
+
+<Mermaid code={`
+classDiagram
+    class CrawlerContext {
+        -strategy: CrawlStrategy
+        +setStrategy(strategy: CrawlStrategy) : void
+        +executeCrawl(url: String) : String
+    }
+    class CrawlStrategy {
+        <<interface>>
+        +crawl(url: String) : String
+    }
+    class StaticCrawlStrategy {
+        +crawl(url: String) : String
+    }
+    class DynamicCrawlStrategy {
+        +crawl(url: String) : String
+    }
+
+    CrawlerContext o-- CrawlStrategy : 关联聚合
+    StaticCrawlStrategy ..|> CrawlStrategy : 实现
+    DynamicCrawlStrategy ..|> CrawlStrategy : 实现
+`} />

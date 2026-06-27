@@ -1,0 +1,48 @@
+---
+title: "四、 状态图（State Machine Diagrams）"
+published: 2026-06-26
+description: "状态图核心元素含义（初态、终态、状态、迁移线格式）、事件/守卫/动作表示以及任务执行、新闻生命周期两个实战状态图解析。"
+sidebar_position: 4
+---
+import Mermaid from "@/components/Mermaid.astro";
+
+状态图用于刻画一个单一业务对象在其生命周期内，由于接收外部事件（Event）而发生的状态变迁（State Transition）。
+
+### 1. 状态图核心元素含义说明
+
+*   **初态（Initial State）**：用**黑色实心圆点**表示，代表状态机生命周期的起点，一个状态图只能有一个初态。
+*   **终态（Final State）**：用**双圆环（同心圆内带实心圆点）**表示，代表对象生命周期的终结，可以有多个终态或没有终态。
+*   **状态（State）**：用**圆角矩形**表示，写有该状态的名称（通常为英文大写）。代表对象在生命周期中某一时间段所处的一种稳定物理或逻辑状态。
+*   **状态迁移线（Transition）**：**带箭头的实线**。代表状态发生改变的路径。
+    *   **标符格式**：`事件 [守卫条件] / 动作`（Event [Guard] / Action）。
+    *   **事件**：触发迁移的外部输入（如“提交审核”）。
+    *   **守卫条件**：布尔表达式，只有条件为真时迁移才会被触发（如 `[信用分 > 700]`）。
+    *   **动作**：迁移发生时系统执行的瞬时行为，执行完后立即进入新状态。
+
+### 2. 实战例图
+
+#### 2.1 任务执行状态图（TaskStatus）
+
+<Mermaid code={`
+stateDiagram-v2
+    [*] --> PENDING : 任务创建提交
+    PENDING --> RUNNING : 调度器开始执行
+    RUNNING --> SUCCESS : 采集与解析完成
+    RUNNING --> FAILED : 异常导致中断
+    FAILED --> PENDING : 人工或系统重试
+    SUCCESS --> [*]
+    FAILED --> [*]
+`} />
+
+#### 2.2 新闻生命周期状态图（NewsStatus）
+
+<Mermaid code={`
+stateDiagram-v2
+    [*] --> CREATED : 采集入库
+    CREATED --> REVIEWING : 提交审核
+    REVIEWING --> PUBLISHED : 审核通过
+    REVIEWING --> REJECTED : 审核不通过
+    REJECTED --> CREATED : 修改重新提交
+    PUBLISHED --> DISABLED : 过期/违规下架
+    DISABLED --> [*]
+`} />

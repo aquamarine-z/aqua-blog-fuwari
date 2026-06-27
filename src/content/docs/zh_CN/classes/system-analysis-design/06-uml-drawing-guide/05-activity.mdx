@@ -1,0 +1,50 @@
+---
+title: "五、 活动图（Activity Diagrams）"
+published: 2026-06-26
+description: "活动图与高级流程图的区别、核心元素含义说明（起点、终点、动作状态、控制流、决策/合并点）以及新闻抓取算法控制流活动图实例解析。"
+sidebar_position: 5
+---
+import Mermaid from "@/components/Mermaid.astro";
+
+活动图用于描述系统的工作流或算法逻辑流程，侧重于动作之间的控制流，类似于高级流程图。
+
+### 1. 活动图核心元素含义说明
+
+*   **起点与终点**：与状态图相同，用黑色实心圆点代表流程起点，双圆环代表流程终点。
+*   **动作状态（Action / Activity）**：用**圆角矩形**表示，代表流程中需要执行的具体操作或步骤（如“发起HTTP请求”）。
+*   **控制流（Control Flow）**：**带箭头的实线**，用于指出动作执行的前后时序关系。
+*   **决策点与合并点（Decision / Merge）**：用**空心菱形**表示。
+    *   **决策分流**：一条输入流进入，根据不同的**判定条件（用中括号 `[条件]` 标明守卫）**流出多条不同分支。
+    *   **合并合流**：多条分支汇合进入，引出一条单一输出流向下传递。
+
+### 2. 实战例图：新闻网页抓取算法控制流
+
+<Mermaid code={`
+flowchart TD
+    Start([开始]) --> CreateReq[根据URL创建请求]
+    CreateReq --> SetHeaders[设置请求头/超时/代理]
+    SetHeaders --> IsDynamic{是否动态页面?}
+    
+    IsDynamic -- "是 (JS渲染)" --> LoadJS[加载动态 JS 内容 <br> Playwright/Selenium]
+    IsDynamic -- "否 (静态页面)" --> DirectHTTP[直接发起 HTTP 请求]
+    
+    LoadJS --> GetHTML[获取最终 HTML 源码]
+    DirectHTTP --> GetHTML
+    
+    GetHTML --> IsSuccess{请求是否成功?}
+    
+    IsSuccess -- "成功" --> ValidateHTML[校验 HTML 内容非空]
+    IsSuccess -- "失败" --> LogErr[记录并抛出异常] --> Terminate1([终止])
+    
+    ValidateHTML --> IsValid{HTML 内容是否有效?}
+    IsValid -- "是" --> ReturnResult[返回内容给业务层] --> End([结束])
+    IsValid -- "否" --> ThrowExc[抛出内容异常] --> Terminate2([终止])
+
+    classDef startEnd fill:#f8f9fa,stroke:#7f8c8d,stroke-width:1px,color:#2c3e50
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    classDef critical fill:#fdf2e9,stroke:#f39c12,stroke-width:3px,color:#d35400
+    
+    class Start,End,Terminate1,Terminate2 startEnd
+    class CreateReq,SetHeaders,LoadJS,DirectHTTP,GetHTML,ValidateHTML,ReturnResult normal
+    class LogErr,ThrowExc critical
+`} />
