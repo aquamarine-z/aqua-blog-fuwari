@@ -1,0 +1,289 @@
+---
+title: "第五部分：白盒覆盖与基本路径大题"
+published: 2026-06-26
+description: "逻辑覆盖测试与基本路径测试典型设计大题详细解题步骤与形式化分析证明。"
+sidebar_position: 5
+---
+
+import Mermaid from "@/components/Mermaid.astro";
+
+# ✍️ 第五部分：白盒覆盖与基本路径大题
+
+本部分整理了针对白盒测试中**逻辑覆盖法**与**基本路径测试法**的典型设计与演算题目，并附带详细解题步骤与形式化证明。
+
+---
+
+### 题 5：逻辑覆盖测试（对应作业 5）
+
+#### 题目背景
+针对以下两段独立的代码程序，请根据题目要求分别设计白盒测试用例。
+
+##### 题目一（考查语句覆盖与判定覆盖）
+```c
+void ProcessScore(int score, int is_member) {
+    int discount = 0;
+    if (score >= 100) {
+        if (is_member == 1) {
+            discount = 20;
+        } else {
+            discount = 10;
+        }
+    } else {
+        discount = 0;
+    }
+    printf("Discount = %d\n", discount);
+}
+```
+请分别设计：
+1.  满足**语句覆盖 (Statement Coverage)** 的测试用例；
+2.  满足**判定覆盖 / 分支覆盖 (Decision Coverage)** 的测试用例。
+
+##### 题目二（考查条件覆盖、判定-条件覆盖、条件组合覆盖）
+```c
+void CheckStatus(int age, int has_license) {
+    if (age >= 18 && has_license == 1) {
+        printf("Drive Allowed\n");
+    } else {
+        printf("Access Denied\n");
+    }
+}
+```
+请分别设计：
+1.  满足**条件覆盖 (Condition Coverage)** 的测试用例；
+2.  满足**判定-条件覆盖 (C/DC)** 的测试用例；
+3.  满足**条件组合覆盖** 的测试用例。
+
+---
+
+#### 详细题解
+
+##### 题目一：
+
+###### 1. 语句覆盖 (Statement Coverage)
+语句覆盖要求程序中每一条可执行语句都至少执行一次。
+*   我们需要执行到：`discount = 20`、`discount = 10` 和 `discount = 0`。
+
+| 用例编号 | 输入 $score$ | 输入 $is\_member$ | 执行到的主要语句 / 分支路径 | 预期输出 |
+| :---: | :---: | :---: | :--- | :--- |
+| **TC1** | $120$ | $1$ | 进入第一个 `if` 及内部 `if` 真分支，执行 `discount = 20` | Discount = 20 |
+| **TC2** | $120$ | $0$ | 进入第一个 `if` 内部 `else` 分支，执行 `discount = 10` | Discount = 10 |
+| **TC3** | $50$ | $0$ | 进入最外层 `else` 分支，执行 `discount = 0` | Discount = 0 |
+
+###### 2. 判定覆盖 / 分支覆盖 (Decision Coverage)
+程序有两个判定点：最外层判定 $score \ge 100$，内层判定 $is\_member == 1$。每个判定的“真”、“假”分支均需执行一次。
+*   最外层判定：$T_1$ (`score >= 100`)，$F_1$ (`score < 100`)。
+*   内层判定：$T_2$ (`is_member == 1`)，$F_2$ (`is_member != 1`)。
+上述设计在满足语句覆盖的同时，已天然满足判定覆盖，TC1，TC2，TC3 即可实现完全分支覆盖。
+
+---
+
+##### 题目二：
+
+记单个判定为：$P: A \wedge B$，其中条件为 $A: age \ge 18$；$B: has\_license == 1$。
+*   $A$ 的真假记为 $T_A, F_A$；$B$ 的真假记为 $T_B, F_B$。
+*   判定 $P$ 的真假记为 $T_P, F_P$。
+
+###### 1. 条件覆盖 (Condition Coverage)
+要求每个条件的真和假都至少出现一次。即：要覆盖到 $T_A, F_A$ 和 $T_B, F_B$。对判定 $P$ 本身的真假无要求。
+
+| 用例编号 | 输入 $age$ | 输入 $has\_license$ | 条件状态 | 判定 $P$ 结果 |
+| :---: | :---: | :---: | :--- | :---: |
+| **TC1** | $20$ | $0$ | $T_A$（真），$F_B$（假） | $F_P$ |
+| **TC2** | $15$ | $1$ | $F_A$（假），$T_B$（真） | $F_P$ |
+
+*注：虽然这两个用例都没有触发“Drive Allowed”分支，但确实满足了条件覆盖的指标。*
+
+###### 2. 判定-条件覆盖 (C/DC)
+要求每个条件的真假出现，且判定 $P$ 自身的真假（$T_P, F_P$）也要出现。
+
+| 用例编号 | 输入 $age$ | 输入 $has\_license$ | 条件状态 | 判定 $P$ 结果 | 预期输出 |
+| :---: | :---: | :---: | :--- | :---: | :--- |
+| **TC3** | $20$ | $1$ | $T_A$（真），$T_B$（真） | $T_P$ (真) | Drive Allowed |
+| **TC4** | $15$ | $0$ | $F_A$（假），$F_B$（假） | $F_P$ (假) | Access Denied |
+
+###### 3. 条件组合覆盖
+两个条件，每个条件均有 2 种状态（真/假），组合数共 $2^2 = 4$ 种：
+1. $T_A, T_B$
+2. $T_A, F_B$
+3. $F_A, T_B$
+4. $F_A, F_B$
+
+| 用例编号 | 输入 $age$ | 输入 $has\_license$ | 条件状态组合 | 预期输出 |
+| :---: | :---: | :---: | :--- | :--- |
+| **TC5** | $20$ | $1$ | 1. $T_A$（真），$T_B$（真） | Drive Allowed |
+| **TC6** | $20$ | $0$ | 2. $T_A$（真），$F_B$（假） | Access Denied |
+| **TC7** | $15$ | $1$ | 3. $F_A$（假），$T_B$（真） | Access Denied |
+| **TC8** | $15$ | $0$ | 4. $F_A$（假），$F_B$（假） | Access Denied |
+
+---
+
+### 题 6：基本路径测试（对应作业 6）
+
+#### 题目背景
+针对以下程序函数进行基本路径测试：
+
+```c
+int ProcessLimit(int limit, int type) {
+    int temp = 0;
+    while (limit > 10) {               // 节点 4: 循环控制
+        if (type == 1) {               // 节点 6: 条件分支 1
+            temp = limit + 100;        // 节点 8
+            break;                     // 节点 9
+        } else {
+            if (type == 2) {           // 节点 13: 条件分支 2
+                temp = temp + 10;      // 节点 15
+            } else {
+                temp = temp + 20;      // 节点 18
+            }
+        }
+        limit--;                       // 节点 22
+    }
+    return temp;                       // 节点 24
+}
+```
+
+请根据基本路径测试方法完成以下要求：
+1.  画出程序的 **DD路径图（DD-Path Graph）**；
+2.  计算程序的 **圈复杂度 $V(G)$**；
+3.  写出程序的一组 **基本路径集 (Basis Path Set)**；
+4.  根据基本路径集设计测试用例；
+5.  将路径编码为向量，并证明其线性无关性。
+
+---
+
+#### 详细题解
+
+##### 1. 画出控制流图与DD路径图
+
+首先，分析代码的执行结构，我们将顺序执行且无分支的代码块合并。定义以下控制流节点：
+
+*   **Node A**：函数入口及初始化（行 1~3）
+*   **Node B**：`while (limit > 10)` 判定（行 4）
+*   **Node C**：`if (type == 1)` 判定（行 6）
+*   **Node D**：`temp = limit + 100; break;` 语句块（行 8~10），该分支执行后会跳出循环，直达 Node H
+*   **Node E**：`if (type == 2)` 判定（行 13）
+*   **Node F**：`temp = temp + 10;` 语句（行 15）
+*   **Node G**：`temp = temp + 20;` 语句（行 18）
+*   **Node I**：`limit--;` 以及回到 `while` 的控制流（行 22~23）
+*   **Node H**：`return temp;`（行 24）以及函数结束
+
+###### DD路径控制流关系：
+*   $A \rightarrow B$
+*   $B \rightarrow C$ （当 `limit > 10` 为真）
+*   $B \rightarrow H$ （当 `limit > 10` 为假，循环结束）
+*   $C \rightarrow D$ （当 `type == 1` 为真）
+*   $C \rightarrow E$ （当 `type == 1` 为假）
+*   $D \rightarrow H$ （由于 `break` 语句，直接跳出）
+*   $E \rightarrow F$ （当 `type == 2` 为真）
+*   $E \rightarrow G$ （当 `type == 2` 为假）
+*   $F \rightarrow I$
+*   $G \rightarrow I$
+*   $I \rightarrow B$ （单轮循环结束，跳回判定）
+
+###### DD 路径图如下所示：
+
+<Mermaid code={`
+flowchart TD
+    A[Node A: 入口及初始化] --> B{Node B: while 判定}
+    B -- "循环结束 (limit <= 10)" --> H[Node H: return temp]
+    B -- "进入循环 (limit > 10)" --> C{Node C: type == 1 判定}
+    C -- "满足 (type == 1)" --> D[Node D: temp = limit + 100 & break]
+    C -- "不满足 (type != 1)" --> E{Node E: type == 2 判定}
+    D --> H
+    E -- "满足 (type == 2)" --> F[Node F: temp = temp + 10]
+    E -- "不满足 (type != 2)" --> G[Node G: temp = temp + 20]
+    F --> I[Node I: limit--]
+    G --> I
+    I --> B
+`} />
+
+##### 2. 计算圈复杂度 $V(G)$
+
+我们提供两种计算方法进行校验：
+
+*   **方法一：边点公式**
+    *   **边数 $e$** = $11$ （分别为：$A \rightarrow B$, $B \rightarrow H$, $B \rightarrow C$, $C \rightarrow D$, $C \rightarrow E$, $D \rightarrow H$, $E \rightarrow F$, $E \rightarrow G$, $F \rightarrow I$, $G \rightarrow I$, $I \rightarrow B$）
+    *   **节点数 $n$** = $9$ （分别为：$A$, $B$, $C$, $D$, $E$, $F$, $G$, $I$, $H$）
+    $$V(G) = e - n + 2 = 11 - 9 + 2 = 4$$
+
+*   **方法二：判定节点快速公式（考试提速与校验神器）**
+    *   在控制流图中，出度 $\ge 2$ 的**判定节点**包括：Node B（判断循环条件）、Node C（判断是否为 type 1）、Node E（判断是否为 type 2）。
+    *   判定节点数 $P = 3$。
+    $$V(G) = P + 1 = 3 + 1 = 4$$
+
+两种方法校验一致，程序的圈复杂度为 **$4$**。这意味着我们一共有 $4$ 条线性无关的基本路径。
+
+##### 3. 构建基本路径集
+
+由于基本路径集不唯一，我们先设定一条最简路径（通常是不进入循环的路径）为基线路径，然后根据圈复杂度，每次改变一个判定的方向来寻找其他无关路径。
+
+*   **基线路径 $P_1$**：直接不满足循环条件。
+    *   路径：$A \rightarrow B \rightarrow H$
+*   **路径 $P_2$**：进入循环，满足 `type == 1`，通过 `break` 跳出。
+    *   路径：$A \rightarrow B \rightarrow C \rightarrow D \rightarrow H$
+*   **路径 $P_3$**：进入循环，不满足 `type == 1`，满足 `type == 2`，结束本轮循环并退出。
+    *   路径：$A \rightarrow B \rightarrow C \rightarrow E \rightarrow F \rightarrow I \rightarrow B \rightarrow H$
+*   **路径 $P_4$**：进入循环，不满足 `type == 1`，不满足 `type == 2`，结束本轮循环并退出。
+    *   路径：$A \rightarrow B \rightarrow C \rightarrow E \rightarrow G \rightarrow I \rightarrow B \rightarrow H$
+
+##### 4. 设计测试用例
+
+为覆盖这 $4$ 条基本路径，我们设计如下具体参数：
+
+| 用例编号 | 输入 $limit$ | 输入 $type$ | 覆盖的基本路径 | 局部变量运行逻辑 | 预期输出 $temp$ |
+| :---: | :---: | :---: | :--- | :--- | :---: |
+| **TC1** | $5$ | $1$ | $P_1: A \rightarrow B \rightarrow H$ | `limit = 5 <= 10`，不满足循环条件，直接结束 | $0$ |
+| **TC2** | $12$ | $1$ | $P_2: A \rightarrow B \rightarrow C \rightarrow D \rightarrow H$ | `limit = 12 > 10`，`type = 1`，`temp = 12 + 100 = 112`，触发 `break` 结束 | $112$ |
+| **TC3** | $11$ | $2$ | $P_3: A \rightarrow B \rightarrow C \rightarrow E \rightarrow F \rightarrow I \rightarrow B \rightarrow H$ | **第一轮**：`limit = 11 > 10`，`type = 2`，`temp = temp + 10 = 10`，`limit--` 后为 $10$。<br />**第二轮**：`limit = 10` 不满足循环，结束 | $10$ |
+| **TC4** | $11$ | $3$ | $P_4: A \rightarrow B \rightarrow C \rightarrow E \rightarrow G \rightarrow I \rightarrow B \rightarrow H$ | **第一轮**：`limit = 11 > 10`，`type = 3`（非1非2），`temp = temp + 20 = 20`，`limit--` 后为 $10$。<br />**第二轮**：`limit = 10` 不满足循环，结束 | $20$ |
+
+##### 5. 路径的向量化编码与线性无关性证明
+
+在期末压轴题中，常常要求将找出的路径进行**向量化编码**，并证明它们在数学上构成一组**线性无关**的基本路径基。
+
+###### (1) 对控制流图中的边进行编号
+将 CFG 中的 11 条边按顺序依次编号为 $e_1, e_2, \dots, e_{11}$：
+*   $e_1 = A \rightarrow B$
+*   $e_2 = B \rightarrow H$
+*   $e_3 = B \rightarrow C$
+*   $e_4 = C \rightarrow D$
+*   $e_5 = C \rightarrow E$
+*   $e_6 = D \rightarrow H$
+*   $e_7 = E \rightarrow F$
+*   $e_8 = E \rightarrow G$
+*   $e_9 = F \rightarrow I$
+*   $e_{10} = G \rightarrow I$
+*   $e_{11} = I \rightarrow B$
+
+###### (2) 路径向量化表示
+任何一条路径 $P_k$ 都可以表示为一个 11 维行向量 $\mathbf{v}_k = [x_1, x_2, \dots, x_{11}]$，其中若路径经过边 $e_i$ 则 $x_i = 1$，否则为 $0$：
+*   **$\mathbf{v}_1$ (对应 $P_1$)**：经过 $e_1, e_2$
+    $$\mathbf{v}_1 = [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]$$
+*   **$\mathbf{v}_2$ (对应 $P_2$)**：经过 $e_1, e_3, e_4, e_6$
+    $$\mathbf{v}_2 = [1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0]$$
+*   **$\mathbf{v}_3$ (对应 $P_3$)**：经过 $e_1, e_3, e_5, e_7, e_9, e_{11}$ 随后流回 $B$ 并经过 $e_2$ 出去
+    $$\mathbf{v}_3 = [1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1]$$
+*   **$\mathbf{v}_4$ (对应 $P_4$)**：经过 $e_1, e_3, e_5, e_8, e_{10}, e_{11}$ 随后流回 $B$ 并经过 $e_2$ 出去
+    $$\mathbf{v}_4 = [1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1]$$
+
+###### (3) 线性无关性证明
+
+*   **证明方法一：走新边规则（直观法，可用于文字简答）**
+    *   $P_1$ 仅使用边 $\{e_1, e_2\}$；
+    *   $P_2$ 引入了此前未曾使用的**新边** $\{e_3, e_4, e_6\}$；
+    *   $P_3$ 引入了此前未曾使用的**新边** $\{e_5, e_7, e_9, e_{11}\}$；
+    *   $P_4$ 引入了此前未曾使用的**新边** $\{e_8, e_{10}\}$。
+    *   由于每次新加入的路径向量都引入了之前向量中不含有的非零分量（新边），因此每一条路径向量都无法由已有的其他路径向量线性组合表出。这证明了这 4 个路径向量是**线性无关**的。
+
+*   **证明方法二：矩阵代数证明（严谨代数计算法）**
+    将 4 个向量按行组成路径矩阵 $M$：
+    $$M = \begin{bmatrix} 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 1 & 0 & 1 & 1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\ 1 & 1 & 1 & 0 & 1 & 0 & 1 & 0 & 1 & 0 & 1 \\ 1 & 1 & 1 & 0 & 1 & 0 & 0 & 1 & 0 & 1 & 1 \end{bmatrix}$$
+    
+    对矩阵 $M$ 进行初等行变换以化简为阶梯型：
+    1. $R_2 - R_1, R_3 - R_1, R_4 - R_1$ 得到：
+       $$M' = \begin{bmatrix} 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & -1 & 1 & 1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 1 & 0 & 1 & 0 & 1 & 0 & 1 \\ 0 & 0 & 1 & 0 & 1 & 0 & 0 & 1 & 0 & 1 & 1 \end{bmatrix}$$
+    2. 对第四行做减法 $R_4 - R_3$ 得到行阶梯形矩阵：
+       $$M'' = \begin{bmatrix} 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & -1 & 1 & 1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 1 & 0 & 1 & 0 & 1 & 0 & 1 \\ 0 & 0 & 0 & 0 & 0 & 0 & -1 & 1 & -1 & 1 & 0 \end{bmatrix}$$
+       
+    观察可知，矩阵化简后的非零行数量为 $4$（行阶梯形矩阵的秩 $\text{Rank}(M) = 4$）。
+    由于矩阵的秩等于路径向量的个数（$\text{Rank}(M) = V(G) = 4$），在数学上严谨地证明了这 4 条基本路径是**线性无关**的，它们完全构成此控制流图的一组基本路径基。
