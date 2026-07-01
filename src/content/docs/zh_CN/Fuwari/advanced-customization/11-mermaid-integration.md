@@ -78,9 +78,9 @@ const { code } = Astro.props;
 </style>
 ```
 
-### 2. 动态控制器：`Layout.astro` 中的全局脚本
-位于 [Layout.astro](file:///z:/development/projects/typescript/aqua-blog-fuwari/src/layouts/Layout.astro) 底部。
-* **DOM 扫描**：首先调用 `document.querySelectorAll(".mermaid-block")`，如果没有检测到图表节点，则直接 return，**不加载任何外部包**。
-* **按需加载**：若存在节点，通过 `await import("mermaid")` 动态导入库，最大程度优化首屏。
-* **性能护航 (Transition Bypass)**：通过在组件内注入 `.mermaid-block, .mermaid-block * { transition: none !important; }`，彻底屏蔽了全局过渡动画对 Mermaid SVG 节点以及 foreignObject 中 HTML 标签的影响，从而在切换 Light/Dark 模式时避开了昂贵的动画重绘，保证了整个切换过程的丝滑流畅。
-* **SPA 路由重连**：由于页面切换由 Swup 托管，在 `window.swup.hooks.on("page:view", setupMermaid)` 挂载监听器，确保每次切换至新页面时图表都能自动加载并运行。
+### 2. 动态控制器：`Mermaid.astro` 组件中的客户端脚本
+为了保持 [Layout.astro](file:///z:/development/projects/typescript/aqua-blog-fuwari/src/layouts/Layout.astro) 的整洁与高内聚，动态加载与渲染 Mermaid 图表的核心脚本被集成在 [Mermaid.astro](file:///z:/development/projects/typescript/aqua-blog-fuwari/src/components/Mermaid.astro) 组件内部。
+* **DOM 扫描与懒加载**：调用 `document.querySelectorAll(".mermaid-block")` 并利用 `IntersectionObserver` 进行视口内懒加载。只有在图表即将滚动进入视口（200px）时，才会开始加载和渲染，从而实现极佳的页面首屏加载性能。
+* **按需异步加载**：通过 `await import("mermaid")` 动态导入大体积的 Mermaid 依赖库。
+* **性能护航与防重绘**：通过在组件内注入 `.mermaid-block, .mermaid-block * { transition: none !important; }`，彻底屏蔽全局过渡动画对 SVG 节点的影响，避开重绘开销。同时，支持双端“全屏放大”以及对 `theme-changed` 事件的监听以动态适配暗色模式。
+* **SPA 路由重连**：由于页面切换由 Swup 托管，监听 `window.swup.hooks.on("page:view", renderMermaid)` 钩子，确保每次切换至新页面时图表都能自动加载并运行。
