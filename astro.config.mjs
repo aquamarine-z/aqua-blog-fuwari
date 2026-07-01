@@ -10,10 +10,10 @@ import expressiveCode from "astro-expressive-code";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeComponents from "rehype-components"; /* Render the custom directive content */
+import rehypeComponents from "rehype-components";/* Render the custom directive content */
 import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
-import remarkDirective from "remark-directive"; /* Handle directives */
+import remarkDirective from "remark-directive";/* Handle directives */
 import remarkGithubAdmonitionsToDirectives from "remark-github-admonitions-to-directives";
 import remarkMath from "remark-math";
 import remarkSectionize from "remark-sectionize";
@@ -30,6 +30,10 @@ import { i18nKeyPrefixPlugin } from "./src/astro-plugins/i18nKeyPrefixPlugin.mjs
 
 
 
+import cloudflare from "@astrojs/cloudflare";
+
+
+
 const astroConfig = {
 	site: "https://blog.aquamarinez.com",
 	base: "/",
@@ -42,17 +46,19 @@ const withBase = (path) => {
 
 // https://astro.build/config
 export default defineConfig({
-	site: "https://blog.aquamarinez.com",
-	base: "/",
-	trailingSlash: "always",
-	i18n: {
+    site: "https://blog.aquamarinez.com",
+    base: "/",
+    trailingSlash: "always",
+
+    i18n: {
 		defaultLocale: siteConfig.lang,
 		locales: siteConfig.languages || ["zh_CN", "en", "ja", "ko"],
 		routing: {
 			prefixDefaultLocale: false,
 		},
 	},
-	integrations: [
+
+    integrations: [
 		tailwind({
 			nesting: true,
 		}),
@@ -127,7 +133,8 @@ export default defineConfig({
         mdx(),
 		sitemap(),
 	],
-	markdown: {
+
+    markdown: {
 		remarkPlugins: [
 			remarkMath,
 			remarkReadingTime,
@@ -179,7 +186,8 @@ export default defineConfig({
 			],
 		],
 	},
-	vite: {
+
+    vite: {
 		plugins: [i18nKeyPrefixPlugin()],
 		optimizeDeps: {
 			include: ["mermaid"],
@@ -199,4 +207,6 @@ export default defineConfig({
 			},
 		},
 	},
+
+    adapter: cloudflare()
 });
