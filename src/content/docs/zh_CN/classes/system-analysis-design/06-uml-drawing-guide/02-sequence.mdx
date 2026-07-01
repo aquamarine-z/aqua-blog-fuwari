@@ -60,13 +60,12 @@ sequenceDiagram
     participant Page as 前端页面
     participant Controller as TaskController
     participant Service as TaskService
-    participant Task as NewsCollectionTask
     participant Repo as TaskRepository
 
     User->>Page: 录入信息
     Page->>Controller: 提交HTTP请求
     Controller->>Service: submitTask(任务信息)
-    create participant Task
+    create participant Task as NewsCollectionTask
     Service->>Task: <<create>>
     Service->>Repo: save(task)
     Repo-->>Service: 保存完成
