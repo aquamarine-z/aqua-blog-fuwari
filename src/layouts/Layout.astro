@@ -623,8 +623,8 @@ function createPhotoSwipe() {
 	lightbox = new PhotoSwipeLightbox({
 		gallery: ".custom-md img, #post-cover img",
 		pswpModule: () => pswp,
-		closeSVG: '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/></svg>',
-		zoomSVG: '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M340-540h-40q-17 0-28.5-11.5T260-580q0-17 11.5-28.5T300-620h40v-40q0-17 11.5-28.5T380-700q17 0 28.5 11.5T420-660v40h40q17 0 28.5 11.5T500-580q0 17-11.5 28.5T460-540h-40v40q0 17-11.5 28.5T380-460q-17 0-28.5-11.5T340-500v-40Zm40 220q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L532-372q-30 24-69 38t-83 14Zm0-80q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>',
+		closeSVG: '\x3csvg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"\x3e\x3cpath d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/\x3e\x3c/svg\x3e',
+		zoomSVG: '\x3csvg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"\x3e\x3cpath d="M340-540h-40q-17 0-28.5-11.5T260-580q0-17 11.5-28.5T300-620h40v-40q0-17 11.5-28.5T380-700q17 0 28.5 11.5T420-660v40h40q17 0 28.5 11.5T500-580q0 17-11.5 28.5T460-540h-40v40q0 17-11.5 28.5T380-460q-17 0-28.5-11.5T340-500v-40Zm40 220q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L532-372q-30 24-69 38t-83 14Zm0-80q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/\x3e\x3c/svg\x3e',
 		padding: { top: 20, bottom: 20, left: 20, right: 20 },
 		wheelToZoom: true,
 		arrowPrev: false,
@@ -650,12 +650,76 @@ function createPhotoSwipe() {
 	lightbox.init()
 }
 
+function initTypewriter() {
+	const el = document.getElementById("typewriter");
+	if (!el) return;
+	
+	if (el.dataset.typewriterInitialized === "true") return;
+	el.dataset.typewriterInitialized = "true";
+	
+	const zh = "前端设计工程师 · 语言学探索者";
+	const en = "Frontend Design Engineer · Linguistics Explorer";
+	const ja = "フロントエンドデザイナー · 言語学探求者";
+	const ko = "프론트엔드 디자인 엔지니어 · 언어학 탐구자";
+	
+	let words = [];
+	const currentLang = el.dataset.lang || 'zh_CN';
+	const l = currentLang.toLowerCase();
+	
+	if (l.startsWith("zh")) {
+		words = [zh, en, ja, ko];
+	} else if (l.startsWith("ja")) {
+		words = [ja, ko, zh, en];
+	} else if (l.startsWith("ko")) {
+		words = [ko, zh, en, ja];
+	} else {
+		words = [en, ja, ko, zh];
+	}
+	
+	let i = 0;
+	let j = 0;
+	let isDeleting = false;
+	
+	function type() {
+		if (!el.isConnected) return;
+		
+		const currentWord = words[i];
+		
+		if (isDeleting) {
+			j--;
+		} else {
+			j++;
+		}
+		
+		el.textContent = currentWord.substring(0, j);
+		
+		let typeSpeed = 100;
+		if (isDeleting) typeSpeed /= 2;
+		
+		if (!isDeleting && j === currentWord.length) {
+			typeSpeed = 2000;
+			isDeleting = true;
+		} else if (isDeleting && j === 0) {
+			isDeleting = false;
+			i = (i + 1) % words.length;
+			typeSpeed = 500;
+		}
+		
+		setTimeout(type, typeSpeed);
+	}
+	
+	type();
+}
+
 const setup = () => {
 	if (!lightbox) {
 		createPhotoSwipe()
 	}
+	initTypewriter()
+
 	window.swup.hooks.on("page:view", () => {
 		createPhotoSwipe()
+		initTypewriter()
 	})
 
 	window.swup.hooks.on(
@@ -672,6 +736,7 @@ if (window.swup) {
 } else {
 	document.addEventListener("swup:enable", setup)
 }
+</script>
 
 
 

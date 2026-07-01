@@ -157,6 +157,7 @@ flowchart TD
     
     Service1 -- "注册 & 心跳" --> Eureka["«Eureka»<br>Eureka Server Cluster<br>(注册中心，保存所有实例信息)"]
     Service2 -- "注册 & 心跳" --> Eureka
+    Gateway -- "服务发现/获取实例" --> Eureka
 
     classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
     classDef critical fill:#fdf2e9,stroke:#f39c12,stroke-width:3px,color:#d35400

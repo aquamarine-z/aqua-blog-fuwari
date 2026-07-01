@@ -1,4 +1,5 @@
 ---
+import { render } from "astro:content";
 import path from "node:path";
 import Giscus from "@components/Giscus.astro";
 import License from "@components/misc/License.astro";
@@ -72,9 +73,7 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { Content, headings } = await entry.render();
-
-const { remarkPluginFrontmatter } = await entry.render();
+const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 
 const jsonLd = {
 	"@context": "https://schema.org",

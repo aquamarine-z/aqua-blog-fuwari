@@ -35,13 +35,21 @@ if (isLocal) {
 	let normalizedPath = path
 		.normalize(path.join("../../", basePath, src))
 		.replace(/\\/g, "/");
-	const file = files[normalizedPath];
+	let file = files[normalizedPath];
+	if (!file) {
+		const lowerPath = normalizedPath.toLowerCase();
+		const matchingKey = Object.keys(files).find(key => key.toLowerCase() === lowerPath);
+		if (matchingKey) {
+			file = files[matchingKey];
+		}
+	}
 	if (!file) {
 		console.error(
 			`\n[ERROR] Image file not found: ${normalizedPath.replace("../../", "src/")}`,
 		);
+	} else {
+		img = await file();
 	}
-	img = await file();
 }
 
 const imageClass = "w-full h-full object-cover";
@@ -50,5 +58,5 @@ const imageStyle = `object-position: ${position}`;
 <div id={id} class:list={[className, 'overflow-hidden relative']}>
     <div class="transition absolute inset-0 dark:bg-black/10 bg-opacity-50 pointer-events-none"></div>
     {isLocal && img && <Image src={img} alt={alt || ""} class={imageClass} style={imageStyle}/>}
-    {!isLocal && <img src={isPublic ? url(src) : src} alt={alt || ""} class={imageClass} style={imageStyle}/>}
+    {!isLocal && <img src={isPublic ? url(src) : src} alt={alt || ""} class={imageClass} style={imageStyle} loading="lazy" decoding="async"/>}
 </div>

@@ -1,4 +1,5 @@
 ---
+import { render } from "astro:content";
 import path from "node:path";
 import Giscus from "@components/Giscus.astro";
 import License from "@components/misc/License.astro";
@@ -115,7 +116,7 @@ let remarkPluginFrontmatter: any = {};
 let jsonLd: any = {};
 
 if (type === "article" && entry) {
-	const rendered = await entry.render();
+	const rendered = await render(entry);
 	Content = rendered.Content;
 	headings = rendered.headings;
 	remarkPluginFrontmatter = rendered.remarkPluginFrontmatter;

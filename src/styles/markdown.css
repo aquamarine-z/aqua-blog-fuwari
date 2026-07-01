@@ -163,3 +163,23 @@ svg[id^="mermaid-error"],
     display: none !important;
 }
 
+/* 
+ * 性能优化：为长文章渲染提供内容可见性（content-visibility）控制。
+ * 通过将文章分段（section）、复杂代码块、Katex公式及复杂表格等开启 content-visibility: auto，
+ * 浏览器会延迟渲染视口外的复杂DOM，从而大幅提升首屏渲染与交互性能（提高 Lighthouse 分数）。
+ */
+.custom-md .expressive-code {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 200px;
+}
+
+.custom-md .katex-display {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 60px;
+}
+
+.custom-md table {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 150px;
+}
+

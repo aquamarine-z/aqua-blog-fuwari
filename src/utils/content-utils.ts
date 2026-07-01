@@ -26,8 +26,20 @@ function getPostLang(slug: string): string {
 	return siteConfig.lang;
 }
 
+function cleanSlug(id: string): string {
+	let slug = id;
+	if (slug.endsWith("/index")) {
+		slug = slug.substring(0, slug.length - 6);
+	} else if (slug === "index") {
+		slug = "";
+	}
+	return slug;
+}
+
+export type EntryWithSlug<T extends "blog" | "docs" | "spec"> = CollectionEntry<T> & { slug: string };
+
 export type TranslatedPost<T extends "blog" | "docs" | "spec"> =
-	CollectionEntry<T> & {
+	EntryWithSlug<T> & {
 		isFallback?: boolean;
 		availableLangs?: string[];
 		originalLang?: string;
@@ -38,11 +50,14 @@ export async function getRawSortedBlogPosts(
 	lang?: string,
 	includeHidden = false,
 ): Promise<TranslatedPost<"blog">[]> {
-	const allBlogPosts = await getCollection("blog", ({ data }) => {
+	const allBlogPosts = (await getCollection("blog", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
+	})).map((post) => {
+		(post as any).slug = cleanSlug(post.id);
+		return post as EntryWithSlug<"blog">;
 	});
 
-	const groups: Record<string, CollectionEntry<"blog">[]> = {};
+	const groups: Record<string, EntryWithSlug<"blog">[]> = {};
 	for (const post of allBlogPosts) {
 		const base = getBaseSlug(post.slug);
 		if (!groups[base]) groups[base] = [];
@@ -85,7 +100,7 @@ export async function getRawSortedBlogPosts(
 		processed.push({
 			...bestPost,
 			data: { ...bestPost.data },
-			slug: base as CollectionEntry<"blog">["slug"],
+			slug: base,
 			isFallback,
 			availableLangs,
 			originalLang: getPostLang(bestPost.slug),
@@ -104,11 +119,14 @@ export async function getRawSortedDocsPosts(
 	lang?: string,
 	includeHidden = false,
 ): Promise<TranslatedPost<"docs">[]> {
-	const allDocsPosts = await getCollection("docs", ({ data }) => {
+	const allDocsPosts = (await getCollection("docs", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
+	})).map((post) => {
+		(post as any).slug = cleanSlug(post.id);
+		return post as EntryWithSlug<"docs">;
 	});
 
-	const groups: Record<string, CollectionEntry<"docs">[]> = {};
+	const groups: Record<string, EntryWithSlug<"docs">[]> = {};
 	for (const post of allDocsPosts) {
 		const base = getBaseSlug(post.slug);
 		if (!groups[base]) groups[base] = [];
@@ -151,7 +169,7 @@ export async function getRawSortedDocsPosts(
 		processed.push({
 			...bestPost,
 			data: { ...bestPost.data },
-			slug: base as CollectionEntry<"docs">["slug"],
+			slug: base,
 			isFallback,
 			availableLangs,
 			originalLang: getPostLang(bestPost.slug),
@@ -165,7 +183,7 @@ export async function getRawSortedDocsPosts(
 	});
 	for (const post of sorted) {
 		if (!post.slug.startsWith("docs/")) {
-			post.slug = `docs/${post.slug}` as CollectionEntry<"docs">["slug"];
+			post.slug = `docs/${post.slug}`;
 		}
 	}
 	return sorted;
@@ -175,7 +193,10 @@ export async function getSpecEntry(
 	slug: string,
 	lang?: string,
 ): Promise<TranslatedPost<"spec"> | undefined> {
-	const allSpecs = await getCollection("spec");
+	const allSpecs = (await getCollection("spec")).map((post) => {
+		(post as any).slug = cleanSlug(post.id);
+		return post as EntryWithSlug<"spec">;
+	});
 
 	const versions = allSpecs.filter((post) => getBaseSlug(post.slug) === slug);
 	if (versions.length === 0) return undefined;
@@ -204,7 +225,7 @@ export async function getSpecEntry(
 	return {
 		...bestPost,
 		data: { ...bestPost.data },
-		slug: slug as CollectionEntry<"spec">["slug"],
+		slug: slug,
 		isFallback,
 		availableLangs,
 		originalLang: getPostLang(bestPost.slug),
@@ -477,14 +498,35 @@ export async function getBlogCategoryTree(
 	const allPosts = await getRawSortedBlogPosts(lang);
 	const rootItems: CategoryTreeType[] = [];
 	allPosts.forEach((post) => {
-		const parts = post.id.split(/[/\\]/);
+		let relativePath = post.id;
+		if (post.filePath) {
+			const normalizedPath = post.filePath.replace(/\\/g, "/");
+			const baseDir = "src/content/blog/";
+			if (normalizedPath.toLowerCase().startsWith(baseDir.toLowerCase())) {
+				relativePath = normalizedPath.substring(baseDir.length);
+			}
+		}
+		const parts = relativePath.split(/[/\\]/);
 		if (
 			post.originalLang &&
 			parts[0].toLowerCase() === post.originalLang.toLowerCase()
 		) {
 			parts.shift();
 		}
-		parts.pop(); // remove filename
+
+		// Check if it's an index file
+		const isIndex = (post.filePath && post.filePath.match(/index\.(md|mdx)$/i)) || parts[parts.length - 1] === 'index';
+		
+		const lastSegment = parts[parts.length - 1].toLowerCase();
+		const isIndexFilename = lastSegment === "index" || lastSegment === "index.md" || lastSegment === "index.mdx";
+
+		if (isIndex) {
+			if (isIndexFilename) {
+				parts.pop(); // remove 'index' segment if present
+			}
+		} else {
+			parts.pop(); // remove filename if it's a regular file
+		}
 
 		let currentLevel = rootItems;
 		let parentFolder: CategoryTreeType | null = null;
@@ -506,7 +548,7 @@ export async function getBlogCategoryTree(
 			currentLevel = folder.children!;
 		}
 
-		if (post.id.match(/index\.(md|mdx)$/i) && parentFolder) {
+		if (isIndex && parentFolder) {
 			parentFolder.url = `/posts/${post.slug}/`;
 			parentFolder.slug = post.slug;
 			if (post.data.sidebar_position !== undefined) {
@@ -536,14 +578,35 @@ export async function getDocsCategoryTree(
 	allPosts.forEach((post) => {
 		// Wait, previously this used post.id, but now we should use original post.id from fallback?
 		// No, we strip lang prefix from post.id manually to get correct structure!
-		const parts = post.id.split(/[/\\]/);
+		let relativePath = post.id;
+		if (post.filePath) {
+			const normalizedPath = post.filePath.replace(/\\/g, "/");
+			const baseDir = "src/content/docs/";
+			if (normalizedPath.toLowerCase().startsWith(baseDir.toLowerCase())) {
+				relativePath = normalizedPath.substring(baseDir.length);
+			}
+		}
+		const parts = relativePath.split(/[/\\]/);
 		if (
 			post.originalLang &&
 			parts[0].toLowerCase() === post.originalLang.toLowerCase()
 		) {
 			parts.shift();
 		}
-		parts.pop(); // remove filename
+
+		// Check if it's an index file
+		const isIndex = (post.filePath && post.filePath.match(/index\.(md|mdx)$/i)) || parts[parts.length - 1] === 'index';
+		
+		const lastSegment = parts[parts.length - 1].toLowerCase();
+		const isIndexFilename = lastSegment === "index" || lastSegment === "index.md" || lastSegment === "index.mdx";
+
+		if (isIndex) {
+			if (isIndexFilename) {
+				parts.pop(); // remove 'index' segment if present
+			}
+		} else {
+			parts.pop(); // remove filename if it's a regular file
+		}
 
 		let currentLevel = rootItems;
 		let parentFolder: CategoryTreeType | null = null;
@@ -565,7 +628,7 @@ export async function getDocsCategoryTree(
 			currentLevel = folder.children!;
 		}
 
-		if (post.id.match(/index\.(md|mdx)$/i) && parentFolder) {
+		if (isIndex && parentFolder) {
 			if (post.data.is_article) {
 				parentFolder.url = `/${post.slug}/`;
 				parentFolder.slug = post.slug;

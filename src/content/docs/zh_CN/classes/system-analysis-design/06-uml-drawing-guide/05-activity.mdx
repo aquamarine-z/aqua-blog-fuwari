@@ -25,20 +25,20 @@ flowchart TD
     CreateReq --> SetHeaders[设置请求头/超时/代理]
     SetHeaders --> IsDynamic{是否动态页面?}
     
-    IsDynamic -- "是 (JS渲染)" --> LoadJS[加载动态 JS 内容 <br> Playwright/Selenium]
-    IsDynamic -- "否 (静态页面)" --> DirectHTTP[直接发起 HTTP 请求]
+    IsDynamic -- "[是 (JS渲染)]" --> LoadJS[加载动态 JS 内容 <br> Playwright/Selenium]
+    IsDynamic -- "[否 (静态页面)]" --> DirectHTTP[直接发起 HTTP 请求]
     
     LoadJS --> GetHTML[获取最终 HTML 源码]
     DirectHTTP --> GetHTML
     
     GetHTML --> IsSuccess{请求是否成功?}
     
-    IsSuccess -- "成功" --> ValidateHTML[校验 HTML 内容非空]
-    IsSuccess -- "失败" --> LogErr[记录并抛出异常] --> Terminate1([终止])
+    IsSuccess -- "[成功]" --> ValidateHTML[校验 HTML 内容非空]
+    IsSuccess -- "[失败]" --> LogErr[记录并抛出异常] --> Terminate1([终止])
     
     ValidateHTML --> IsValid{HTML 内容是否有效?}
-    IsValid -- "是" --> ReturnResult[返回内容给业务层] --> End([结束])
-    IsValid -- "否" --> ThrowExc[抛出内容异常] --> Terminate2([终止])
+    IsValid -- "[是]" --> ReturnResult[返回内容给业务层] --> End([结束])
+    IsValid -- "[否]" --> ThrowExc[抛出内容异常] --> Terminate2([终止])
 
     classDef startEnd fill:#f8f9fa,stroke:#7f8c8d,stroke-width:1px,color:#2c3e50
     classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50

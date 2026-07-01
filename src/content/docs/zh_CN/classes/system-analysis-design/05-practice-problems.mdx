@@ -40,15 +40,17 @@ flowchart LR
         UC_Policy(["自动生成保单"])
         UC_Free(["免押金骑行"])
         
-        UC_Rent -. "«include»" .-> UC_Check
+        UC_Check -. "«extend»<br>(条件: 信用分 <= 700)" .-> UC_Rent
         UC_Rent -. "«include»" .-> UC_Policy
         UC_Free -. "«extend»<br>(条件: 信用分 > 700)" .-> UC_Rent
     end
     
-    User(((用户))) --> UC_Rent
+    User["👤<br>用户"] --> UC_Rent
     
     classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    classDef actorNode fill:none,stroke:none,color:inherit;
     class UC_Rent,UC_Check,UC_Policy,UC_Free normal
+    class User actorNode;
 `} />
 
 #### 第二步：编写用例规约
@@ -140,7 +142,7 @@ classDiagram
         +Appointment(uId, sId, time)
     }
 
-    AppointmentController ..> AppointmentService : 依赖
+    AppointmentController --> AppointmentService : 关联
     AppointmentServiceImpl ..|> AppointmentService : 实现
     AppointmentServiceImpl --> AppointmentRepository : 关联
     AppointmentServiceImpl ..> Appointment : "依赖/创建"
