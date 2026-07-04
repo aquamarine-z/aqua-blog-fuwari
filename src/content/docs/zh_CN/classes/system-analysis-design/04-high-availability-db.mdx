@@ -113,19 +113,24 @@ stateDiagram-v2
     FAILED --> [*]
 `} />
 
-#### 图例 B：信用卡申请生命周期状态转换图（CardApplicationStatus） [PDF 1 - P17]
+#### 图例 B：信用卡申请与卡片生命周期状态转换图（CardApplicationStatus） [PDF 1 - P17]
 
-**状态清单**：`CREATED`（已创建申请）、`REVIEWING`（审批中）、`APPROVED`（审批通过，已发卡）、`REJECTED`（审批拒绝）、`DISABLED`（已销卡/挂失）。
+**状态清单**：`CREATED`（已创建）、`REVIEWING`（审批中）、`ACTIVE`（已激活发卡）、`REJECTED`（已驳回）、`LOST`（挂失冻结）、`CLOSED`（已销户）。
 
 <Mermaid code={`
 stateDiagram-v2
     [*] --> CREATED : 提交申请资料
     CREATED --> REVIEWING : 进入后台审批
-    REVIEWING --> APPROVED : 审批通过
+    REVIEWING --> ACTIVE : 审批通过并发卡
     REVIEWING --> REJECTED : 信用不足被驳回
     REJECTED --> CREATED : 补充材料重新提交
-    APPROVED --> DISABLED : 用户申请销户/挂失
-    DISABLED --> [*]
+    
+    ACTIVE --> LOST : 申请挂失
+    LOST --> ACTIVE : 解挂/补卡激活
+    
+    ACTIVE --> CLOSED : 申请销户
+    LOST --> CLOSED : 销户申请
+    CLOSED --> [*]
 `} />
 
 ---

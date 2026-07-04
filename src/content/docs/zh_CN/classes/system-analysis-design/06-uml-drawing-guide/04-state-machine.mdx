@@ -36,7 +36,7 @@ stateDiagram-v2
     FAILED --> [*]
 `} />
 
-#### 2.2 信用卡申请生命周期状态图（CardApplicationStatus）
+#### 2.2 信用卡申请与卡片生命周期状态图（CardApplicationStatus）
 
 *   **题目背景**：设计一个银行信用卡申请审批与挂失的生命周期状态图。用户提交申请资料后，进入后台审批，通过后变为审批通过（已发卡）状态，拒绝后允许重新提交，已发卡后支持申请销户/挂失操作。
 
@@ -44,9 +44,14 @@ stateDiagram-v2
 stateDiagram-v2
     [*] --> CREATED : 提交申请资料
     CREATED --> REVIEWING : 进入后台审批
-    REVIEWING --> APPROVED : 审批通过
+    REVIEWING --> ACTIVE : 审批通过并发卡
     REVIEWING --> REJECTED : 信用不足被驳回
     REJECTED --> CREATED : 补充材料重新提交
-    APPROVED --> DISABLED : 用户申请销户/挂失
-    DISABLED --> [*]
+    
+    ACTIVE --> LOST : 申请挂失
+    LOST --> ACTIVE : 解挂/补卡激活
+    
+    ACTIVE --> CLOSED : 申请销户
+    LOST --> CLOSED : 销户申请
+    CLOSED --> [*]
 `} />
