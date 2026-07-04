@@ -10,7 +10,7 @@ import Mermaid from "@/components/Mermaid.astro";
 
 ### 1. 三层架构层级图（UI - BLL - DAL）
 
-用于明确代码结构（文件组织形式）、逻辑分层（职责边界）和所选技术栈的对应映射关系。
+*   **设计背景**：经典的三层架构模型，用于清晰划分系统代码结构、系统架构、以及技术栈的对应映射关系。
 
 <Mermaid code={`
 flowchart LR
@@ -64,38 +64,40 @@ flowchart LR
 *   **独占数据库（Database）**：各微服务之间实行数据物理隔离，禁止跨库直接 `JOIN`。
 *   **消息队列（MQ）**：通过发布订阅机制实现微服务之间的异步解耦与削峰填谷。
 
+*   **题目背景**：某大型全国连锁银行的在线支付交易系统，每日面临数千万级别的支付结算请求。为了支撑高并发交易、保障系统的高可用、可扩展与低耦合，请为该系统设计一个高可用的微服务分布式拓扑结构图，包含网关、注册中心、交易与支付微服务、隔离数据库、RocketMQ 消息队列以及第三方网关集群。
+
 <Mermaid code={`
 flowchart TD
-    App["移动端 APP (Uniapp)"]
-    Web["浏览器端 (Vue3)"]
+    App["移动端 APP (银行客户端)"]
+    Web["网银浏览器端 (Vue3)"]
     Gateway["API Gateway <br> (Spring Cloud Gateway - 鉴权/路由/限流)"]
-    TaskService["TaskService <br> (任务调度微服务)"]
-    NewsService["NewsService <br> (新闻发布微服务)"]
+    TransactionService["TransactionService <br> (交易处理微服务)"]
+    PaymentService["PaymentService <br> (支付通道微服务)"]
     Registry["Eureka/Nacos Cluster <br> (服务注册中心)"]
-    TaskDB[(Task MySQL DB <br> 独占数据库)]
-    NewsDB[(News MongoDB <br> 独占数据库)]
+    TransactionDB[(Transaction MySQL DB <br> 交易独占数据库)]
+    PaymentDB[(Payment Oracle DB <br> 支付独占数据库)]
     MQ["消息队列 RocketMQ"]
-    CrawlerCluster["FeatureCrawlerService <br> (计算集群)"]
+    PaymentGatewayCluster["PaymentGatewayCluster <br> (三方支付网关集群)"]
 
     App -- "HTTPS" --> Gateway
     Web -- "HTTPS" --> Gateway
     
-    Gateway -- "转发请求" --> TaskService
-    Gateway -- "转发请求" --> NewsService
+    Gateway -- "转发请求" --> TransactionService
+    Gateway -- "转发请求" --> PaymentService
     
-    TaskService -- "服务注册/心跳" --> Registry
-    NewsService -- "服务注册/心跳" --> Registry
+    TransactionService -- "服务注册/心跳" --> Registry
+    PaymentService -- "服务注册/心跳" --> Registry
     Gateway -- "服务发现/心跳" --> Registry
     
-    TaskService --> TaskDB
-    NewsService --> NewsDB
+    TransactionService --> TransactionDB
+    PaymentService --> PaymentDB
     
-    TaskService -- "发送任务消息" --> MQ
-    MQ -- "拉取/执行任务" --> CrawlerCluster
+    TransactionService -- "发送扣款交易消息" --> MQ
+    MQ -- "拉取/执行支付" --> PaymentGatewayCluster
 
     classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
     classDef critical fill:#fdf2e9,stroke:#f39c12,stroke-width:3px,color:#d35400
     
-    class App,Web,TaskService,NewsService,TaskDB,NewsDB,MQ,CrawlerCluster normal
+    class App,Web,TransactionService,PaymentService,TransactionDB,PaymentDB,MQ,PaymentGatewayCluster normal
     class Gateway,Registry critical
 `} />

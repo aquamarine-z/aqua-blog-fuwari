@@ -45,6 +45,7 @@ $$\text{业务目标} \rightarrow \text{业务流程} \rightarrow \text{操作�
 *   **事件分析法（Event-driven Method）**：寻找系统边界外的“源点参与者”和“终点参与者”，分析外部事件如何触发系统的完整动作序列 [PDF 4]。
 
 #### 1.2.2 用例之间的三种核心关联关系：
+*(注：受限于 Mermaid `flowchart` 引擎，下方图中的“泛化”关系暂以普通箭头替代，标准 UML 图例请认准空心三角)*
 
 <Mermaid code={`
 flowchart TD
@@ -91,7 +92,7 @@ flowchart TD
 
 *   **边界类（Boundary Class）**：代表系统与外界（用户、其他系统、设备）的接口，负责接收输入和呈现输出（如：前端页面、API路由、网络套接字 `RegisterDialog`） [PDF 4, PDF 5]。
 *   **控制类（Control Class）**：代表系统内部的协调、业务逻辑控制、流程编排逻辑（如：`TaskController`, `AccountController`） [PDF 4, PDF 5]。
-*   **实体类（Entity Class）**：代表系统需要保存的长期数据结构和领域模型（如：`News`, `Account`, `NewsCollectionTask`） [PDF 4, PDF 5]。
+*   **实体类（Entity Class）**：代表系统需要保存的长期数据结构和领域模型（如：`Account`, `WithdrawalTransaction`） [PDF 4, PDF 5]。
 
 #### 💡 关于后端 Controller 角色的争议 [PDF 1]：
 
@@ -107,9 +108,9 @@ flowchart TD
 
 *   **契约的核心要素**：系统操作签名、前置条件、后置条件 [PDF 5]。
 *   **后置条件的黄金三法则**：后置条件必须是用过去时态描述的、执行完毕后系统状态的客观物理改变。只存在以下三种情形 [PDF 5]：
-    1.  **对象被创建或销毁**（Instantiated or Destroyed）：如 `NewsCollectionTask` 的实例 `task` 被创建。
-    2.  **对象的属性值发生变更**（Attribute modified）：如 `task.status` 被修改为 `PENDING`。
-    3.  **对象之间的连接关系（关联/链接）被创建或销毁**（Link formed or broken）：如 `task` 关联到了当前的 `User` 实例。
+    1.  **对象被创建或销毁**（Instantiated or Destroyed）：如 `WithdrawalTransaction` 的实例 `transaction` 被创建。
+    2.  **对象的属性值发生变更**（Attribute modified）：如 `transaction.status` 被修改为 `SUCCESS`。
+    3.  **对象之间的连接关系（关联/链接）被创建或销毁**（Link formed or broken）：如 `transaction` 关联到了当前的 `Account` 实例。
 
 ---
 
@@ -121,10 +122,11 @@ flowchart TD
 
 该用例图展示了用户与系统主要功能的关系，包含了明显的包含（`<<include>>`）与扩展（`<<extend>>`）关系。
 
+*   **业务逻辑（题干）描述**：扫码租车**必须**校验押金余额、自动生成保单（包含关系）。如果信用分 > 700，可选择性触发免押金骑行以跳过押金校验（扩展关系）。
+
 <Mermaid code={`
 flowchart LR
     subgraph SystemBoundary [共享电动车系统]
-        direction LR
         UC_Rent(["扫码租车"])
         UC_Check(["押金余额校验"])
         UC_Policy(["自动生成保单"])
@@ -136,6 +138,7 @@ flowchart LR
     end
     
     User["👤<br>用户"] --> UC_Rent
+    User ~~~ UC_Free
     
     classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
     classDef actorNode fill:none,stroke:none,color:inherit;

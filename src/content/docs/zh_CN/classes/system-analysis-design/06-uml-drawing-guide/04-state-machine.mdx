@@ -21,28 +21,32 @@ import Mermaid from "@/components/Mermaid.astro";
 
 ### 2. 实战例图
 
-#### 2.1 任务执行状态图（TaskStatus）
+#### 2.1 交易执行状态图（TransactionStatus）
+
+*   **题目背景**：设计一个银行ATM取款交易处理的生命周期状态图。交易创建后，进入处理中状态，处理成功则交易成功，若余额不足或超时则交易失败，交易失败后允许用户发起重试。
 
 <Mermaid code={`
 stateDiagram-v2
-    [*] --> PENDING : 任务创建提交
-    PENDING --> RUNNING : 调度器开始执行
-    RUNNING --> SUCCESS : 采集与解析完成
-    RUNNING --> FAILED : 异常导致中断
-    FAILED --> PENDING : 人工或系统重试
+    [*] --> CREATED : 提交取款请求
+    CREATED --> PROCESSING : 网关开始调度执行
+    PROCESSING --> SUCCESS : 扣款与出钞完成
+    PROCESSING --> FAILED : 余额不足或系统超时
+    FAILED --> CREATED : 用户发起重试
     SUCCESS --> [*]
     FAILED --> [*]
 `} />
 
-#### 2.2 新闻生命周期状态图（NewsStatus）
+#### 2.2 信用卡申请生命周期状态图（CardApplicationStatus）
+
+*   **题目背景**：设计一个银行信用卡申请审批与挂失的生命周期状态图。用户提交申请资料后，进入后台审批，通过后变为审批通过（已发卡）状态，拒绝后允许重新提交，已发卡后支持申请销户/挂失操作。
 
 <Mermaid code={`
 stateDiagram-v2
-    [*] --> CREATED : 采集入库
-    CREATED --> REVIEWING : 提交审核
-    REVIEWING --> PUBLISHED : 审核通过
-    REVIEWING --> REJECTED : 审核不通过
-    REJECTED --> CREATED : 修改重新提交
-    PUBLISHED --> DISABLED : 过期/违规下架
+    [*] --> CREATED : 提交申请资料
+    CREATED --> REVIEWING : 进入后台审批
+    REVIEWING --> APPROVED : 审批通过
+    REVIEWING --> REJECTED : 信用不足被驳回
+    REJECTED --> CREATED : 补充材料重新提交
+    APPROVED --> DISABLED : 用户申请销户/挂失
     DISABLED --> [*]
 `} />

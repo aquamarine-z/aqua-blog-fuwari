@@ -43,7 +43,7 @@ import Mermaid from "@/components/Mermaid.astro";
 *   **采集与留存**：通常是海量半结构化数据，使用 ELK (Elasticsearch, Logstash, Kibana) 集群进行全量采集与近实时检索，由于占用空间大，留存期通常较短（如 30 天以内）。
 
 ### 4.2.2 操作审计日志（Audit Log） [PDF 1]
-*   **职责范围**：专用于安全合规与用户行为追溯。只记录用户的关键敏感业务操作（如修改密码、重置安全令牌、提交爬虫采集任务、执行敏感转账等）。
+*   **职责范围**：专用于安全合规与用户行为追溯。只记录用户的关键敏感业务操作（如修改密码、重置安全令牌、执行大额提款、执行敏感转账等）。
 *   **记录要素**：完整记录“谁（Who）、何时（When）、在什么 IP（Where）、进行了什么操作（What）、操作结果（Result）”。
 *   **实现机制**：利用 Spring AOP 结合自定义注解（如 `@Audit`），在进入关键 Controller 方法时织入切面，在切面内异步或同步将审计记录写入专属的 MySQL 审计日志表中。作为高安全等级的合规资产，审计日志通常需要归档并长期保存。
 
@@ -98,33 +98,33 @@ import Mermaid from "@/components/Mermaid.astro";
 
 ### 4.4.2 核心图例深入拆解
 
-#### 图例 A：业务执行中的任务状态转换图（TaskStatus） [PDF 1 - P16]
+#### 图例 A：交易执行状态转换图（TransactionStatus） [PDF 1 - P16]
 
-**状态清单**：`PENDING`（待执行）、`RUNNING`（执行中）、`SUCCESS`（执行成功）、`FAILED`（执行失败）。
+**状态清单**：`CREATED`（已创建）、`PROCESSING`（处理中）、`SUCCESS`（交易成功）、`FAILED`（交易失败）。
 
 <Mermaid code={`
 stateDiagram-v2
-    [*] --> PENDING : 任务创建提交
-    PENDING --> RUNNING : 调度器开始执行
-    RUNNING --> SUCCESS : 采集与解析完成
-    RUNNING --> FAILED : 异常导致中断
-    FAILED --> PENDING : 人工或系统重试
+    [*] --> CREATED : 提交取款请求
+    CREATED --> PROCESSING : 网关开始调度执行
+    PROCESSING --> SUCCESS : 扣款与出钞完成
+    PROCESSING --> FAILED : 余额不足或系统超时
+    FAILED --> CREATED : 用户发起重试
     SUCCESS --> [*]
     FAILED --> [*]
 `} />
 
-#### 图例 B：新闻审核与发布生命周期状态转换图（NewsStatus） [PDF 1 - P17]
+#### 图例 B：信用卡申请生命周期状态转换图（CardApplicationStatus） [PDF 1 - P17]
 
-**状态清单**：`CREATED`（已创建）、`REVIEWING`（审核中）、`PUBLISHED`（已发布）、`REJECTED`（已驳回）、`DISABLED`（已禁用）。
+**状态清单**：`CREATED`（已创建申请）、`REVIEWING`（审批中）、`APPROVED`（审批通过，已发卡）、`REJECTED`（审批拒绝）、`DISABLED`（已销卡/挂失）。
 
 <Mermaid code={`
 stateDiagram-v2
-    [*] --> CREATED : 采集入库
-    CREATED --> REVIEWING : 提交审核
-    REVIEWING --> PUBLISHED : 审核通过
-    REVIEWING --> REJECTED : 审核不通过
-    REJECTED --> CREATED : 修改重新提交
-    PUBLISHED --> DISABLED : 过期/违规下架
+    [*] --> CREATED : 提交申请资料
+    CREATED --> REVIEWING : 进入后台审批
+    REVIEWING --> APPROVED : 审批通过
+    REVIEWING --> REJECTED : 信用不足被驳回
+    REJECTED --> CREATED : 补充材料重新提交
+    APPROVED --> DISABLED : 用户申请销户/挂失
     DISABLED --> [*]
 `} />
 

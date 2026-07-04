@@ -17,34 +17,40 @@ import Mermaid from "@/components/Mermaid.astro";
     *   **决策分流**：一条输入流进入，根据不同的**判定条件（用中括号 `[条件]` 标明守卫）**流出多条不同分支。
     *   **合并合流**：多条分支汇合进入，引出一条单一输出流向下传递。
 
-### 2. 实战例图：新闻网页抓取算法控制流
+### 2. 实战例图：自动柜员机（ATM）取款工作流
+
+*   **题目背景**：某银行自动柜员机（ATM）系统中，客户插入银行卡后，系统校验卡片。若卡片无效则退卡终止流程；若有效则提示输入密码。系统校验密码，若错误则提示并退卡终止流程；若正确则提示输入取款金额。系统校验账户余额是否充足，若不足则提示并退卡终止流程；若充足则扣款、出钞，最后退卡并结束流程。请绘制该工作流的活动图。
 
 <Mermaid code={`
 flowchart TD
-    Start([开始]) --> CreateReq[根据URL创建请求]
-    CreateReq --> SetHeaders[设置请求头/超时/代理]
-    SetHeaders --> IsDynamic{是否动态页面?}
+    Start([开始]) --> InsertCard[插入银行卡]
+    InsertCard --> VerifyCard[校验卡片有效性]
+    VerifyCard --> IsCardValid{卡片是否有效?}
     
-    IsDynamic -- "[是 (JS渲染)]" --> LoadJS[加载动态 JS 内容 <br> Playwright/Selenium]
-    IsDynamic -- "[否 (静态页面)]" --> DirectHTTP[直接发起 HTTP 请求]
+    IsCardValid -- "[否]" --> EjectCard1[退卡] --> Terminate1([终止])
+    IsCardValid -- "[是]" --> PromptPIN[提示输入密码]
     
-    LoadJS --> GetHTML[获取最终 HTML 源码]
-    DirectHTTP --> GetHTML
+    PromptPIN --> InputPIN[用户输入密码]
+    InputPIN --> VerifyPIN[系统校验密码]
+    VerifyPIN --> IsPINCorrect{密码是否正确?}
     
-    GetHTML --> IsSuccess{请求是否成功?}
+    IsPINCorrect -- "[否]" --> ShowPINError[显示密码错误提示] --> EjectCard2[退卡] --> Terminate2([终止])
+    IsPINCorrect -- "[是]" --> InputAmount[提示并输入取款金额]
     
-    IsSuccess -- "[成功]" --> ValidateHTML[校验 HTML 内容非空]
-    IsSuccess -- "[失败]" --> LogErr[记录并抛出异常] --> Terminate1([终止])
+    InputAmount --> CheckBalance[系统校验账户余额]
+    CheckBalance --> IsBalanceSufficient{余额是否充足?}
     
-    ValidateHTML --> IsValid{HTML 内容是否有效?}
-    IsValid -- "[是]" --> ReturnResult[返回内容给业务层] --> End([结束])
-    IsValid -- "[否]" --> ThrowExc[抛出内容异常] --> Terminate2([终止])
+    IsBalanceSufficient -- "[否]" --> ShowBalanceError[提示余额不足] --> EjectCard3[退卡] --> Terminate3([终止])
+    IsBalanceSufficient -- "[是]" --> DeductBalance[扣除账户余额]
+    
+    DeductBalance --> DispenseCash[出钞口出钞]
+    DispenseCash --> EjectCard4[退还卡片] --> End([结束])
 
     classDef startEnd fill:#f8f9fa,stroke:#7f8c8d,stroke-width:1px,color:#2c3e50
     classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
     classDef critical fill:#fdf2e9,stroke:#f39c12,stroke-width:3px,color:#d35400
     
-    class Start,End,Terminate1,Terminate2 startEnd
-    class CreateReq,SetHeaders,LoadJS,DirectHTTP,GetHTML,ValidateHTML,ReturnResult normal
-    class LogErr,ThrowExc critical
+    class Start,End,Terminate1,Terminate2,Terminate3 startEnd
+    class InsertCard,VerifyCard,PromptPIN,InputPIN,VerifyPIN,InputAmount,CheckBalance,DeductBalance,DispenseCash normal
+    class EjectCard1,EjectCard2,EjectCard3,EjectCard4,ShowPINError,ShowBalanceError critical
 `} />

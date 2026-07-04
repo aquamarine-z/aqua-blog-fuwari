@@ -20,8 +20,8 @@ import Mermaid from "@/components/Mermaid.astro";
 
 ### 2. 消息线（Messages）与箭头规范
 
-*   **同步调用（Synchronous Call）**：**实线 + 实心三角箭头（`->>`）**。调用方发送消息后挂起，必须等待接收方处理完毕并返回结果。
-*   **返回消息（Return Message）**：**虚线 + 开放式箭头（`-->>`）**。代表某个同步方法执行完毕，将返回值传回给调用者。
+*   **同步调用（Synchronous Call）**：**实线 + 实心三角箭头**。调用方发送消息后挂起，必须等待接收方处理完毕并返回结果。
+*   **返回消息（Return Message）**：**虚线 + 开放式箭头**。代表某个同步方法执行完毕，将返回值传回给调用者。
 *   **异步调用（Asynchronous Call）**：**实线 + 开放式箭头**。调用方发出消息后立即继续执行，不等待接收方响应。
 *   **自调用（Self-Call）**：折线指向本对象的另一个激活条。代表对象内部的方法调用（如持久层类内部进行数据插入）。
 
@@ -29,7 +29,7 @@ import Mermaid from "@/components/Mermaid.astro";
 
 #### 3.1 扫码租车系统顺序图（SSD）
 
-系统顺序图（SSD）的特征是**将整个系统作为唯一的黑色盒子**，只描述外部参与者与系统的跨边界交互事件。
+*   **题目背景**：某共享电动车租用系统中，用户扫码开锁时，系统必须强制进行押金余额校验。如果用户信用分大于 700 分，则可选择性触发免押金骑行（免除校验）。成功开锁骑行后，若用户已开启“骑行意外险自动续保”，系统将自动完成保单生成（包含用例）。请绘制该场景的系统顺序图（SSD）。
 
 <Mermaid code={`
 sequenceDiagram
@@ -49,60 +49,60 @@ sequenceDiagram
     System-->>User: 电锁开启成功，开始计费
 `} />
 
-#### 3.2 提交新闻采集任务序列图
+#### 3.2 ATM取款交易创建序列图
 
-展示业务流程从边界类（页面）到控制类（Controller、Service），最后实例化实体并持久化落库的详细设计时序。
+*   **题目背景**：某银行自动柜员机（ATM）系统中，客户插入银行卡，选择取款功能并输入取款金额，系统验证账户后自动创建一条取款交易记录（WithdrawalTransaction），并调用数据仓库进行持久化保存。请设计并绘制该场景的详细设计对象交互序列图。
 
 <Mermaid code={`
 sequenceDiagram
     autonumber
-    actor User as 前端用户
-    participant Page as 前端页面
-    participant Controller as TaskController
-    participant Service as TaskService
-    participant Repo as TaskRepository
+    actor User as 银行客户
+    participant Page as ATMScreen (ATM屏幕)
+    participant Controller as ATMController
+    participant Service as WithdrawalService
+    participant Repo as TransactionRepository
 
-    User->>Page: 录入信息
-    Page->>Controller: 提交HTTP请求
-    Controller->>Service: submitTask(任务信息)
-    create participant Task as NewsCollectionTask
-    Service->>Task: <<create>>
-    Service->>Repo: save(task)
+    User->>Page: 插入卡片并输入金额
+    Page->>Controller: 提交取款请求
+    Controller->>Service: createTransaction(卡号, 金额)
+    create participant Transaction as WithdrawalTransaction
+    Service->>Transaction: <<create>>
+    Service->>Repo: save(transaction)
     Repo-->>Service: 保存完成
-    Service-->>Controller: 返回提交结果 (任务ID)
+    Service-->>Controller: 返回交易结果 (交易ID)
     Controller-->>Page: 响应结果
-    Page-->>User: 展示成功
+    Page-->>User: 吐出钞票，展示成功
 `} />
 
-#### 3.3 执行新闻任务时序图（含 Loop 循环）
+#### 3.3 批量结算利息任务时序图（含 Loop 循环）
 
-展示在定时器触发下，系统循环遍历待执行任务并调用外部爬虫和解析服务进行批量处理的时序设计。
+*   **题目背景**：某银行核心系统需要在每月末定时触发批量结息任务。该任务将自动加载所有活跃的银行账户，循环遍历每个账户以计算应结利息与税费，并更新账户余额，最后记录结息流水。请绘制包含 Loop 组合碎片的时序图。
 
 <Mermaid code={`
 sequenceDiagram
     autonumber
     participant Timer as 定时器
-    participant Scheduler as TaskScheduler
-    participant Service as TaskService
-    participant Crawler as CrawlerService
-    participant Parser as ParserService
-    participant Repo as NewsRepository
+    participant Scheduler as InterestScheduler
+    participant Service as InterestService
+    participant AccService as AccountService
+    participant TaxService as TaxService
+    participant Repo as AccountRepository
 
-    Timer->>Scheduler: 定时触发
-    Scheduler->>Service: 加载待执行任务
-    Service->>Repo: 查询待执行任务
-    Repo-->>Service: 返回任务列表
+    Timer->>Scheduler: 定时触发 (每月末)
+    Scheduler->>Service: 执行批量结息
+    Service->>Repo: 查询所有活跃账户
+    Repo-->>Service: 返回账户列表
     
-    loop 遍历待执行任务
-        Service->>Crawler: 抓取网页
-        Crawler-->>Service: 返回源码
-        Service->>Parser: 解析网页
-        Parser-->>Service: 返回结构化数据
-        Service->>Repo: 保存新闻
-        Note over Repo: 数据库操作: 插入记录
-        Repo->>Repo: 插入记录
-        Repo-->>Service: 新闻保存完成
-        Service->>Repo: 更新任务为“已完成”
-        Repo-->>Service: 更新完成
+    loop 遍历每个账户
+        Service->>AccService: 获取账户余额
+        AccService-->>Service: 返回余额
+        Service->>TaxService: 计算应结利息与税费
+        TaxService-->>Service: 返回计算利息
+        Service->>Repo: 存入结息记录并更新余额
+        Note over Repo: 数据库操作: 更新记录
+        Repo->>Repo: 更新账户数据
+        Repo-->>Service: 结息更新完成
+        Service->>Repo: 记录结息流水为“已完成”
+        Repo-->>Service: 记录保存完成
     end
 `} />

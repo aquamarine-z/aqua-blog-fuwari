@@ -25,73 +25,151 @@ import Mermaid from "@/components/Mermaid.astro";
 
 UML 类图的关系强弱顺序为：**泛化 = 实现 > 组合 > 聚合 > 关联 > 依赖**。
 
-| 关系类型 | 线型 | 箭头形状 | 语义说明与代码实现特征 | Mermaid 语法 |
-| :--- | :--- | :--- | :--- | :--- |
-| **泛化（继承）** | 实线 | 空心三角形 | **子类指向父类**。表示子类继承父类的结构与行为。代码实现：`extends`。 | `SubClass --\|> SuperClass` |
-| **实现（Realization）** | 虚线 | 空心三角形 | **实现类指向接口**。表示类实现抽象接口中声明的方法。代码实现：`implements`。 | `ImplClass ..\|> Interface` |
-| **组合（Composition）** | 实线 | 实心黑色菱形 | **从部分指向整体（菱形在整体端）**。强“整体-部分”关系。部分与整体生死与共，部分不能脱离整体独立存在。代码实现：在 `Order` 实例化时直接 `new` 订单项。 | `Whole *-- Part` |
-| **聚合（Aggregation）** | 实线 | 空心菱形 | **从部分指向整体（菱形在整体端）**。“整体-部分”关系，但耦合度较弱，部分可以脱离整体而单独存在（如：部门与员工）。代码实现：外部传入参数包装为全局对象。 | `Whole o-- Part` |
-| **关联（Association）** | 实线 | 开放实心箭头 | **一类指向另一类**。类与类之间有结构化的、长期的连接关系。表示类 A 将类 B 的实例作为自己的全局成员属性。通常需标明多重度（如 `1`, `0..*`）。 | `ClassA --> ClassB` |
-| **依赖（Dependency）** | 虚线 | 开放实心箭头 | **一类指向另一类**。临时、弱使用关系。A 类的方法在运行期临时使用了 B 类的实例（如：B 作为 A 方法 of 入参、局部变量，或者 A 方法内静态调用了 B）。 | `ClassA ..> ClassB` |
+> [!NOTE]
+> **六大关系在 Kotlin 中的代码实现对照**：
+> 
+> ```kotlin
+> // 1. 泛化（Generalization / 继承）
+> open class Account(val accountNumber: String, var balance: Double)
+> class SavingAccount(accountNumber: String, balance: Double) : Account(accountNumber, balance)
+> 
+> // 2. 实现（Realization）
+> interface WithdrawalService {
+>     fun createTransaction(cardNumber: String, amount: Double): Long
+> }
+> class WithdrawalServiceImpl : WithdrawalService {
+>     override fun createTransaction(cardNumber: String, amount: Double): Long = 1001L
+> }
+> 
+> // 3. 组合（Composition）
+> // 整体负责部分（OrderItem）的生命周期。部分不能脱离整体（Order）独立存在。通常由整体的构造方法或方法内部负责创建。
+> class Order {
+>     private val items = mutableListOf<OrderItem>()
+>     fun addOrderItem(name: String, price: Double) {
+>         // 整体直接 new (创建) 部分，两者生命周期强绑定
+>         items.add(OrderItem(name, price)) 
+>     }
+> }
+> class OrderItem(val name: String, val price: Double)
+> 
+> // 4. 聚合（Aggregation）
+> // 部分（Employee）可以脱离整体（Department）独立存在。通常由外部创建后，通过参数（如构造注入/Setter）传入整体中。
+> class Department(val name: String) {
+>     private val employees = mutableListOf<Employee>()
+>     fun addEmployee(employee: Employee) {
+>         employees.add(employee) // 仅持有外部传入实例的引用，解耦
+>     }
+> }
+> class Employee(val name: String)
+> 
+> // 5. 关联（Association）
+> // 长期、稳定的结构化连接关系。类 A 将类 B 声明为自己的全局成员属性。
+> class ATMController(private val service: WithdrawalService) { // 长期持有成员引用
+>     fun withdraw() {
+>         service.createTransaction("622202xxx", 100.0)
+>     }
+> }
+> 
+> // 6. 依赖（Dependency）
+> // 临时、瞬时关系。另一个类仅作为当前类方法的入参、方法内部的局部变量，或调用了静态方法。
+> class ReceiptPrinter {
+>     fun printReceipt(transaction: WithdrawalTransaction) { // 仅作为临时方法形参传入
+>         println("Print receipt for transId: ${transaction.transactionId}")
+>     }
+> }
+> class WithdrawalTransaction(val transactionId: Long)
+> ```
+
+| 关系类型 | 线型 | 箭头形状 | 语义说明与代码实现特征 |
+| :--- | :--- | :--- | :--- |
+| **泛化（继承）** | 实线 | 空心三角形 | **子类指向父类**。表示子类继承父类的结构与行为。代码实现：`extends`。 |
+| **实现（Realization）** | 虚线 | 空心三角形 | **实现类指向接口**。表示类实现抽象接口中声明的方法。代码实现：`implements`。 |
+| **组合（Composition）** | 实线 | 实心黑色菱形 | **从部分指向整体（菱形在整体端）**。强“整体-部分”关系。部分与整体生死与共，部分不能脱离整体独立存在。代码实现：在 `Order` 实例化时直接 `new` 订单项。 |
+| **聚合（Aggregation）** | 实线 | 空心菱形 | **从部分指向整体（菱形在整体端）**。“整体-部分”关系，但耦合度较弱，部分可以脱离整体而单独存在（如：部门与员工）。代码实现：外部传入参数包装为全局对象。 |
+| **关联（Association）** | 实线 | 开放实心箭头 | **一类指向另一类**。类与类之间有结构化的、长期的连接关系。表示类 A 将类 B 的实例作为自己的全局成员属性。通常需标明多重度（如 `1`, `0..*`）。 |
+| **依赖（Dependency）** | 虚线 | 开放实心箭头 | **一类指向另一类**。临时、弱使用关系。A 类的方法在运行期临时使用了 B 类的实例（如：B 作为 A 方法 of 入参、局部变量，或者 A 方法内静态调用了 B）。 |
+
+### 2.1 多重度（Multiplicity）的表示与实现
+
+在 UML 类图中，关联（Association）、聚合（Aggregation）和组合（Composition）关系的两端必须标注**多重度**，用以精确指明类与类之间的实例数量映射（如 1对多、多对多）：
+
+| 符号表示 | 数量语义含义 | 典型应用场景实例 |
+| :--- | :--- | :--- |
+| `1` | 有且仅有 1 个实例 | ATM控制器对应 1 个取款服务 |
+| `0..*` 或 `*` | 0 个或多个（不设上限） | 客户拥有 0 个或多个账户 |
+| `1..*` | 至少 1 个实例 | 订单包含至少 1 个商品条目 |
+| `0..1` | 0 个或 1 个（可选关联） | 员工可能有关联的独立工位（或者没有） |
+
+**多重度的 UML 绘制规范**：
+- **1对多（1 to Many）**：在关联线两端分别标注数量，如在 `Customer` 端标 `1`，在 `Account` 端标 `0..*`，代表一个客户可以有多个账户，但一个账户只属于一个客户。
+- **1对多组合**：在整体端标 `1` 并带实心黑色菱形，在部分端标 `1..*`，代表一个订单包含至少一个订单项。
+- **多对多（Many to Many）**：在概念阶段可以直接在连线两端标注 `*` 与 `*`（如 `Student` 与 `Course`）。但在系统详细设计设计阶段（DCD 类图），多对多关联**必须拆解**，通过引入一个**中间关联表（实体）**将其转换为两个“1对多”关系（如 `Student "1" -> "*" Enrollment "*" <- "1" Course`），这样才能在关系型数据库和面向对象代码中进行具体物理实现。
+
+---
 
 ### 3. 实战例图
 
-#### 3.1 提交新闻任务设计类图（DCD）
+#### 3.1 ATM取款交易设计类图（DCD）
+
+*   **题目背景**：某银行自动柜员机（ATM）系统中，客户插入银行卡，选择取款功能并输入取款金额，系统验证账户后自动创建一条取款交易记录（WithdrawalTransaction），并调用数据仓库进行持久化保存。请绘制该场景的三层架构设计类图（DCD）。
 
 <Mermaid code={`
 classDiagram
-    class TaskPage {
+    class ATMScreen {
     }
-    class TaskController {
-        -taskService: TaskService
-        +submitTask() : Result
+    class ATMController {
+        -withdrawalService: WithdrawalService
+        +withdrawMoney() : Result
     }
-    class TaskService {
+    class WithdrawalService {
         <<interface>>
-        +submitTaskInfo(url, rule) : Long
+        +createTransaction(cardNumber, amount) : Long
     }
-    class TaskServiceImpl {
-        -taskRepo: TaskRepository
-        +submitTaskInfo(url, rule) : Long
+    class WithdrawalServiceImpl {
+        -transactionRepo: TransactionRepository
+        +createTransaction(cardNumber, amount) : Long
     }
-    class TaskRepository {
+    class TransactionRepository {
         <<interface>>
-        +save(task: NewsCollectionTask) : void
+        +save(transaction: WithdrawalTransaction) : void
     }
-    class NewsCollectionTask {
-        -taskId: Long
-        -url: String
+    class WithdrawalTransaction {
+        -transactionId: Long
+        -cardNumber: String
+        -amount: Double
         -status: String
     }
 
-    TaskPage ..> TaskController : 依赖
-    TaskController --> TaskService : 关联
-    TaskServiceImpl ..|> TaskService : 实现
-    TaskServiceImpl --> TaskRepository : 关联
-    TaskServiceImpl ..> NewsCollectionTask : 依赖
+    ATMScreen ..> ATMController : 依赖
+    ATMController "1" --> "1" WithdrawalService : 关联
+    WithdrawalServiceImpl ..|> WithdrawalService : 实现
+    WithdrawalServiceImpl "1" --> "1" TransactionRepository : 关联
+    WithdrawalServiceImpl ..> WithdrawalTransaction : 依赖
 `} />
 
-#### 3.2 爬取模块策略模式类图
+#### 3.2 支付模块通道路由策略模式类图
+
+*   **题目背景**：某银行在线支付交易系统需要对接微信支付（WeChatPay）与支付宝（AliPay）等多种第三方支付通道。系统要求支持根据不同费率或速度动态切换支付通道。请使用策略模式（Strategy Pattern）设计该通道选择模块的设计类图。
 
 <Mermaid code={`
 classDiagram
-    class CrawlerContext {
-        -strategy: CrawlStrategy
-        +setStrategy(strategy: CrawlStrategy) : void
-        +executeCrawl(url: String) : String
+    class PaymentContext {
+        -strategy: PaymentStrategy
+        +setStrategy(strategy: PaymentStrategy) : void
+        +executePayment(amount: Double) : String
     }
-    class CrawlStrategy {
+    class PaymentStrategy {
         <<interface>>
-        +crawl(url: String) : String
+        +pay(amount: Double) : String
     }
-    class StaticCrawlStrategy {
-        +crawl(url: String) : String
+    class WeChatPayStrategy {
+        +pay(amount: Double) : String
     }
-    class DynamicCrawlStrategy {
-        +crawl(url: String) : String
+    class AliPayStrategy {
+        +pay(amount: Double) : String
     }
 
-    CrawlerContext o-- CrawlStrategy : 关联聚合
-    StaticCrawlStrategy ..|> CrawlStrategy : 实现
-    DynamicCrawlStrategy ..|> CrawlStrategy : 实现
+    PaymentContext "1" o-- "1" PaymentStrategy : 关联聚合
+    WeChatPayStrategy ..|> PaymentStrategy : 实现
+    AliPayStrategy ..|> PaymentStrategy : 实现
 `} />

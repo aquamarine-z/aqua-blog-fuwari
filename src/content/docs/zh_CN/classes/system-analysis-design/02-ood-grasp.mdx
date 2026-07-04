@@ -49,7 +49,7 @@ GRASP（通用职责分配软件模式）提供了最基础、最通用的职责
 ### 2.1.5 高内聚（High Cohesion） [PDF 5]
 
 *   **核心思想**：让一个类专注于做一类事。高内聚类的职责数量少、关联紧密。
-*   **反例（胖类）**：如果一个 `TaskController` 既负责接收 HTTP 请求，又负责解析 JSON，还负责执行复杂的爬虫抓取算法，最后还去直接调用 JDBC 保存数据，这就是典型的低内聚类，应立即按照职责拆分（Controller 只负责接口路由，爬虫算法拆入 Feature 模块，存储交由 Repository） [PDF 1, PDF 5]。
+*   **反例（胖类）**：如果一个 `ATMController` 既负责接收 HTTP 请求，又负责解析 JSON，还负责校验银行卡安全签名、计算账户扣款利息，最后还去直接调用 JDBC 保存数据，这就是典型的低内聚类，应立即按照职责拆分（Controller 只负责接口路由，账户安全校验拆入 Security 模块，利息计算交由 InterestService，存储交由 Repository） [PDF 1, PDF 5]。
 
 ---
 
@@ -58,8 +58,8 @@ GRASP（通用职责分配软件模式）提供了最基础、最通用的职责
 *   **概念类图（CCD）**：在需求分析阶段构建，描述客观世界的业务实体及其关联。类中没有具体数据类型、没有方法签名、没有可见性标识（`+` / `-` / `#`） [PDF 4, PDF 5]。
 *   **设计类图（DCD）**：面向技术实现。具有以下显著技术特征 [PDF 1, PDF 5]：
     1.  **详细的方法与属性刻画**：每个属性和方法均有明确的可见性（`private` 属性，`public` 方法）、精确的数据类型（如 `Long`, `Date`）和返回值类型 [PDF 1, PDF 5]。
-    2.  **依赖倒置原则的体现**：上层不直接依赖下层实现类，而是依赖抽象接口。例如，`TaskController` 依赖 `TaskService` 接口，而非 `TaskServiceImpl` [PDF 1, PDF 5]。
-    3.  **技术辅助类的引入**：引入了大量概念类图中不存在的技术类，如持久层接口 `TaskRepository`、通用包装类 `Result<?>`、配置类等 [PDF 1, PDF 5]。
+    2.  **依赖倒置原则的体现**：上层不直接依赖下层实现类，而是依赖抽象接口。例如，`ATMController` 依赖 `WithdrawalService` 接口，而非 `WithdrawalServiceImpl` [PDF 1, PDF 5]。
+    3.  **技术辅助类的引入**：引入了大量概念类图中不存在的技术类，如持久层接口 `TransactionRepository`、通用包装类 `Result<?>`、配置类等 [PDF 1, PDF 5]。
 
 ---
 
@@ -97,75 +97,76 @@ GRASP（通用职责分配软件模式）提供了最基础、最通用的职责
 | **实现（Realization）** | 虚线 | 空心三角形 | 实现类实现抽象接口（如 `ServiceImpl` 实现 `Service`） [PDF 1]。 |
 | **关联（Association）** | 实线 | 开放实心箭头 | 类与类之间有结构化的连接关系，需标明多重度（如 `1`, `0..*`） [PDF 5]。 |
 | **依赖（Dependency）** | 虚线 | 开放实心箭头 | 一个类的方法中临时使用了另一个类（如 `Controller` 方法入参含实体） [PDF 1]。 |
-| **聚合（Aggregation）** | 实线 | 空心菱形（在整体端） | “整体-部分”关系，部分可以脱离整体存在（如 `TaskServiceImpl` 聚合了 `CrawlerService`） [PDF 1]。 |
+| **聚合（Aggregation）** | 实线 | 空心菱形（在整体端） | “整体-部分”关系，部分可以脱离整体存在（如 `WithdrawalServiceImpl` 聚合了 `CardReaderService`） [PDF 1]。 |
 | **组合（Composition）** | 实线 | 实心黑色菱形（整体端）| 强“整体-部分”关系，部分不能脱离整体存在（如 `Order` 包含 `SaleLineItem`） [PDF 5]。 |
 
 ---
 
 ### 2.4.2 核心图例深入拆解
 
-#### 图例 A：提交新闻任务设计类图（DCD） [PDF 1 - P12]
+#### 图例 A：ATM取款交易设计类图（DCD） [PDF 1 - P12]
 
-该图例展示了典型的三层架构中的类关系流向：`TaskPage` (边界) $\rightarrow$ `TaskController` (控制) $\rightarrow$ `TaskService` (接口) $\leftarrow$ `TaskServiceImpl` (实现) $\rightarrow$ `TaskRepository` (接口) $\rightarrow$ `NewsCollectionTask` (实体)。
+该图例展示了典型的三层架构中的类关系流向：`ATMScreen` (边界) $\rightarrow$ `ATMController` (控制) $\rightarrow$ `WithdrawalService` (接口) $\leftarrow$ `WithdrawalServiceImpl` (实现) $\rightarrow$ `TransactionRepository` (接口) $\rightarrow$ `WithdrawalTransaction` (实体)。
 
 <Mermaid code={`
 classDiagram
-    class TaskPage {
+    class ATMScreen {
     }
-    class TaskController {
-        -taskService: TaskService
-        +submitTask() : Result
+    class ATMController {
+        -withdrawalService: WithdrawalService
+        +withdrawMoney() : Result
     }
-    class TaskService {
+    class WithdrawalService {
         <<interface>>
-        +submitTaskInfo(url, rule) : Long
+        +createTransaction(cardNumber, amount) : Long
     }
-    class TaskServiceImpl {
-        -taskRepo: TaskRepository
-        +submitTaskInfo(url, rule) : Long
+    class WithdrawalServiceImpl {
+        -transactionRepo: TransactionRepository
+        +createTransaction(cardNumber, amount) : Long
     }
-    class TaskRepository {
+    class TransactionRepository {
         <<interface>>
-        +save(task: NewsCollectionTask) : void
+        +save(transaction: WithdrawalTransaction) : void
     }
-    class NewsCollectionTask {
-        -taskId: Long
-        -url: String
+    class WithdrawalTransaction {
+        -transactionId: Long
+        -cardNumber: String
+        -amount: Double
         -status: String
     }
 
-    TaskPage ..> TaskController : 依赖
-    TaskController --> TaskService : 关联
-    TaskServiceImpl ..|> TaskService : 实现
-    TaskServiceImpl --> TaskRepository : 关联
-    TaskServiceImpl ..> NewsCollectionTask : 依赖
+    ATMScreen ..> ATMController : 依赖
+    ATMController "1" --> "1" WithdrawalService : 关联
+    WithdrawalServiceImpl ..|> WithdrawalService : 实现
+    WithdrawalServiceImpl "1" --> "1" TransactionRepository : 关联
+    WithdrawalServiceImpl ..> WithdrawalTransaction : 依赖
 `} />
 
-#### 图例 B：爬取模块策略模式类图 [PDF 1 - P22]
+#### 图例 B：支付模块通道路由策略模式类图 [PDF 1 - P22]
 
 **设计原则**：上下文持有策略接口，具体策略类实现该接口，支持动态插拔。
 
 <Mermaid code={`
 classDiagram
-    class CrawlerContext {
-        -strategy: CrawlStrategy
-        +setStrategy(strategy: CrawlStrategy) : void
-        +executeCrawl(url: String) : String
+    class PaymentContext {
+        -strategy: PaymentStrategy
+        +setStrategy(strategy: PaymentStrategy) : void
+        +executePayment(amount: Double) : String
     }
-    class CrawlStrategy {
+    class PaymentStrategy {
         <<interface>>
-        +crawl(url: String) : String
+        +pay(amount: Double) : String
     }
-    class StaticCrawlStrategy {
-        +crawl(url: String) : String
+    class WeChatPayStrategy {
+        +pay(amount: Double) : String
     }
-    class DynamicCrawlStrategy {
-        +crawl(url: String) : String
+    class AliPayStrategy {
+        +pay(amount: Double) : String
     }
 
-    CrawlerContext o-- CrawlStrategy : 关联聚合
-    StaticCrawlStrategy ..|> CrawlStrategy : 实现
-    DynamicCrawlStrategy ..|> CrawlStrategy : 实现
+    PaymentContext "1" o-- "1" PaymentStrategy : 关联聚合
+    WeChatPayStrategy ..|> PaymentStrategy : 实现
+    AliPayStrategy ..|> PaymentStrategy : 实现
 `} />
 
 ---
@@ -189,32 +190,32 @@ classDiagram
 
 ### 2.5.2 核心图例深入拆解
 
-#### 图例 A：提交新闻采集任务序列图 [PDF 1 - P9]
+#### 图例 A：ATM取款交易创建序列图 [PDF 1 - P9]
 
 **时序流程**：用户界面提交参数，控制层调业务层，业务层实例化实体，最后调持久层落库。
 
 <Mermaid code={`
 sequenceDiagram
     autonumber
-    actor User as 前端用户
-    participant Page as 前端页面
-    participant Controller as TaskController
-    participant Service as TaskService
-    participant Repo as TaskRepository
+    actor User as 银行客户
+    participant Page as ATMScreen (ATM屏幕)
+    participant Controller as ATMController
+    participant Service as WithdrawalService
+    participant Repo as TransactionRepository
 
-    User->>Page: 录入信息
-    Page->>Controller: 提交HTTP请求
-    Controller->>Service: submitTask(任务信息)
-    create participant Task as NewsCollectionTask
-    Service->>Task: <<create>>
-    Service->>Repo: save(task)
+    User->>Page: 插入卡片并输入金额
+    Page->>Controller: 提交取款请求
+    Controller->>Service: createTransaction(卡号, 金额)
+    create participant Transaction as WithdrawalTransaction
+    Service->>Transaction: <<create>>
+    Service->>Repo: save(transaction)
     Repo-->>Service: 保存完成
-    Service-->>Controller: 返回提交结果 (任务ID)
+    Service-->>Controller: 返回交易结果 (交易ID)
     Controller-->>Page: 响应结果
-    Page-->>User: 展示成功
+    Page-->>User: 吐出钞票，展示成功
 `} />
 
-#### 图例 B：执行新闻采集任务时序图（含 `loop` 组合碎片） [PDF 1 - P10]
+#### 图例 B：批量结算利息任务时序图（含 `loop` 组合碎片） [PDF 1 - P10]
 
 **语法重点**：必须使用框图包裹循环体，并附带循环条件。
 
@@ -222,26 +223,26 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     participant Timer as 定时器
-    participant Scheduler as TaskScheduler
-    participant Service as TaskService
-    participant Crawler as CrawlerService
-    participant Parser as ParserService
-    participant Repo as NewsRepository
+    participant Scheduler as InterestScheduler
+    participant Service as InterestService
+    participant AccService as AccountService
+    participant TaxService as TaxService
+    participant Repo as AccountRepository
 
-    Timer->>Scheduler: 定时触发
-    Scheduler->>Service: 加载待执行任务
-    Service->>Repo: 查询待执行任务
-    Repo-->>Service: 返回任务列表
+    Timer->>Scheduler: 定时触发 (每月末)
+    Scheduler->>Service: 执行批量结息
+    Service->>Repo: 查询所有活跃账户
+    Repo-->>Service: 返回账户列表
     
-    loop 遍历待执行任务
-        Service->>Crawler: 抓取网页
-        Crawler-->>Service: 返回源码
-        Service->>Parser: 解析网页
-        Parser-->>Service: 返回结构化数据
-        Service->>Repo: 保存新闻
-        Repo->>Repo: 插入记录
-        Repo-->>Service: 新闻保存完成
-        Service->>Repo: 更新任务为“已完成”
-        Repo-->>Service: 更新完成
+    loop 遍历每个账户
+        Service->>AccService: 获取账户余额
+        AccService-->>Service: 返回余额
+        Service->>TaxService: 计算应结利息与税费
+        TaxService-->>Service: 返回计算利息
+        Service->>Repo: 存入结息记录并更新余额
+        Repo->>Repo: 更新账户数据
+        Repo-->>Service: 结息更新完成
+        Service->>Repo: 记录结息流水为“已完成”
+        Repo-->>Service: 记录保存完成
     end
 `} />
