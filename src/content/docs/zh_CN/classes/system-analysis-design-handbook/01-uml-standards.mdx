@@ -1,0 +1,203 @@
+---
+title: "第一部分：四大必考 UML 绘图标准与高分范式"
+published: 2026-07-05
+description: "详细梳理类图、用例图、活动图及对象序列图的绘图标准、高分防错细节以及实战例图。"
+sidebar_position: 2
+---
+import Mermaid from "@/components/Mermaid.astro";
+
+# ✍️ 第一部分：四大必考 UML 绘图标准与高分范式
+
+在 UML 绘图大题中，判卷老师主要根据**符号规范性**、**元素完整性**以及**职责边界的清晰度**来给出分数。以下是四种必考图表的严谨绘制规范。
+
+---
+
+## 一、 核心考点：按三层架构设计类图（含主外键 PK/FK 表达）
+
+在面向对象设计（OOD）中，设计类图（DCD）必须严格遵循**技术分层（表示层 $\rightarrow$ 业务逻辑层 $\rightarrow$ 数据访问层）**和**依赖倒置原则（面向接口编程）**。同时，在类图中表达数据库的主外键关系，是体现专业度的关键。
+
+> 📖 **本考点深度绘图指南**：[类图绘制规范与案例](../../system-analysis-design/06-uml-drawing-guide/03-class/)
+
+### 💡 绘图高分规范
+1.  **接口与实现分离**：业务层 and 数据持久层必须设计为 `<<interface>>`，实现类通过带**空心三角形的虚线**指向接口。
+2.  **依赖方向单向性**：依赖关系必须从表示层单向流向数据层，严禁逆向依赖或跨层越级依赖。
+3.  **主外键标识**：在实体类（Entity）的属性后，使用 UML 约束标记 `{PK}`（主键）或 `{FK}`（外键）。
+
+### 🎨 三层架构类图标准图例
+
+<Mermaid code={`
+classDiagram
+    direction TB
+    
+    class TaskPage {
+        -taskController : TaskController
+        +displayPage() void
+    }
+    
+    class TaskController {
+        -taskService : TaskService
+        +submitTask(url: String, rule: String) Result
+    }
+    
+    class TaskService {
+        <<interface>>
+        +submitTaskInfo(url: String, rule: String) Long
+    }
+    
+    class TaskServiceImpl {
+        -taskRepo : TaskRepository
+        +submitTaskInfo(url: String, rule: String) Long
+    }
+    
+    class TaskRepository {
+        <<interface>>
+        +save(task: NewsCollectionTask) void
+    }
+    
+    class NewsCollectionTask {
+        -taskId : Long
+        -creatorId : Long
+        -url : String
+        -rule : String
+        -status : String
+    }
+    note for NewsCollectionTask "taskId: {PK}\ncreatorId: {FK -> User.userId}"
+
+    TaskPage ..> TaskController : 依赖
+    TaskController --> TaskService : 依赖接口
+    TaskServiceImpl ..|> TaskService : 实现接口
+    TaskServiceImpl --> TaskRepository : 依赖接口
+    TaskRepository ..> NewsCollectionTask : 操作实体
+`} />
+
+> 💡 **绘图与考试规范提示（三层架构类图）**：
+> * **主外键标注**：由于 Mermaid 语法中属性列表暂不支持花括号（如 `- taskId : Long {PK}` 会引起代码解析崩溃），本图例使用黄色 `note` 备注框进行表达。
+> * **考试手绘要求**：在纸面闭卷考试手绘设计类图时，**必须直接把 `{PK}` 和 `{FK}` 写在类属性名称和类型后面**，例如：`- taskId : Long {PK}`。
+
+---
+
+## 二、 核心考点：用例图 (Use Case Diagram)
+
+用例图用于在系统规划阶段定义系统的行为边界。
+
+> 📖 **本考点深度绘图指南**：[用例图绘制规范与案例](../../system-analysis-design/06-uml-drawing-guide/01-use-case/)
+
+### 💡 绘图高分规范
+1.  **系统边界框（System Boundary）**：必须画出矩形系统边界框，将用例包在框内，参与者（Actor）画在框外。
+2.  **关系的指向性（极易画错）**：
+    *   **包含（`<<include>>`）**：由**主用例**指向**子用例**（虚线，实心开放箭头）。
+    *   **扩展（`<<extend>>`）**：由**扩展用例**指向**被扩展的主用例**（虚线，实心开放箭头）。
+    *   **泛化（继承）**：子用例/子参与者指向父用例/父参与者（实线，空心三角形）。
+
+### 🎨 用例图标准图例（以医院挂号系统为例）
+
+<Mermaid code={`
+flowchart LR
+    subgraph SystemBoundary [医院挂号系统]
+        UC_Register(["在线预约挂号"])
+        UC_Auth(["身份实名认证"])
+        UC_Sms(["发送短信通知"])
+        UC_Pay(["在线支付"])
+        UC_WeChat(["微信支付"])
+        UC_Alipay(["支付宝支付"])
+        
+        UC_Register -. "«include»" .-> UC_Auth
+        UC_Sms -. "«extend»<br>(条件: 用户勾选短信)" .-> UC_Register
+        UC_WeChat -- "泛化" --> UC_Pay
+        UC_Alipay -- "泛化" --> UC_Pay
+        UC_Register -. "«include»" .-> UC_Pay
+    end
+    
+    Patient["👤<br>患者"] --> UC_Register
+    Patient ~~~ UC_Sms
+    
+    classDef normal fill:#f8f9fa,stroke:#dddddd,stroke-width:1px,color:#2c3e50
+    classDef actorNode fill:none,stroke:none,color:inherit;
+    class UC_Register,UC_Auth,UC_Sms,UC_Pay,UC_WeChat,UC_Alipay normal
+`} />
+
+---
+
+## 三、 核心考点：活动图/流程图 (Activity Diagram)
+
+活动图用于刻画业务流程或算法的执行逻辑，支持并发路径 and 条件判定。
+
+> 📖 **本考点深度绘图指南**：[活动图绘制规范与案例](../../system-analysis-design/06-uml-drawing-guide/05-activity/)
+
+### 💡 绘图高分规范
+1.  **起点与终点**：起点为实心黑圆点，终点为双圆环（同心圆）。
+2.  **分支与合并（Decision & Merge）**：必须使用**空心菱形**。流出线必须使用中括号 `[...]` 标注互斥的守卫条件（Guard Conditions）。
+3.  **分叉与汇合（Fork & Join）**：使用**粗黑色水平或垂直线条**。表示并发（同时）执行的活动路径，分叉使一个控制流变为多个，汇合将多个控制流合并为一个。
+
+#### 🎨 活动图标准图例（以爬虫抓取算法为例）
+<Mermaid code={`
+stateDiagram-v2
+    state "解析待执行任务" as Parse
+    state fork_state <<fork>>
+    state "初始化网页内核" as Init
+    state "更新任务状态为RUNNING" as Update
+    state join_state <<join>>
+    state isDynamicPage <<choice>>
+    state "渲染JS并抽取网页" as Render
+    state "直接发起HTTP请求" as Request
+    state merge_state <<choice>>
+    state "校验HTML源码非空" as Verify
+
+    [*] --> Parse
+    Parse --> fork_state
+    fork_state --> Init
+    fork_state --> Update
+    Init --> join_state
+    Update --> join_state
+    join_state --> isDynamicPage : 判断页面类型?
+    isDynamicPage --> Render : [动态页面]
+    isDynamicPage --> Request : [静态页面]
+    Render --> merge_state
+    Request --> merge_state
+    merge_state --> Verify
+    Verify --> [*]
+`} />
+
+> 💡 **绘图与考试规范提示（活动图决策分支）**：
+> * **判定问题标注**：由于 Mermaid 语法限制决策菱形（`<<choice>>`）内部无法写入文字，我们将判定条件（“判断页面类型?”）标注在了流向菱形的箭头上。
+> * **考试手绘要求**：在纸面闭卷考试手绘活动图时，**必须将判定条件直接写在菱形框内部**。
+
+---
+
+## 四、 核心考点：设计级对象序列图 (Object Sequence Diagram)
+
+**警告**：期末考试常考的“对象序列图”**绝不是**系统顺序图（SSD）。SSD 只有一个 `:System` 黑盒，而**对象序列图**用于详细设计阶段，展示系统内部各个**类对象**、**接口**之间的精细交互，必须体现具体的方法签名和控制结构。
+
+> 📖 **本考点深度绘图指南**：[序列图/顺序图绘制规范与案例](../../system-analysis-design/06-uml-drawing-guide/02-sequence/)
+
+### 💡 绘图高分规范
+1.  **生命线命名**：必须使用 `对象名 : 类名` 格式，且对象名首字母小写，类名首字母大写。
+2.  **激活区（会话条）的重叠**：当发生自调用（Self-call）时，右侧必须画出重叠的小激活条。
+3.  **循环与条件判定**：必须使用 `loop`（循环）或 `alt`（多分支选择）的组合碎片框包裹相关消息。
+4.  **返回消息**：必须为虚线，带开放箭头，并注明返回值（如：`返回任务ID` 或 `Long`）。
+
+### 🎨 详细设计级对象序列图标准图例
+
+<Mermaid code={`
+sequenceDiagram
+    autonumber
+    actor User as 前端页面
+    participant Controller as taskController : TaskController
+    participant Service as taskService : TaskService
+    participant Repo as taskRepo : TaskRepository
+    participant TaskObj as task : NewsCollectionTask
+
+    User->>Controller: submit()
+    Controller->>Service: submitTaskInfo(url, rule)
+    
+    alt url 有效
+        Service->>TaskObj: new Task(url) <<create>>
+        Service->>Repo: save(task)
+        Repo-->>Service: void
+        Service-->>Controller: return taskId
+    else url 为空
+        Service-->>Controller: 抛出业务异常
+    end
+    
+    Controller-->>User: 返回Result / JSON响应
+`} />

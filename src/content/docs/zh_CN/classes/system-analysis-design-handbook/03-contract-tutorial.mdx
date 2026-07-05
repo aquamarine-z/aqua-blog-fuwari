@@ -1,0 +1,243 @@
+---
+title: "第二部分（实践）：操作契约与用例实现实战"
+published: 2026-07-05
+description: "系统分析与设计期末理论考点梳理：从真实 Kotlin 业务逻辑到 UML 操作契约前置/后置条件，以及对应的系统顺序图（SSD）、设计级对象顺序图与设计类图（DCD）。"
+sidebar_position: 5
+---
+
+import Mermaid from "@/components/Mermaid.astro";
+
+# 📖 操作契约与用例实现实战
+
+本节将以最直观易懂的方式，带你从0搞懂什么是**系统操作契约（System Operation Contract）**。
+
+我们将使用 **Kotlin 语言**编写一个极简、真实的“银行账户取款并生成账单交易”功能，手把手看一看**代码里的每一行逻辑，是如何精准翻译成 UML 操作契约的前置条件与后置条件，并绘制出对应的系统顺序图、设计级顺序图及设计类图的**。
+
+---
+
+## 一、 Kotlin 业务代码实现（以银行取款为例）
+
+假设系统包含两个实体类（Entity）：`Account`（账户）和 `Transaction`（交易记录）。
+
+```kotlin
+// 1. 账户实体类
+data class Account(
+    val accountId: Long,
+    var balance: Double // 余额
+)
+
+// 2. 交易记录实体类（取款成功后生成）
+data class Transaction(
+    val transactionId: Long,
+    val accountId: Long,
+    val amount: Double,
+    val timestamp: Long
+)
+```
+
+现在，我们在业务逻辑层（Service）中实现“取款”方法：
+
+```kotlin
+class AccountService(private val accountRepository: AccountRepository) {
+
+    /**
+     * 执行取款操作
+     * @param accountId 账户ID
+     * @param amount 取款金额
+     */
+    fun withdraw(accountId: Long, amount: Double): Long {
+        // ------------------ 【前置状态校验】 ------------------
+        // 校验1：账户在系统数据库中必须存在
+        val account = accountRepository.findById(accountId) 
+            ?: throw IllegalArgumentException("账户不存在")
+            
+        // 校验2：账户余额必须大于或等于取款金额
+        if (account.balance < amount) {
+            throw IllegalStateException("余额不足")
+        }
+
+        // ------------------ 【执行状态改变】 ------------------
+        // 改变1：修改已有账户对象的属性（余额扣减）
+        account.balance -= amount 
+        
+        // 改变2：创建了一个新的交易记录对象实例
+        val newTxnId = System.currentTimeMillis() // 模拟生成唯一ID
+        val transaction = Transaction(
+            transactionId = newTxnId,
+            accountId = account.accountId, // 改变3：新交易记录关联到了该账户
+            amount = amount,
+            timestamp = System.currentTimeMillis()
+        )
+
+        // ------------------ 【持久化保存】 ------------------
+        accountRepository.update(account)
+        accountRepository.saveTransaction(transaction)
+
+        return newTxnId
+    }
+}
+```
+
+---
+
+## 二、 用例建模与设计图示
+
+### 1. 系统顺序图 (SSD)
+系统顺序图是针对单个用例场景，将**整个系统视为黑盒**。它展示了外部参与者与系统之间的事件交互：
+
+<Mermaid code={`
+sequenceDiagram
+    actor Customer as 客户
+    participant System as :System
+    
+    Customer->>System: withdraw(accountId, amount)
+    alt 余额充足
+        System-->>Customer: return transactionId
+    else 余额不足
+        System-->>Customer: throw IllegalStateException
+    end
+`} />
+
+---
+
+### 2. 设计级顺序图 (Detailed Sequence Diagram)
+设计级顺序图深入到系统内部，展示了 Kotlin 代码中各个**类对象和接口之间**的方法调用、实例化过程和参数传递：
+
+<Mermaid code={`
+sequenceDiagram
+    participant Service as accountService : AccountService
+    participant Repo as accountRepository : AccountRepository
+    participant Acc as account : Account
+    participant Txn as transaction : Transaction
+    
+    [->>Service: withdraw(accountId, amount)
+    activate Service
+    
+    Service->>Repo: findById(accountId)
+    activate Repo
+    Repo-->>Service: account : Account
+    deactivate Repo
+    
+    opt account == null
+        Service-->>[: throw IllegalArgumentException("账户不存在")
+    end
+    
+    Service->>Acc: getBalance()
+    activate Acc
+    Acc-->>Service: balance
+    deactivate Acc
+    
+    opt balance < amount
+        Service-->>[: throw IllegalStateException("余额不足")
+    end
+    
+    Service->>Acc: setBalance(balance - amount)
+    
+    Service->>Txn: <<create>> Transaction(txnId, accountId, amount, timestamp)
+    activate Txn
+    Txn-->>Service: transaction : Transaction
+    deactivate Txn
+    
+    Service->>Repo: update(account)
+    Service->>Repo: saveTransaction(transaction)
+    
+    Service-->>[: transactionId
+    deactivate Service
+`} />
+
+---
+
+### 3. 设计类图 (DCD - Design Class Diagram)
+根据上述代码和交互，系统设计类图展示了类之间的依赖与实现关系：
+
+<Mermaid code={`
+classDiagram
+    direction TB
+    
+    class AccountService {
+        -accountRepository : AccountRepository
+        +withdraw(accountId: Long, amount: Double) Long
+    }
+    
+    class AccountRepository {
+        <<interface>>
+        +findById(accountId: Long) Account
+        +update(account: Account) void
+        +saveTransaction(transaction: Transaction) void
+    }
+    
+    class Account {
+        -accountId : Long
+        -balance : Double
+    }
+    note for Account "accountId: {PK}"
+    
+    class Transaction {
+        -transactionId : Long
+        -accountId : Long
+        -amount : Double
+        -timestamp : Long
+    }
+    note for Transaction "transactionId: {PK}\naccountId: {FK -> Account.accountId}"
+    
+    AccountService --> AccountRepository : 依赖接口
+    AccountRepository ..> Account : 操作实体
+    AccountRepository ..> Transaction : 操作实体
+    Transaction --> Account : 关联
+`} />
+
+> 💡 **绘图与考试规范提示（类图）**：
+> * **主外键标注**：由于 Mermaid 语法限制，属性列表中不支持直接使用花括号（会引起崩溃），本图例使用黄色 `note` 框在类下方标注。
+> * **考试手绘要求**：在期末闭卷考试手绘类图时，**必须直接把 `{PK}` 和 `{FK}` 写在属性行后面**，例如：`- accountId : Long {PK}`。
+
+---
+
+## 三、 从代码到操作契约的“精细翻译”
+
+### 1. 翻译“前置条件（Pre-conditions）”
+前置条件专注于**执行操作前系统必须满足的客观状态**。
+
+| Kotlin 业务代码 | 精准翻译（UML 前置条件） | 命题与考场书写要点 |
+| :--- | :--- | :--- |
+| `accountRepository.findById(accountId) ?: throw ...` | **系统里必须存在一个 `accountId` 对应的 `Account` 实例。** | 强调非空校验，确认参与实体在系统中存在。 |
+| `if (account.balance < amount)` | **该 `Account` 实例的 `balance` 必须大于或等于 `amount`。** | 强调核心业务安全校验，使用“必须”等条件陈述词。 |
+
+> [!IMPORTANT]
+> **💡 考场防扣分红线：前置条件要写“系统状态”，不能写“用户交互/操作”**
+> * ❌ **错误写法**：“用户必须先在取款机界面上输入正确的卡号、密码并选择取款金额。”（这是人机界面交互，非系统客观状态，零分！）
+> * ✓ **正确写法**：“用户处于登录/已鉴权状态，且输入的 `accountId` 在系统中存在对应实例。”（这是系统的客观初始状态，满分！）
+
+---
+
+### 2. 翻译“后置条件（Post-conditions）” —— 严格套用“黄金三法则”
+后置条件声明式地表达**操作执行完毕后系统状态发生的根本改变**，拒绝过程性动作描述。
+
+| Kotlin 业务代码 | 对应“黄金三法则” | 精准翻译（UML 后置条件） |
+| :--- | :--- | :--- |
+| `val transaction = Transaction(...)` | **法则一：实例创建** | **创建了一个 `Transaction` 的实例 `t`。** |
+| `account.balance -= amount` | **法则二：属性修改** | **该 `Account` 实例的 `balance` 被修改为（原余额 - `amount`）。** |
+| 在构造器中隐式关联：`accountId = account.accountId` | **法则三：关联形成** | **`t` 与该 `Account` 实例建立了（形成了）关联。** |
+
+> [!IMPORTANT]
+> **💡 考场防扣分红线：后置条件写“客观状态改变”，不写“系统动作/过程”**
+> * ❌ **错误写法**：“系统检测余额，扣款，然后把交易记录保存到数据库中，并在屏幕上显示余额。”（这是过程性描述，零分！）
+> * ✓ **正确写法**：“创建了 `Transaction` 实例 `t`；`Account` 的 `balance` 属性被减少了。”（声明式状态改变，满分！）
+> * **时态要求**：在中文书写时应尽量使用“**被创建**”、“**被修改为**”、“**建立了关联**”等过去时/被动词汇以表状态完结。
+
+---
+
+### 3. 标准系统操作契约文档（UML 规范格式）
+
+在期末考试或设计文档中，应该将上述推导组织成如下的标准表格格式：
+
+| 契约项 | 规范化书写内容 | 对应 Kotlin 源码位置 |
+| :--- | :--- | :--- |
+| **操作 (Operation)** | `withdraw(accountId: Long, amount: Double)` | `fun withdraw(accountId: Long, amount: Double)` |
+| **交叉引用 (Cross References)** | 关联用例：在线取款（见 [系统顺序图 SSD](#1-系统顺序图-ssd)）<br />关联设计：Account, Transaction（见 [设计类图 DCD](#3-设计类图-dcd---design-class-diagram)） | - |
+| **前置条件 (Pre-conditions)** | 1. 账户（`accountId`）在系统中必须存在。<br />2. 该账户的余额（`balance`）必须大于或等于取款金额（`amount`） [PDF 5]。 | `accountRepository.findById(accountId)`<br />`if (account.balance < amount)` |
+| **后置条件 (Post-conditions)** | **1. 实例创建**：创建了一个 `Transaction` 的实例 `t` [PDF 5]。<br />**2. 属性修改**：该 `Account` 实例的 `balance` 属性被修改为（原余额 - `amount`） [PDF 5]。<br />**3. 关联形成**：`t` 与该 `Account` 实例建立了关联 [PDF 5]。 | `val transaction = Transaction(...)`<br />`account.balance -= amount`<br />`accountId = account.accountId` |
+
+> [!TIP]
+> **💡 考场防扣分红线：交叉引用（Cross Reference）到底如何具体关联题目？**
+> * **定义与作用**：交叉引用代表“这份合同/契约是为了履行哪一个业务用例而订立的”，它将系统事件与用例及非功能需求链接在一起。
+> * **考场具体书写指南**：在手写或设计时，交叉引用应精准关联至您绘制的**用例图中的具体用例名称**（如 `关联用例：在线取款` 或 `关联用例：提交订单`）以及试卷题目中给出的**具体非功能需求编号或页面**（如 `非功能需求第5页` 或 `[PDF 5]` / `需求规则 BR-1.2`）。

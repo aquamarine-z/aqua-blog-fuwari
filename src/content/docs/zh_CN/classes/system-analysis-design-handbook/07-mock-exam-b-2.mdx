@@ -1,0 +1,182 @@
+---
+title: "期末模拟试卷（B套）设计大题"
+published: 2026-07-05
+description: "提供《系统分析与设计》期末模拟试卷（B套）的设计大题的试题及对应参考答案，附规范Mermaid图示与表结构设计。"
+sidebar_position: 9
+---
+import Mermaid from "@/components/Mermaid.astro";
+
+# 📝 期末模拟试卷（B套）设计大题
+
+---
+
+## 一、 设计大题（本题共5小题，共50分，每题10分）
+
+### ❓ 题目要求
+1.  **设计题1：三层架构设计类图绘制（10分）**：绘制图书租借场景下的设计类图（DCD）。要求必须体现经典的三层架构（Boundary $\rightarrow$ Controller $\rightarrow$ Service接口 $\leftarrow$ ServiceImpl $\rightarrow$ Repository接口 $\rightarrow$ Entity），并精确标出属性的数据类型、方法签名、可见性以及实体类 `RentalRecord` 中属性的主外键（`{PK}`, `{FK}`）。
+2.  **设计题2：活动图设计（10分）**：绘制系统在“新图书入库与多格式解析”时的后台处理活动图。流程要求：读取书籍原始数据 $\rightarrow$ 判断书籍格式；若是电子书，则触发“电子书格式标准化转换”，若是纸质书，则通过**分叉（Fork）**同步条并发执行“生成书籍物理RFID标签”和“同步至检索索引库”，最后两个流程通过**汇合（Join）**同步条合并分支，并持久化入库标记结束流程。
+3.  **设计题3：状态机图设计（10分）**：绘制租借记录对象（`RentalRecord`）的状态机图。需包含以下状态：`RESERVED`（已预订）、`RENTED`（租借中）、`RETURNED`（已归还）、`OVERDUE`（已逾期）、`LOST`（图书丢失）/`CANCELLED`，并标明状态迁移上的触发事件和保护条件。
+4.  **设计题4：职责分配与 GRASP 模式（10分）**：当系统需要计算一笔租金时，有多个相关类：`RentalRecord` (租借记录)、`BookSpecification` (图书价格规格)、`FinePolicy` (逾期罚款政策)。请运用 **GRASP 信息专家模式（Information Expert）**，写出详细的职责分配推导逻辑，确定“计算最终租金与罚款”的职责属于哪个类。
+5.  **设计题5：第三范式数据库逻辑结构设计（10分）**：在系统中，“图书（Book）”和“用户（User）”是多对多关系（一个用户可以借多本书，一本书也可以被多个用户在不同时间借阅）。请将该多对多关系转换设计为符合第三范式（3NF）的关系型数据库逻辑表结构，写出主要表名称、字段，标明主键（PK）和外键（FK）。
+
+---
+
+### 🔑 参考答案与评分标准
+
+#### 1. 三层架构设计类图绘制（10分）
+
+*   **评分标准**：
+    *   经典三层分层清晰且依赖方向单向正确（3分）；
+    *   接口与实现类隔离，实现关系（`Realization`）箭头使用虚线加空心三角形（3分）；
+    *   主外键 `{PK}/{FK}` 标注完整规范（4分）。
+
+#### 🎨 规范设计类图示
+<Mermaid code={`
+classDiagram
+    direction TB
+    
+    class TerminalPage {
+        -rentalController : RentalController
+        +clickConfirm() void
+    }
+    
+    class RentalController {
+        -rentalService : RentalService
+        +confirmRental(userId: Long, bookId: Long) Result
+    }
+    
+    class RentalService {
+        <<interface>>
+        +createRentalRecord(userId: Long, bookId: Long) Long
+    }
+    
+    class RentalServiceImpl {
+        -rentalRepo : RentalRepository
+        +createRentalRecord(userId: Long, bookId: Long) Long
+    }
+    
+    class RentalRepository {
+        <<interface>>
+        +save(record: RentalRecord) void
+    }
+    
+    class RentalRecord {
+        -recordId : Long
+        -userId : Long
+        -bookId : Long
+        -rentalStatus : String
+    }
+    note for RentalRecord "recordId: {PK}\nuserId: {FK -> User.userId}\nbookId: {FK -> Book.bookId}"
+
+    TerminalPage ..> RentalController : 依赖
+    RentalController --> RentalService : 依赖接口
+    RentalServiceImpl ..|> RentalService : 实现接口
+    RentalServiceImpl --> RentalRepository : 依赖接口
+    RentalRepository ..> RentalRecord : 操作实体
+`} />
+
+> 💡 **绘图与考试规范提示（三层架构类图）**：
+> * **主外键标注**：由于 Mermaid 语法限制，属性列表中若带花括号 `{PK}/{FK}` 会引起崩溃，本图例使用黄色 `note` 框在 `RentalRecord` 类下方标注。
+> * **考试手绘要求**：在期末闭卷考试手绘类图时，**必须直接把 `{PK}` 和 `{FK}` 写在属性行后面**，例如：`- recordId : Long {PK}`。
+
+---
+
+#### 2. 新图书入库活动图（10分）
+
+*   **评分标准**：
+    *   正确表达书籍格式的多分支判定（3分）；
+    *   并行同步条分叉与汇合（Fork / Join）绘制及对应控制流正确（4分）；
+    *   起点、终点等流程节点符号标准（3分）。
+
+#### 🎨 图书入库活动图示
+<Mermaid code={`
+stateDiagram-v2
+    state "读取书籍原始数据" as Read
+    state isPaperBook <<choice>>
+    state "进行格式标准化转换" as Standardize
+    state fork_state <<fork>>
+    state "生成物理RFID标签" as RFID
+    state "同步至检索索引库" as Index
+    state join_state <<join>>
+    state merge_state <<choice>>
+    state "持久化入库标记" as Save
+
+    [*] --> Read
+    Read --> isPaperBook : 书籍格式为何?
+    isPaperBook --> Standardize : [电子书]
+    isPaperBook --> fork_state : [纸质书]
+    Standardize --> merge_state
+    fork_state --> RFID
+    fork_state --> Index
+    RFID --> join_state
+    Index --> join_state
+    join_state --> merge_state
+    merge_state --> Save
+    Save --> [*]
+`} />
+
+> 💡 **绘图与考试规范提示（活动图决策分支）**：
+> * **判定问题标注**：由于 Mermaid 无法在决策菱形（`<<choice>>`）中写字，我们将判定条件（“书籍格式为何?”）写在了输入线上。
+> * **考试手绘要求**：在期末闭卷考试手绘活动图时，**必须将判定问题直接写在菱形框内部**。
+
+---
+
+#### 3. 租借记录状态机图（10分）
+
+*   **评分标准**：
+    *   状态框使用圆角矩形，写有明确的大写状态名（2分）；
+    *   正确展现逾期过渡及各种完结态的流向（4分）；
+    *   迁移线上的事件及保护条件标注清晰（4分）。
+
+#### 🎨 租借记录状态机图示
+<Mermaid code={`
+stateDiagram-v2
+    [*] --> RESERVED : 用户预订图书
+    
+    RESERVED --> RENTED : 扫码取书成功
+    RESERVED --> CANCELLED : 取消预订
+    
+    RENTED --> RETURNED : 按时归还
+    RENTED --> OVERDUE : 到期未还
+    
+    OVERDUE --> RETURNED : 用户超时归还 [扣除逾期罚金]
+    
+    RETURNED --> [*]
+    CANCELLED --> [*]
+`} />
+
+---
+
+#### 4. 以 GRASP 原则进行职责分配推理（10分）
+*   **标准答案**：
+    1.  根据 **GRASP 信息专家模式（Information Expert）**，职责应分配给拥有执行该职责所需全部信息的类。
+    2.  计算租金的核心基础数据存放在 `RentalRecord`（记录了实际借阅时长、是否受损等），而图书每日的基础租金单价存放在 `BookSpecification` 中，逾期计算罚款的倍率和天数规则存放在 `FinePolicy` 中。
+    3.  为了计算最终租金与罚款，`RentalRecord` 必须要关联 `BookSpecification` 以获取基础价格，并关联 `FinePolicy` 以判断是否逾期并计算罚款。由于 `RentalRecord` 完整持有了计算租借时间差的全部业务数据，且它组合/连接了另外两个专家类。
+    4.  **结论**：计算“最终租金与罚款”的核心方法 `calculateTotalFee()` 应分配给 **`RentalRecord` 类**。
+
+---
+
+#### 5. 逻辑数据库模型设计（10分）
+
+*   **评分标准**：
+    *   正确识别多对多关系无法在物理表直接存储，必须拆分为两个一对多，引入**中间关联表**（4分）；
+    *   主表与中间关联表字段设计合理（3分）；
+    *   精确标出主键（PK）与外键（FK）（3分）。
+
+*   **逻辑表结构设计**：
+1.  **用户表 (`sys_user`)**：
+    *   `user_id` (BIGINT) —— **PK**
+    *   `username` (VARCHAR)
+    *   `credit_score` (INT)
+2.  **图书表 (`lib_book`)**：
+    *   `book_id` (BIGINT) —— **PK**
+    *   `isbn` (VARCHAR)
+    *   `title` (VARCHAR)
+    *   `status` (VARCHAR)
+3.  **图书租借关联记录表 (`lib_rental_record`)** —— **中间关联表**：
+    *   `record_id` (BIGINT) —— **PK**
+    *   `user_id` (BIGINT) —— **FK** (关联 `sys_user.user_id`)
+    *   `book_id` (BIGINT) —— **FK** (关联 `lib_book.book_id`)
+    *   `start_time` (TIMESTAMP)
+    *   `end_time` (TIMESTAMP)
+    *   `rental_status` (VARCHAR)
