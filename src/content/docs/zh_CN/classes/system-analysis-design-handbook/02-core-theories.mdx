@@ -1,0 +1,431 @@
+---
+title: "第二部分：核心理论、操作契约与用例实现实战"
+published: 2026-07-05
+description: "系统分析与设计第二部分完整手册：项目可行性、操作契约、设计原则、GRASP、SOLID、架构风格、经典设计模式，以及从业务代码到 UML 用例实现的完整实践。"
+sidebar_position: 3
+---
+
+import Mermaid from "@/components/Mermaid.astro";
+
+# 📖 第二部分：核心理论、操作契约与用例实现实战
+
+本文将原先拆分的三篇“第二部分”内容合并为一篇，按理论基础、设计原则和操作契约实践三个分部组织。可通过右侧目录直接跳转到对应分部。
+
+## 第一分部：项目可行性与操作契约
+
+---
+
+### 一、 可行性分析与项目经济学
+
+项目启动前，必须通过可行性分析来评估项目的建设价值，从而决定“做还是不做”。
+
+#### 1. 系统可行性分析的三个维度
+1.  **技术可行性（Technical Feasibility）**：评估“我们能建立这个系统吗？”
+    *   *核心关注点*：开发团队对该技术的熟悉程度、项目规模、与现有硬软件系统的兼容性。
+2.  **经济可行性（Economic Feasibility）**：评估“我们应该建立这个系统吗？”
+    *   *核心关注点*：成本收益分析（Cost-Benefit Analysis）、投资回报率（ROI）、盈亏平衡分析（Break-Even Analysis）及资金的时间价值（NPV）。
+3.  **组织/操作可行性（Organizational/Operational Feasibility）**：评估“如果建成了，系统会被接受和使用吗？”
+    *   *核心关注点*：业务流程的匹配度、组织变革阻力、是否有强力的项目赞助人（Sponsor）与倡导者（Champion）。
+
+---
+
+#### 2. 成本与收益的精细分类
+
+##### 2.1 成本的分类
+*   **有形成本（Tangible Costs）**：能够**直接、容易地用金钱和精确度量**衡量的开发或运行开销。
+    *   *典型例子*：硬件服务器采购费、商用数据库正版授权费、开发人员外包工资。
+*   **无形成本（Intangible Costs）**：对组织有负面影响，但**极难用金钱直接、准确衡量**的成本。
+    *   *典型例子*：系统切换导致的员工工作士气低落、客户服务质量短暂下降导致的客户信任度波动。
+*   **一次性成本（One-time Costs）**：仅在项目系统研发和启动实施阶段发生的一次性开销。
+    *   *典型例子*：系统初始定制开发费、老系统数据迁移费、员工系统操作培训费。
+*   **续生成本/运行成本（Recurring Costs）**：系统上线后，在整个生命周期内为保障系统持续正常运转而产生的**持续性/周期性支出**。
+    *   *典型例子*：每年云主机租赁费、年度软件维护和技术支持服务费、运维团队的日常薪资。
+
+##### 2.2 收益的分类
+*   **有形收益（Tangible Benefits）**：能够容易且精确地用货币金额度量的系统增值。
+    *   *典型例子*：销售额直接提升15%、因自动化作业而减少的3名文员人工成本。
+*   **无形收益（Intangible Benefits）**：对企业极具长远价值，但很难直接财务化计量的收益。
+    *   *典型例子*：品牌形象的提升、用户留存度与满意度增加、管理层决策响应速度变快。
+*   **一次性收益（One-time Benefits）**：一次性的资金流入，如老旧服务器资产的折价变现。
+
+---
+
+### 二、 系统操作契约 (System Operation Contract)
+
+#### 1. 契约的定义与核心结构
+操作契约是对系统顺序图（SSD）中触发的外部系统事件的细化描述，是连接分析阶段与设计阶段的纽带。
+*   **系统操作（System Operation）**：操作的方法签名（名称及入参）。
+*   **交叉引用（Cross Reference）**：该操作所对应的系统用例及业务需求。
+*   **前置条件（Pre-conditions）**：系统在执行该操作前，系统状态所必须满足的前提假设。
+*   **后置条件（Post-conditions）**（**重点**）：操作执行完毕后，系统状态发生的根本性、持久化物理改变。
+
+#### 2. 后置条件的“黄金三法则”
+在书写后置条件时，严禁使用“更新”、“保存”等过程性、动作性的描述，必须使用**过去时态**，描述以下三种物理状态的改变：
+1.  **对象被创建或销毁**。
+2.  **对象的属性值被修改**。
+3.  **对象之间的连接关系（关联/链接）被创建或断开**。
+
+---
+
+## 第二分部：设计原则与经典设计模式
+
+---
+
+### 一、 面向对象设计原则（抽象、模块化、内聚与耦合）
+
+#### 1. 核心设计思想
+
+##### 1.1 抽象（Abstraction）
+*   **定义**：忽略与当前目标无关的非本质细节，将注意力集中在与系统本质特征相关的属性与行为上。
+*   **举例**：在银行系统中，不关心客户的身高、血型（忽略非本质属性），只抽象出 `Account` 类并定义 `balance`、`acntNumber` 属性。
+
+##### 1.2 模块化（Modularization）
+*   **定义**：将一个大型系统按职责逻辑划分为若干个能够独立开发、测试、调试、维护并可以互相替换的单一模块。
+*   **举例**：将整个爬虫新闻系统拆分为 `business`（业务域）、`system`（公共基础）和 `feature`（专项功能）三个大模块。
+
+---
+
+#### 2. 内聚度（Cohesion）深度梳理
+**内聚度**：用于衡量一个模块/类内部各元素之间**关联紧密程度**的指标。**设计目标：高内聚**。
+
+##### 内聚度的七个级别（从低到高排列）：
+1.  **偶然内聚（Coincidental Cohesion）**（最低）：模块内各部分之间没有任何逻辑关系，仅仅是偶然被拼凑在一起。
+2.  **逻辑内聚（Logical Cohesion）**：模块内部执行几个逻辑上相似但性质不同的功能，执行哪个功能由外部传入的参数决定。
+3.  **时间内聚（Temporal Cohesion）**：模块内各任务唯一的共同点是它们必须在同一时间内执行（如：系统初始化模块，既初始化数据库，又加载配置文件）。
+4.  **过程内聚（Procedural Cohesion）**：模块内部的各个任务必须按照特定的顺序步骤执行（如：先读卡、再验密、后出钞）。
+5.  **通信内聚（Communication Cohesion）**：模块内部的所有任务都引用、操作同一个输入数据集或产生相同的输出数据。
+6.  **顺序内聚（Sequential Cohesion）**：模块内一个任务的输出，是下一个任务的输入（如：先抓取HTML，再提取文本）。
+7.  **功能内聚（Functional Cohesion）**（最高）：模块或类**只专注于执行一个单一、明确、完整的业务功能**。
+    *   *举例*：`CrawlStrategy` 类仅负责执行网络页面爬取任务。
+
+---
+
+#### 3. 耦合度（Coupling）深度梳理
+**耦合度**：用于衡量模块/类之间**相互依赖紧密程度**的指标。**设计目标：低耦合**。
+
+##### 耦合度的七个级别（从高到低，即从最差到最好排列）：
+1.  **内容耦合（Content Coupling）**（最差）：一个模块直接修改、访问另一个模块的内部数据或私有代码。
+2.  **公共耦合（Common Coupling）**：多个模块共同访问同一个全局数据区或公共存储区。
+3.  **外部耦合（External Coupling）**：多个模块共同依赖并访问外部的技术格式、通信协议或设备接口。
+4.  **控制耦合（Control Coupling）**：一个模块通过向另一个模块传递开关、标志、控制信号，来显式控制其内部的执行流程。
+5.  **标记/特征耦合（Stamp Coupling）**：模块之间通过参数传递复杂的、包含多余字段的复合数据结构（如：为了获取用户名，却把整个 `User` 对象传了过去）。
+6.  **数据耦合（Data Coupling）**：模块之间通过简单的基础数据类型参数传递必要的信息（如：传递 `Long userId`）。
+7.  **无直接耦合（No Coupling）**（最好）：两个模块之间没有任何直接或间接的依赖关系。
+
+---
+
+#### 4. 纵向三层架构体系：UI、BLL 与 DAL
+*   **纵向结构的目的**：通过将职责水平划分，实现“上层仅依赖下层”，以此达到高内聚、低耦合、便于模块替换的目标。
+1.  **表示层（UI / View）**：
+    *   *职责*：直接对接用户，负责界面的布局呈现、收集用户输入、进行简单的客户端数据校验，不包含任何核心业务逻辑。
+2.  **业务逻辑层（BLL / Service）**：
+    *   *职责*：系统的核心。负责业务规则的制定、流程的编排调度、事务的控制和权限校验。
+3.  **数据访问层（DAL / Repository）**：
+    *   *职责*：专注于底层的持久化操作。直接与数据库进行数据交互（`CRUD` 操作），不进行任何业务判断。
+
+---
+
+### 二、 职责分配 GRASP 原则
+
+GRASP（通用职责分配软件模式）包含九种基本模式，这里重点复习五大核心分配原则：
+
+1.  **信息专家（Information Expert）**：把职责分配给拥有实现该职责所需信息的类。
+    *   *举例*：由于 `Order` 持有商品列表，所以把计算总额 `calculateTotal()` 的方法写在 `Order` 中。
+2.  **创建者（Creator）**：如果 B 包含/聚合 A，或者 B 拥有 A 的初始化数据，则由 B 负责创建 A。
+    *   *举例*：由 `TaskServiceImpl` 实例化 `NewsCollectionTask`，因为其接收并持有了创建该任务所需的数据。
+3.  **控制器（Controller）**：分配接收和处理系统事件的职责给外部边界后的第一个控制类对象。
+    *   *举例*：后端的 `TaskController` 作为统一的控制类，不承担具体业务，仅负责协调转发。
+4.  **低耦合（Low Coupling）**：在分配职责时，尽量减少类与类之间的连接，以保持系统的可重用性和易维护性。
+    *   *举例*：让 `MesgMapper` 依赖 Service 接口，将前端消息处理器与具体的底层实体类解耦。
+5.  **高内聚（High Cohesion）**：在分配职责时，保证一个类的职责是高度单一且集中的。
+    *   *举例*：将复杂的爬虫算法和网页解析算法从业务层抽出，封装为独立的 `CrawlerService` 与 `ParserService`。
+
+---
+
+### 三、 SOLID 原则深度辨析与举例
+
+| 原则简称 | 全称 | 核心内涵 | 典型应用举例 |
+| :---: | :--- | :--- | :--- |
+| **S** | **单一职责原则**<br/>(Single Responsibility) | 一个类或模块，应该**有且仅有一个引起它变化的原因**（只专注做好一件事）。 | 避免在 `TaskServiceImpl` 中编写网络请求代码。网络请求应剥离给 `CrawlerService` 负责，实现职责单一。 |
+| **O** | **开闭原则**<br/>(Open-Closed Principle) | 软件实体（类、模块、函数）应该**对扩展开放，对修改关闭**。通过多态和接口实现。 | **策略模式应用**：当系统引入大模型解析时，不需要修改 `ParserContext` 的代码，只需新增一个 `AIParseStrategy` 策略实现类。 |
+| **L** | **里氏替换原则**<br/>(Liskov Substitution) | **子类对象必须能够替换掉所有父类对象**，且不会破坏系统的正确性。 | 在银行系统中，所有接收 `Account` 基类的业务方法，传入子类 `Saving` 或 `Checking` 都能正常运行且逻辑自洽。 |
+| **I** | **接口隔离原则**<br/>(Interface Segregation) | **客户端不应该被强迫依赖它不使用的方法**。应该使用多个专门的细粒度接口，而非一个庞大的“胖接口”。 | 避免设计一个含有“抓取、解析、发布、安全审计”所有方法的巨型接口。应拆分为 `CrawlerService`, `ParserService` 等细粒度接口。 |
+| **D** | **依赖倒置原则**<br/>(Dependency Inversion) | **高层模块不应该依赖低层具体实现类，二者都应该依赖其抽象接口**。 | `TaskController` 只声明并持有 `TaskService` 接口的引用，而不直接依赖具体的 `TaskServiceImpl` 具体实现类。 |
+
+---
+
+### 四、 经典软件架构风格横向对比
+
+| 架构风格 | 核心组件与组织范式 | 核心非功能特征 | 经典应用案例 |
+| :--- | :--- | :--- | :--- |
+| **分层架构**<br/>(Layered) | 按逻辑水平层级划分，分为展示层、业务层、服务层、持久层等。 | **可维护性好，易修改**。但调用链较长，有潜在的性能开销。 | 传统的企业级 Java Web 单体应用。 |
+| **MVC** | 拆分为 Model（模型）、View（视图）、Controller（控制器）三个组件。 | **前后端职责分明，易于团队按工种分工**。 | Spring MVC Web 项目。 |
+| **MVVM** | 引入 ViewModel 作为 View 和 Model 的双向数据绑定中间代理。 | **前端开发高度模板化**，无需手动操作 DOM。 | Vue.js, React 前端应用。 |
+| **管道-过滤器**<br/>(Pipe-Filter) | 无状态的 Filter（数据处理器：Producer, Transformer, Tester, Consumer）通过单向 Pipe（管道）串联。 | **高复用性，高可扩展性**。每个过滤器高度自治。 | Linux Shell 命令管道（`|`）、Java 8 Stream、音频流编解码。 |
+| **微内核架构**<br/>(Microkernel) | 最小功能集的**核心系统（Core）** + 动态注册的**插件（Plugins）**。 | **极高的可定制性与灵活性**。 | Eclipse 编辑器（OSGi）、VSCode。 |
+| **面向服务**<br/>(SOA) | 粗粒度服务通过重型**企业服务总线（ESB）**、WSDL、SOAP、UDDI 进行注册和通信。 | 解决企业内部**多系统集成、异构系统互操作性**问题。 | 大型传统金融、电信内部集成平台。 |
+| **微服务**<br/>(Microservices)| 去中心化、轻量级点对点通信，服务独占独立数据库，天然适配容器化部署。 | **极高的可伸缩性、故障隔离性**。支持独立灰度发布。 | 现代化海量并发互联网应用、云原生服务。 |
+
+---
+
+### 五、 23 种经典设计模式全景汇总
+
+根据模式的核心目的，23 种设计模式分为三大类。
+
+```text
+                          23种经典设计模式 (GoF)
+                                  |
+         +------------------------+------------------------+
+         |                        |                        |
+  创建型模式 (Creational)   结构型模式 (Structural)   行为型模式 (Behavioral)
+  关注“如何优雅地创建对象”  关注“类与对象的组合/桥接” 关注“算法在对象间的职责分配”
+         |                        |                        |
+  1. 单例模式 (Singleton)   1. 适配器模式 (Adapter)   1. 策略模式 (Strategy)
+  2. 工厂方法 (Factory M.)  2. 装饰器模式 (Decorator)  2. 观察者模式 (Observer)
+  3. 抽象工厂 (Abst. Fact.) 3. 代理模式 (Proxy)       3. 状态模式 (State)
+  4. 建造者模式 (Builder)   4. 外观模式 (Facade)      4. 模板方法 (Template Method)
+  5. 原型模式 (Prototype)   5. 桥接模式 (Bridge)      5. 命令模式 (Command)
+                            6. 组合模式 (Composite)   6. 职责链模式 (Chain of Resp.)
+                            7. 享元模式 (Flyweight)   7. 迭代器模式 (Iterator)
+                                                      8. 中介者模式 (Mediator)
+                                                      9. 备忘录模式 (Memento)
+                                                      10. 访问者模式 (Visitor)
+                                                      11. 解释器模式 (Interpreter)
+```
+
+---
+
+## 第三分部：操作契约与用例实现实战
+
+本节将以最直观易懂的方式，带你从0搞懂什么是**系统操作契约（System Operation Contract）**。
+
+我们将使用 **Kotlin 语言**编写一个极简、真实的“银行账户取款并生成账单交易”功能，手把手看一看**代码里的每一行逻辑，是如何精准翻译成 UML 操作契约的前置条件与后置条件，并绘制出对应的系统顺序图、设计级顺序图及设计类图的**。
+
+---
+
+### 一、 Kotlin 业务代码实现（以银行取款为例）
+
+假设系统包含两个实体类（Entity）：`Account`（账户）和 `Transaction`（交易记录）。
+
+```kotlin
+// 1. 账户实体类
+data class Account(
+    val accountId: Long,
+    var balance: Double // 余额
+)
+
+// 2. 交易记录实体类（取款成功后生成）
+data class Transaction(
+    val transactionId: Long,
+    val accountId: Long,
+    val amount: Double,
+    val timestamp: Long
+)
+```
+
+现在，我们在业务逻辑层（Service）中实现“取款”方法：
+
+```kotlin
+class AccountService(private val accountRepository: AccountRepository) {
+
+    /**
+     * 执行取款操作
+     * @param accountId 账户ID
+     * @param amount 取款金额
+     */
+    fun withdraw(accountId: Long, amount: Double): Long {
+        // ------------------ 【前置状态校验】 ------------------
+        // 校验1：账户在系统数据库中必须存在
+        val account = accountRepository.findById(accountId)
+            ?: throw IllegalArgumentException("账户不存在")
+
+        // 校验2：账户余额必须大于或等于取款金额
+        if (account.balance < amount) {
+            throw IllegalStateException("余额不足")
+        }
+
+        // ------------------ 【执行状态改变】 ------------------
+        // 改变1：修改已有账户对象的属性（余额扣减）
+        account.balance -= amount
+
+        // 改变2：创建了一个新的交易记录对象实例
+        val newTxnId = System.currentTimeMillis() // 模拟生成唯一ID
+        val transaction = Transaction(
+            transactionId = newTxnId,
+            accountId = account.accountId, // 改变3：新交易记录关联到了该账户
+            amount = amount,
+            timestamp = System.currentTimeMillis()
+        )
+
+        // ------------------ 【持久化保存】 ------------------
+        accountRepository.update(account)
+        accountRepository.saveTransaction(transaction)
+
+        return newTxnId
+    }
+}
+```
+
+---
+
+### 二、 用例建模与设计图示
+
+#### 1. 系统顺序图 (SSD)
+系统顺序图是针对单个用例场景，将**整个系统视为黑盒**。它展示了外部参与者与系统之间的事件交互：
+
+<Mermaid code={`
+sequenceDiagram
+    actor Customer as 客户
+    participant System as :System
+
+    Customer->>System: withdraw(accountId, amount)
+    alt 余额充足
+        System-->>Customer: return transactionId
+    else 余额不足
+        System-->>Customer: throw IllegalStateException
+    end
+`} />
+
+---
+
+#### 2. 设计级顺序图 (Detailed Sequence Diagram)
+设计级顺序图深入到系统内部，展示了 Kotlin 代码中各个**类对象和接口之间**的方法调用、实例化过程和参数传递：
+
+<Mermaid code={`
+sequenceDiagram
+    participant Service as accountService : AccountService
+    participant Repo as accountRepository : AccountRepository
+    participant Acc as account : Account
+    participant Txn as transaction : Transaction
+
+    [->>Service: withdraw(accountId, amount)
+    activate Service
+
+    Service->>Repo: findById(accountId)
+    activate Repo
+    Repo-->>Service: account : Account
+    deactivate Repo
+
+    opt account == null
+        Service-->>[: throw IllegalArgumentException("账户不存在")
+    end
+
+    Service->>Acc: getBalance()
+    activate Acc
+    Acc-->>Service: balance
+    deactivate Acc
+
+    opt balance < amount
+        Service-->>[: throw IllegalStateException("余额不足")
+    end
+
+    Service->>Acc: setBalance(balance - amount)
+
+    Service->>Txn: <<create>> Transaction(txnId, accountId, amount, timestamp)
+    activate Txn
+    Txn-->>Service: transaction : Transaction
+    deactivate Txn
+
+    Service->>Repo: update(account)
+    Service->>Repo: saveTransaction(transaction)
+
+    Service-->>[: transactionId
+    deactivate Service
+`} />
+
+---
+
+#### 3. 设计类图 (DCD - Design Class Diagram)
+根据上述代码和交互，系统设计类图展示了类之间的依赖与实现关系：
+
+<Mermaid code={`
+classDiagram
+    direction TB
+
+    class AccountService {
+        -accountRepository : AccountRepository
+        +withdraw(accountId: Long, amount: Double) Long
+    }
+
+    class AccountRepository {
+        <<interface>>
+        +findById(accountId: Long) Account
+        +update(account: Account) void
+        +saveTransaction(transaction: Transaction) void
+    }
+
+    class Account {
+        -accountId : Long
+        -balance : Double
+    }
+    note for Account "accountId: {PK}"
+
+    class Transaction {
+        -transactionId : Long
+        -accountId : Long
+        -amount : Double
+        -timestamp : Long
+    }
+    note for Transaction "transactionId: {PK}\naccountId: {FK -> Account.accountId}"
+
+    AccountService --> AccountRepository : 依赖接口
+    AccountRepository ..> Account : 操作实体
+    AccountRepository ..> Transaction : 操作实体
+    Transaction --> Account : 关联
+`} />
+
+> 💡 **绘图与考试规范提示（类图）**：
+> * **主外键标注**：由于 Mermaid 语法限制，属性列表中不支持直接使用花括号（会引起崩溃），本图例使用黄色 `note` 框在类下方标注。
+> * **考试手绘要求**：在期末闭卷考试手绘类图时，**必须直接把 `{PK}` 和 `{FK}` 写在属性行后面**，例如：`- accountId : Long {PK}`。
+
+---
+
+### 三、 从代码到操作契约的“精细翻译”
+
+#### 1. 翻译“前置条件（Pre-conditions）”
+前置条件专注于**执行操作前系统必须满足的客观状态**。
+
+| Kotlin 业务代码 | 精准翻译（UML 前置条件） | 命题与考场书写要点 |
+| :--- | :--- | :--- |
+| `accountRepository.findById(accountId) ?: throw ...` | **系统里必须存在一个 `accountId` 对应的 `Account` 实例。** | 强调非空校验，确认参与实体在系统中存在。 |
+| `if (account.balance < amount)` | **该 `Account` 实例的 `balance` 必须大于或等于 `amount`。** | 强调核心业务安全校验，使用“必须”等条件陈述词。 |
+
+> [!IMPORTANT]
+> **💡 考场防扣分红线：前置条件要写“系统状态”，不能写“用户交互/操作”**
+> * ❌ **错误写法**：“用户必须先在取款机界面上输入正确的卡号、密码并选择取款金额。”（这是人机界面交互，非系统客观状态，零分！）
+> * ✓ **正确写法**：“用户处于登录/已鉴权状态，且输入的 `accountId` 在系统中存在对应实例。”（这是系统的客观初始状态，满分！）
+
+---
+
+#### 2. 翻译“后置条件（Post-conditions）” —— 严格套用“黄金三法则”
+后置条件声明式地表达**操作执行完毕后系统状态发生的根本改变**，拒绝过程性动作描述。
+
+| Kotlin 业务代码 | 对应“黄金三法则” | 精准翻译（UML 后置条件） |
+| :--- | :--- | :--- |
+| `val transaction = Transaction(...)` | **法则一：实例创建** | **创建了一个 `Transaction` 的实例 `t`。** |
+| `account.balance -= amount` | **法则二：属性修改** | **该 `Account` 实例的 `balance` 被修改为（原余额 - `amount`）。** |
+| 在构造器中隐式关联：`accountId = account.accountId` | **法则三：关联形成** | **`t` 与该 `Account` 实例建立了（形成了）关联。** |
+
+> [!IMPORTANT]
+> **💡 考场防扣分红线：后置条件写“客观状态改变”，不写“系统动作/过程”**
+> * ❌ **错误写法**：“系统检测余额，扣款，然后把交易记录保存到数据库中，并在屏幕上显示余额。”（这是过程性描述，零分！）
+> * ✓ **正确写法**：“创建了 `Transaction` 实例 `t`；`Account` 的 `balance` 属性被减少了。”（声明式状态改变，满分！）
+> * **时态要求**：在中文书写时应尽量使用“**被创建**”、“**被修改为**”、“**建立了关联**”等过去时/被动词汇以表状态完结。
+
+---
+
+#### 3. 标准系统操作契约文档（UML 规范格式）
+
+在期末考试或设计文档中，应该将上述推导组织成如下的标准表格格式：
+
+| 契约项 | 规范化书写内容 | 对应 Kotlin 源码位置 |
+| :--- | :--- | :--- |
+| **操作 (Operation)** | `withdraw(accountId: Long, amount: Double)` | `fun withdraw(accountId: Long, amount: Double)` |
+| **交叉引用 (Cross References)** | 关联用例：在线取款（见 [系统顺序图 SSD](#1-系统顺序图-ssd)）<br />关联设计：Account, Transaction（见 [设计类图 DCD](#3-设计类图-dcd---design-class-diagram)） | - |
+| **前置条件 (Pre-conditions)** | 1. 账户（`accountId`）在系统中必须存在。<br />2. 该账户的余额（`balance`）必须大于或等于取款金额（`amount`） [PDF 5]。 | `accountRepository.findById(accountId)`<br />`if (account.balance < amount)` |
+| **后置条件 (Post-conditions)** | **1. 实例创建**：创建了一个 `Transaction` 的实例 `t` [PDF 5]。<br />**2. 属性修改**：该 `Account` 实例的 `balance` 属性被修改为（原余额 - `amount`） [PDF 5]。<br />**3. 关联形成**：`t` 与该 `Account` 实例建立了关联 [PDF 5]。 | `val transaction = Transaction(...)`<br />`account.balance -= amount`<br />`accountId = account.accountId` |
+
+> [!TIP]
+> **💡 考场防扣分红线：交叉引用（Cross Reference）到底如何具体关联题目？**
+> * **定义与作用**：交叉引用代表“这份合同/契约是为了履行哪一个业务用例而订立的”，它将系统事件与用例及非功能需求链接在一起。
+> * **考场具体书写指南**：在手写或设计时，交叉引用应精准关联至您绘制的**用例图中的具体用例名称**（如 `关联用例：在线取款` 或 `关联用例：提交订单`）以及试卷题目中给出的**具体非功能需求编号或页面**（如 `非功能需求第5页` 或 `[PDF 5]` / `需求规则 BR-1.2`）。
