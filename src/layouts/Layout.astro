@@ -73,9 +73,7 @@ const bannerOffset =
 ---
 
 <!DOCTYPE html>
-<html lang={siteLang} class="bg-[var(--page-bg)] transition text-[14px] md:text-[16px]"
-	  data-overlayscrollbars-initialize
->
+<html lang={siteLang} class="bg-[var(--page-bg)] transition text-[14px] md:text-[16px]">
 	<head>
 
 		<title>{pageTitle}</title>
@@ -153,9 +151,7 @@ const bannerOffset =
 		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={new URL(url("/rss.xml"), Astro.site).href}/>
 
 	</head>
-	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
-		  data-overlayscrollbars-initialize
-	>
+	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}>
 		<ConfigCarrier></ConfigCarrier>
 		<slot />
 
@@ -301,10 +297,25 @@ function loadHue() {
 	setHue(getHue())
 }
 
+let customScrollbarInstance: ReturnType<typeof OverlayScrollbars> | null = null;
+
+function isLongFormContentRoute() {
+	const pathname = stripBasePath(window.location.pathname);
+	return /^\/(?:[a-zA-Z_-]+\/)?(?:posts|docs)\//.test(pathname);
+}
+
 function initCustomScrollbar() {
+	if (isLongFormContentRoute()) {
+		customScrollbarInstance?.destroy();
+		customScrollbarInstance = null;
+		return;
+	}
+
+	if (customScrollbarInstance) return;
+
 	const bodyElement = document.querySelector('body');
 	if (!bodyElement) return;
-	OverlayScrollbars(
+	customScrollbarInstance = OverlayScrollbars(
 		// docs say that a initialization to the body element would affect native functionality like window.scrollTo
 		// but just leave it here for now
 		{

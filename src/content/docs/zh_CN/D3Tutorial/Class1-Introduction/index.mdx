@@ -36,7 +36,7 @@ import * as d3 from "d3"
 ## D3.js的入门知识
 一般情况下 D3.js 往往配合SVG元素使用，SVG是一种用于描述二维矢量图形的XML标记语言，它被用于创建动态的、交互式的图形。
 首先需要创建一个SVG元素，然后使用D3.js提供的函数来操作SVG元素，如选择、过滤、聚合等。
-<Diagram1 client:only="react">
+<Diagram1 client:visible>
     ```typescript jsx
     <svg class="diagram"/>
     <script>
@@ -88,7 +88,7 @@ attr可以操作元素的属性 也就是html元素写在开头括号里面的�
 />
 ```
 
-<DiagramRect client:only="react">
+<DiagramRect client:visible>
     ```typescript
     rect.attr('x',30).attr('y',30) //设置矩形的起始坐标为(30,30)
     .attr('width',300).attr('height',300) //设置矩形的宽高分别为300
@@ -110,7 +110,7 @@ attr可以操作元素的属性 也就是html元素写在开头括号里面的�
 />
 ```
 
-<DiagramCircle client:only="react">
+<DiagramCircle client:visible>
     ```typescript
     circle.attr('cx',30).attr('cy',30) //设置圆心为(30,30)
     .attr('r',20) //设置半径为20
@@ -130,7 +130,7 @@ attr可以操作元素的属性 也就是html元素写在开头括号里面的�
 />
 ```
 
-<DiagramLine client:only="react">
+<DiagramLine client:visible>
     ```typescript
     line.attr('x1',30).attr('y1',30) //设置Line的起始坐标为(30,30)
     .attr('x2',300).attr('y2',200) //设置Line的终点坐标为(300,200)
@@ -161,7 +161,7 @@ d 属性定义了路径的路径数据，即路径命令序列。
 - A（圆弧）
 - Z（闭合路径）等。
 
-<DiagramPath client:only="react">
+<DiagramPath client:visible>
     ```typescript
     path.attr('d','M100 100 L200 200 L300 100 L400 400')
     //设置线段移动轨迹 (100,100) -> (200,200) -> (300,100) -> (400,400)
@@ -185,7 +185,7 @@ d 属性定义了路径的路径数据，即路径命令序列。
 </text>
 ```
 
-<DiagramText client:only="react">
+<DiagramText client:visible>
     ```typescript
     const text=d3.select(svg).append('text')
     text.attr('x',200).attr('y',200) //设置文本的起始坐标为(200,200)
@@ -197,7 +197,7 @@ d 属性定义了路径的路径数据，即路径命令序列。
 </DiagramText>
 
 ### D3的链式函数调用
-<Diagram7 client:only="react">
+<Diagram7 client:visible>
     ```typescript jsx
     const svg=d3.select(".diagram")
     svg.attr("width",600).attr("height",400)//设置svg的属性为宽600高400
@@ -233,7 +233,7 @@ rects.attr('x',(d,i)=>i*50).attr('y',20).attr('width',40).attr('height',(d)=>10*
 在设定x坐标和高度的时候 我们就希望让每一个rect的x坐标和高度根据数据动态变化 这时候就可以使用attr的第二个参数作为函数的形式来实现
 这个函数的第一个参数d就是数据本身 i就是当前元素的索引
 
-<Diagram8 client:only="react">
+<Diagram8 client:visible>
     ```typescript jsx
     const data=[12,10,19,10,4,3,4,5,6,7]
     const rects=d3.select(svg).selectAll('rect').data(data).enter().append('rect')
@@ -280,7 +280,7 @@ xScale(1) //返回100
 rects.attr('x',(d,i)=>i*50).attr('y',20).attr('width',40).attr('height',(d)=>10*d)
 ```
 在这里我们是通过索引设置x的值和height的值的 但是我们会发现每次都要这样运算会十分麻烦 因此我们可以使用比例尺来简化这个图像
-<Diagram9 client:only="react">
+<Diagram9 client:visible>
 
     ```typescript jsx
     const xScale=d3.scaleLinear().domain([0,data.length-1]).range([50,500])
@@ -293,12 +293,12 @@ rects.attr('x',(d,i)=>i*50).attr('y',20).attr('width',40).attr('height',(d)=>10*
 </Diagram9>
 
 但是在这里我们又发现了一个问题 按正常阅读习惯来说的话 柱状图应该是从下往上长的 但是因为(0,0)点在左上角(如图)
-<Diagram10 client:only="react"/>
+<Diagram10 client:visible/>
 
 现在是反过来的 为了实现这个效果 我们需要将比例尺的范围反过来
 利用比例尺实现这个功能也十分简单 我们只需要让range的顺序反过来即可
 
-<Diagram11 client:only="react">
+<Diagram11 client:visible>
     ```typescript jsx
     const yScale=d3.scaleLinear().domain([0,Math.max(...data)]).range([300,0])
     //调转range的参数顺序 使其反向映射
@@ -320,7 +320,7 @@ d3.axisRight(scale)// 通过比例尺创建一个刻度位于右侧的垂直坐�
 创建比例尺之后 我们再根据比例尺 创建X Y坐标轴并绘制在svg上面 这里我们使用d3的call函数
 
 
-<Diagram12 client:only="react">
+<Diagram12 client:visible>
     ```typescript jsx
     const xAxis = d3.axisBottom(xScale)
     const yAxis = d3.axisLeft(yScale)
@@ -339,7 +339,7 @@ d3的坐标轴非常智能 它可以根据具体比例和数据大小 自动推�
 const data=[12,10,19,10,4,3,4,5,6,7]
 ```
 ### 1.创建一个svg元素
-<Diagram13 client:only="react">
+<Diagram13 client:visible>
     ```typescript jsx
     const svg = d3.select("#chart").append("svg").attr("width",600).attr("height",600)
     ```
@@ -357,7 +357,7 @@ y轴同理
 
 ### 3.创建坐标轴
 
-<Diagram14 client:only="react">
+<Diagram14 client:visible>
     ```typescript jsx
     const xScale=d3.scaleLinear().domain([0,data.length-1]).range([50,550])
     const yScale=d3.scaleLinear().domain([0,Math.max(...data)]).range([350,50])
@@ -373,7 +373,7 @@ y轴同理
 ### 4.绘制线段
 坐标轴绘制完成后 我们再通过path元素来绘制一条线
 
-<Diagram15 client:only="react">
+<Diagram15 client:visible>
     ```typescript jsx
     svg.append("path")
     .attr("d",d3.line()(data.map((d,i)=>[xScale(i),yScale(d)])))
@@ -387,7 +387,7 @@ y轴同理
 
 ### 5.绘制数据点
 线绘制完成后 我们接下来绘制所有的点
-<Diagram16 client:only="react">
+<Diagram16 client:visible>
     ```typescript jsx
     svg.selectAll("points").data(data).enter().append("circle").attr("class","point")
     .attr("cx",(_,i)=>xScale(i)).attr("cy",(d)=>yScale(d))
@@ -399,7 +399,7 @@ y轴同理
 
 ### 6.绘制数据文字
 最后 我们在点的上方绘制数据对应的值
-<Diagram17 client:only="react">
+<Diagram17 client:visible>
     ```typescript jsx
     svg.selectAll("data-text").data(data).enter().append("text").attr("class","data-text")
     .attr("text-anchor","middle")

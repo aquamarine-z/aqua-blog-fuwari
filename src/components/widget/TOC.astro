@@ -71,6 +71,8 @@ class TableOfContents extends HTMLElement {
     tocEntries: HTMLAnchorElement[] = [];
     active: boolean[] = [];
     activeIndicator: HTMLElement | null = null;
+    updateFrameId: number | null = null;
+    activeRangeKey = "";
 
     constructor() {
         super();
@@ -145,16 +147,25 @@ class TableOfContents extends HTMLElement {
         this.tocEl.scrollTo({
             top,
             left: 0,
-            behavior: "smooth",
+            behavior: "auto",
         });
     };
 
     update = () => {
-        requestAnimationFrame(() => {
+        if (this.updateFrameId !== null) return;
+
+        this.updateFrameId = requestAnimationFrame(() => {
+            this.updateFrameId = null;
+            const min = this.active.indexOf(true);
+            const max = this.active.lastIndexOf(true);
+            const nextActiveRangeKey = `${min}:${max}`;
+
+            if (nextActiveRangeKey === this.activeRangeKey && !this.anchorNavTarget)
+                return;
+
+            this.activeRangeKey = nextActiveRangeKey;
             this.toggleActiveHeading();
-            // requestAnimationFrame(() => {
             this.scrollToActiveHeading();
-            // });
         });
     };
 
@@ -259,6 +270,10 @@ class TableOfContents extends HTMLElement {
     };
 
     disconnectedCallback() {
+        if (this.updateFrameId !== null) {
+            cancelAnimationFrame(this.updateFrameId);
+            this.updateFrameId = null;
+        }
         this.sections.forEach((section) =>
             this.observer.unobserve(section)
         );
