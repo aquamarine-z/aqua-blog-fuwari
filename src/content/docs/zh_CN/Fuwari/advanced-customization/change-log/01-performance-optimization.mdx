@@ -50,7 +50,9 @@ function isLongFormContentRoute() {
 
 长文章滚动时，多个标题可能在同一帧内连续触发 `IntersectionObserver`。目录组件现在只排队一个 `requestAnimationFrame`，并用活动标题范围键跳过无变化的更新，从而减少重复的 DOM 样式切换和布局读取。
 
-目录自动跟随由 `smooth` 改为 `auto`，避免正文惯性滚动与侧栏平滑滚动同时运行两套动画。组件卸载时必须取消尚未执行的帧任务。
+目录自动跟随保留 `smooth` 视觉效果，但只会在活动标题范围真正变化后启动，并且通过单个 `requestAnimationFrame` 合并同一帧内的多次观察器通知。系统开启“减少动态效果”时会自动退回 `auto`。组件卸载时必须取消尚未执行的帧任务。
+
+文章页依然使用浏览器原生滚动管线。为了兼顾桌面端外观，`src/styles/scrollbar.css` 仅通过标准滚动条属性与 `::-webkit-scrollbar` 伪元素设置宽度、颜色和圆角，不创建额外 JavaScript 滚动容器。
 
 ## 四、多组件 MDX 默认使用 client:visible
 

@@ -147,7 +147,9 @@ class TableOfContents extends HTMLElement {
         this.tocEl.scrollTo({
             top,
             left: 0,
-            behavior: "auto",
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                ? "auto"
+                : "smooth",
         });
     };
 
