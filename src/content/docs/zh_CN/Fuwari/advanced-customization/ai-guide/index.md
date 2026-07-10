@@ -26,4 +26,16 @@ This guide is modularized into the following sub-articles. It is recommended to 
 6. **[Swup & Boundaries](./06-swup-routing/)**: Page transition architecture, sidebar partial sync mechanism, mobile scrolling positioning order, and language selection Swup bypass.
 7. **[Custom Plugins](./07-custom-plugins/)**: Guidelines for custom build-time plugins in the `src/astro-plugins/` directory.
 8. **[Troubleshooting](./08-troubleshooting/)**: Error diagnostics, reference resources path, and fallback procedures.
+
+## Mandatory Prompt Addendum for Long-form MDX
+
+When assigning an AI assistant to create or modify a long post, append the following requirements to the task prompt:
+
+- Treat Safari/WebKit scrolling performance as a release requirement.
+- Do not apply transitions to all descendants of article content.
+- Keep Posts and Docs on native body scrolling; do not add body-level custom scrollbar initialization.
+- Use `client:visible` for below-the-fold interactive components and avoid batches of `client:only` or `client:load`.
+- Batch TOC and scroll-linked UI work with `requestAnimationFrame`, and skip updates when state is unchanged.
+- Do not use `content-visibility` around Astro islands without proving that visibility-triggered hydration still works.
+- Run `pnpm build`, then verify scrolling, anchor navigation, TOC tracking, theme switching, Swup navigation, and hydration on the long-form regression fixture.
 ``````

@@ -20,5 +20,15 @@ is_article: true
 - 💬 **Giscus 评论区指南**：如何优雅地接入 Giscus 评论系统并进行多语言支持。
 - 🤝 **友链配置基础**：基础的朋友链接数据格式及头像配置指南。
 - 🚀 **深度定制区**：探索 MDX 组件库、响应式断点、动态主题色等核心源码级别的进阶魔改技巧。
+- 🧪 **Safari 长文性能基线**：记录长文章与多组件 MDX 的渲染规范，并提供一篇约 2 万字的压力测试文章用于回归验证。
+
+## Safari 长文性能与回归测试
+
+如果你的文档超过约 3000 字，或者包含大量代码块、数学公式和交互式组件，请先阅读：
+
+- [长文章滚动与渲染性能优化](./advanced-customization/change-log/01-performance-optimization/)
+- [Safari 长文 MDX 压力测试](./advanced-customization/change-log/02-safari-long-mdx-stress-test/)
+
+当前项目约定：文章内容节点不得批量添加全局 `transition`；Posts 与 Docs 长文路由使用浏览器原生滚动；文章中的非首屏交互组件默认使用 `client:visible`；目录跟随更新必须合并到单个动画帧并避免重复布局读取。
 
 希望这份详尽的教程能帮助你将个人站点打磨至极致！

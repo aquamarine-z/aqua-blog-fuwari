@@ -79,7 +79,7 @@ import ReactCounter from './ReactCounter.tsx';
 
 3. **`client:visible`**
    - **作用**：组件滚动到屏幕可视区域时才加载 JS。
-   - **适用场景**：位于页面底部的沉重组件，如果用户没划到底部，就完全不加载它的 JS，极大节省流量。
+   - **适用场景**：长文章和多组件 MDX 的默认选择。位于首屏之外的图表、演示器和交互模块，如果用户没划到它们，就不下载和执行对应 JS。
    - **用法**：`<InteractiveButton client:visible />`
 
 4. **`client:only="react"`**
@@ -88,3 +88,9 @@ import ReactCounter from './ReactCounter.tsx';
    - **用法**：`<InteractiveButton client:only="react" />`
 
 只要正确加上了 `client:` 指令，你的 React/Vue 组件就能在 MDX 文章中完美运行了！
+
+> [!WARNING]
+> **Safari 长文约束**：不要在同一篇长文中批量使用 `client:only` 或 `client:load`。这会让多个组件在页面打开时集中执行，造成主线程拥堵、滚动卡顿和设备发热。除首屏必需交互外，优先使用 `client:visible`。
+
+> [!NOTE]
+> 不要为了优化长文而直接在包裹组件的章节上添加 `content-visibility: auto`。它可能影响 Astro `client:visible` 的触发。任何此类改动都必须在真实浏览器中验证组件进入视口后的水合行为。
