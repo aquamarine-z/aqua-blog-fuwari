@@ -1,5 +1,4 @@
 import {
-	AUTO_MODE,
 	DARK_MODE,
 	DEFAULT_THEME,
 	LIGHT_MODE,
@@ -27,62 +26,94 @@ export function setHue(hue: number): void {
 	r.style.setProperty("--hue", String(hue));
 }
 
-let themeFrameId1: number | undefined;
-let themeFrameId2: number | undefined;
+let themeChangeId = 0;
+let activeThemeTransition: ViewTransition | null = null;
+let fallbackThemeFrame1: number | null = null;
+let fallbackThemeFrame2: number | null = null;
+
+function cancelFallbackThemeChange(): void {
+	if (fallbackThemeFrame1 !== null) cancelAnimationFrame(fallbackThemeFrame1);
+	if (fallbackThemeFrame2 !== null) cancelAnimationFrame(fallbackThemeFrame2);
+	fallbackThemeFrame1 = null;
+	fallbackThemeFrame2 = null;
+	document.documentElement.classList.remove("disable-article-transitions");
+}
+
+function shouldUseDarkMode(theme: LIGHT_DARK_MODE): boolean {
+	if (theme === DARK_MODE) return true;
+	if (theme === LIGHT_MODE) return false;
+	return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+function applyThemeState(isDark: boolean): void {
+	document.documentElement.classList.toggle("dark", isDark);
+	document.documentElement.setAttribute(
+		"data-theme",
+		expressiveCodeConfig.theme,
+	);
+}
+
+function dispatchThemeChanged(theme: LIGHT_DARK_MODE): void {
+	window.dispatchEvent(new CustomEvent("theme-changed", { detail: { theme } }));
+}
 
 export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
 	if (typeof window === "undefined") {
 		return;
 	}
 
-	// 取消之前未完成的帧调度，防止多次连续点击导致时序混乱
-	if (themeFrameId1 !== undefined) {
-		cancelAnimationFrame(themeFrameId1);
-	}
-	if (themeFrameId2 !== undefined) {
-		cancelAnimationFrame(themeFrameId2);
+	const root = document.documentElement;
+	const isDark = shouldUseDarkMode(theme);
+	cancelFallbackThemeChange();
+	if (root.classList.contains("dark") === isDark) {
+		root.setAttribute("data-theme", expressiveCodeConfig.theme);
+		return;
 	}
 
-	// 第一帧：添加标志类禁用过渡（立即同步执行）
-	document.documentElement.classList.add("disable-article-transitions");
+	const changeId = ++themeChangeId;
+	const startViewTransition = document.startViewTransition?.bind(document);
 
-	// 调度第二帧：切换主题模式并分发事件
-	themeFrameId1 = requestAnimationFrame(() => {
-		switch (theme) {
-			case LIGHT_MODE:
-				document.documentElement.classList.remove("dark");
-				break;
-			case DARK_MODE:
-				document.documentElement.classList.add("dark");
-				break;
-			case AUTO_MODE:
-				if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-					document.documentElement.classList.add("dark");
-				} else {
-					document.documentElement.classList.remove("dark");
+	if (!startViewTransition) {
+		root.classList.add("disable-article-transitions");
+		fallbackThemeFrame1 = requestAnimationFrame(() => {
+			fallbackThemeFrame1 = null;
+			if (changeId !== themeChangeId) return;
+			applyThemeState(isDark);
+			dispatchThemeChanged(theme);
+			fallbackThemeFrame2 = requestAnimationFrame(() => {
+				fallbackThemeFrame2 = null;
+				if (changeId === themeChangeId) {
+					root.classList.remove("disable-article-transitions");
 				}
-				break;
-		}
-
-		// Set the theme for Expressive Code
-		document.documentElement.setAttribute(
-			"data-theme",
-			expressiveCodeConfig.theme,
-		);
-
-		// Dispatch custom event for theme changes (e.g., for Mermaid rendering)
-		window.dispatchEvent(new CustomEvent("theme-changed", { detail: { theme } }));
-
-		// 强制触发一次重绘（Reflow），确保新主题颜色在“过渡禁用”的状态下被浏览器瞬间渲染完毕
-		void document.documentElement.offsetHeight;
-
-		// 调度第三帧：移除标志类，使文章本体的日常鼠标悬浮等过渡动画重获新生
-		themeFrameId2 = requestAnimationFrame(() => {
-			document.documentElement.classList.remove("disable-article-transitions");
-			themeFrameId1 = undefined;
-			themeFrameId2 = undefined;
+			});
 		});
-	});
+		return;
+	}
+
+	activeThemeTransition?.skipTransition();
+	root.classList.add("theme-switching");
+
+	try {
+		const transition = startViewTransition(() => applyThemeState(isDark));
+		activeThemeTransition = transition;
+
+		transition.ready
+			.then(() => {
+				if (changeId === themeChangeId) dispatchThemeChanged(theme);
+			})
+			.catch(() => {});
+
+		transition.finished.finally(() => {
+			if (changeId !== themeChangeId) return;
+			root.classList.remove("theme-switching");
+			activeThemeTransition = null;
+		});
+	} catch {
+		applyThemeState(isDark);
+		dispatchThemeChanged(theme);
+		root.classList.remove("theme-switching");
+		activeThemeTransition = null;
+	}
 }
 
 export function setTheme(theme: LIGHT_DARK_MODE): void {

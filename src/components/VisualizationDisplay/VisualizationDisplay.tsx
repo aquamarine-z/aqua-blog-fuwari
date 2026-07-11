@@ -2,12 +2,12 @@ import {
 	AdaptiveSVG,
 	type AdaptiveSVGProps,
 } from "@components/AdaptiveSVG/AdaptiveSVG";
-import type React from "react";
-import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
 import { ChevronDown, Code2, Eye, FileCode } from "lucide-react";
-import { i18n } from "@/i18n/translation";
+import type React from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { VisualizationKey } from "@/i18n/partials/visualization/keys";
+import { i18n } from "@/i18n/translation";
+import { cn } from "@/lib/utils";
 
 export interface VisualizationDisplayProps extends AdaptiveSVGProps {
 	children?: React.ReactNode;
@@ -29,9 +29,62 @@ function SimpleAccordionItem({
 	onToggle: () => void;
 	children: React.ReactNode;
 }) {
+	const contentRef = useRef<HTMLDivElement>(null);
+	const animationFrameRef = useRef<number | null>(null);
+	const isInitialRender = useRef(true);
+	const [height, setHeight] = useState<string>(isOpen ? "auto" : "0px");
+
+	useLayoutEffect(() => {
+		const content = contentRef.current;
+		if (!content) return;
+
+		if (isInitialRender.current) {
+			isInitialRender.current = false;
+			return;
+		}
+
+		if (animationFrameRef.current !== null) {
+			cancelAnimationFrame(animationFrameRef.current);
+		}
+
+		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+			setHeight(isOpen ? "auto" : "0px");
+			return;
+		}
+
+		const currentHeight = content.getBoundingClientRect().height;
+		const targetHeight = isOpen ? content.scrollHeight : 0;
+		setHeight(`${currentHeight}px`);
+
+		animationFrameRef.current = requestAnimationFrame(() => {
+			setHeight(`${targetHeight}px`);
+			animationFrameRef.current = null;
+		});
+
+		return () => {
+			if (animationFrameRef.current !== null) {
+				cancelAnimationFrame(animationFrameRef.current);
+				animationFrameRef.current = null;
+			}
+		};
+	}, [isOpen]);
+
+	const handleHeightTransitionEnd = (
+		event: React.TransitionEvent<HTMLDivElement>,
+	) => {
+		if (
+			event.target === event.currentTarget &&
+			event.propertyName === "height" &&
+			isOpen
+		) {
+			setHeight("auto");
+		}
+	};
+
 	return (
 		<div className="border-b border-black/5 dark:border-white/5 last:border-none">
 			<button
+				type="button"
 				onClick={onToggle}
 				data-state={isOpen ? "open" : "closed"}
 				className={cn(
@@ -42,7 +95,10 @@ function SimpleAccordionItem({
 				)}
 			>
 				<div className="flex items-center gap-2.5 font-bold text-sm md:text-base">
-					<Icon size={18} className="opacity-70 group-hover:opacity-100 transition-opacity" />
+					<Icon
+						size={18}
+						className="opacity-70 group-hover:opacity-100 transition-opacity"
+					/>
 					<span>{title}</span>
 				</div>
 				<ChevronDown
@@ -54,12 +110,15 @@ function SimpleAccordionItem({
 				/>
 			</button>
 			<div
+				ref={contentRef}
+				style={{ height }}
+				onTransitionEnd={handleHeightTransitionEnd}
 				className={cn(
-					"grid transition-all duration-300 ease-in-out",
-					isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0 pointer-events-none",
+					"overflow-hidden transition-[height,opacity] duration-300 ease-in-out",
+					isOpen ? "opacity-100" : "opacity-0 pointer-events-none",
 				)}
 			>
-				<div className="overflow-hidden min-h-0">
+				<div className="min-h-0">
 					<div className="px-5 pb-5 pt-3 w-full text-left bg-black/[0.005] dark:bg-white/[0.003]">
 						{children}
 					</div>
@@ -137,9 +196,7 @@ export function VisualizationDisplay(props: VisualizationDisplayProps) {
 						isOpen={openItems.includes("code")}
 						onToggle={() => toggleItem("code")}
 					>
-						<div className="w-full overflow-x-auto">
-							{codeComponent}
-						</div>
+						<div className="w-full overflow-x-auto">{codeComponent}</div>
 					</SimpleAccordionItem>
 				)}
 				<SimpleAccordionItem
@@ -156,5 +213,3 @@ export function VisualizationDisplay(props: VisualizationDisplayProps) {
 		</div>
 	);
 }
-
-

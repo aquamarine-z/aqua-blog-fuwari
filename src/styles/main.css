@@ -153,4 +153,39 @@ pre, pre *, code, code *, .katex, .katex * {
     transition: none !important;
 }
 
-
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+    transition: none !important;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 220ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(root) {
+    animation-name: theme-fade-out;
+}
+
+::view-transition-new(root) {
+    animation-name: theme-fade-in;
+}
+
+@keyframes theme-fade-out {
+    to { opacity: 0; }
+}
+
+@keyframes theme-fade-in {
+    from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation-duration: 1ms;
+    }
+}
+
+

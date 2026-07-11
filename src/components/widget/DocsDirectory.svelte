@@ -140,7 +140,7 @@ onDestroy(() => {
 });
 </script>
 
-<div class="docs-directory">
+<div class="docs-directory" class:root={isRoot}>
     {#each categories as node}
         {#if node.type === 'folder'}
             <div class="docs-node">
@@ -200,11 +200,19 @@ onDestroy(() => {
         display: flex;
         flex-direction: column;
         gap: 2px;
+        width: 100%;
+        max-width: 100%;
         min-width: 0;
+    }
+
+    .docs-directory.root {
+        max-width: min(100%, 100vw);
     }
 
     .docs-node {
         border-radius: 0.5rem;
+        width: 100%;
+        max-width: 100%;
         min-width: 0;
     }
 
@@ -223,6 +231,8 @@ onDestroy(() => {
         font-size: 0.9rem;
         font-weight: 600;
         text-align: left;
+        max-width: 100%;
+        box-sizing: border-box;
         min-width: 0;
     }
 
@@ -306,6 +316,8 @@ onDestroy(() => {
         margin-top: 2px;
         margin-bottom: 4px;
         animation: slideDown 0.2s ease-out;
+        max-width: 100%;
+        box-sizing: border-box;
         min-width: 0;
     }
 
@@ -335,6 +347,8 @@ onDestroy(() => {
         font-size: 0.8rem;
         line-height: 1.3;
         transition: all 0.15s ease;
+        max-width: 100%;
+        box-sizing: border-box;
         min-width: 0;
     }
 

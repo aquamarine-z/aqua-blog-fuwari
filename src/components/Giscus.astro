@@ -75,14 +75,13 @@ if (lang === "el") {
     loadGiscus();
 
     // Listen for theme changes to dynamically update Giscus theme
+    let lastGiscusDarkMode = document.documentElement.classList.contains('dark');
     const observer = new MutationObserver((mutations) => {
-      let shouldUpdate = false;
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class' || mutation.attributeName === 'style') {
-          shouldUpdate = true;
-        }
-      });
-      if (shouldUpdate) {
+      const currentDarkMode = document.documentElement.classList.contains('dark');
+      const darkModeChanged = currentDarkMode !== lastGiscusDarkMode;
+      const hueChanged = mutations.some((mutation) => mutation.attributeName === 'style');
+      if (darkModeChanged || hueChanged) {
+        lastGiscusDarkMode = currentDarkMode;
         const iframe = document.querySelector('iframe.giscus-frame');
         if (iframe && iframe.contentWindow) {
           iframe.contentWindow.postMessage(
