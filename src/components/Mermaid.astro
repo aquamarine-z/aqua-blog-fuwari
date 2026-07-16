@@ -51,114 +51,26 @@ const { code } = Astro.props;
 	height: auto;
 }
 
-.mermaid-dialog {
-	--mermaid-surface: var(--mermaid-normal-fill, var(--btn-regular-bg));
-	--mermaid-surface-alt: var(--btn-plain-bg-hover);
-	--mermaid-text: var(--mermaid-normal-text, var(--btn-content));
-	--mermaid-line: var(--mermaid-normal-stroke, var(--meta-divider));
-	--mermaid-note-fill: var(--mermaid-startend-fill, var(--btn-regular-bg));
-	--mermaid-note-stroke: var(--mermaid-startend-stroke, var(--primary));
-	--mermaid-note-text: var(--mermaid-startend-text, var(--btn-content));
-	width: min(92vw, 90rem);
-	max-width: 92vw;
-	max-height: 90vh;
-	margin: auto;
-	padding: 0;
-	overflow: hidden;
-	background: var(--card-bg);
-	border: 1px solid var(--line-divider);
-	border-radius: var(--radius-large);
-	color: var(--mermaid-text, currentColor);
-}
-
-.mermaid-dialog::backdrop {
-	background: rgb(0 0 0 / 78%);
-}
-
-.mermaid-dialog-shell {
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	max-height: 90vh;
-	padding: 2.5rem;
-	overflow: auto;
-}
-
-.mermaid-dialog-content {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	min-height: 8rem;
-}
-
-.mermaid-dialog .mermaid-dialog-svg {
-	display: block;
-	width: 100% !important;
-	max-width: 100% !important;
-	height: auto !important;
-	max-height: 78vh !important;
-}
-
-.mermaid-dialog-close {
-	position: absolute;
-	top: 0.75rem;
-	right: 0.75rem;
-	z-index: 1;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.25rem;
-	height: 2.25rem;
-	padding: 0;
-	border: 0;
-	border-radius: 9999px;
-	background: var(--btn-regular-bg);
-	color: var(--btn-content);
-	cursor: pointer;
-}
-
-.mermaid-dialog-close:hover,
-.mermaid-dialog-close:focus-visible {
-	background: var(--btn-regular-bg-hover);
-	color: var(--primary);
-}
-
-.mermaid-dialog-close:focus-visible {
-	outline: 2px solid var(--primary);
-	outline-offset: 2px;
-}
-
-.mermaid-dialog-close svg {
-	width: 1.25rem;
-	height: 1.25rem;
-}
 
 @media (max-width: 640px) {
 	.mermaid-dialog-shell {
 		padding: 2.75rem 1rem 1rem;
 	}
 }
+
 </style>
 
 <script>
+	import React from "react";
+	import { dialog } from "@/components/ui/surface";
+	import MermaidDialog from "@/components/react/dialogs/MermaidDialog";
+
 	type MermaidApi = typeof import("mermaid")["default"];
 
 	const CUSTOM_STYLE_ATTRIBUTE = "data-mermaid-custom-style";
 	let mermaidPromise: Promise<MermaidApi> | null = null;
 	let observer: IntersectionObserver | null = null;
 	let swupHookRegistered = false;
-	let dialog: HTMLDialogElement | null = null;
-	let dialogContent: HTMLElement | null = null;
-	let activeSvg: SVGElement | null = null;
-	let sourceBlock: HTMLElement | null = null;
-	let sourceNextSibling: ChildNode | null = null;
-	let sourceMinHeight = "";
-	let sourceSvgStyle: string | null = null;
-	let dialogTrigger: HTMLElement | null = null;
-	let previousBodyOverflow = "";
 
 	function getMermaid(): Promise<MermaidApi> {
 		if (!mermaidPromise) {
@@ -345,77 +257,13 @@ const { code } = Astro.props;
 		}
 	}
 
-	function restoreFullscreenSvg(): void {
-		if (!activeSvg || !sourceBlock) return;
-
-		activeSvg.classList.remove("mermaid-dialog-svg");
-		if (sourceSvgStyle === null) activeSvg.removeAttribute("style");
-		else activeSvg.setAttribute("style", sourceSvgStyle);
-
-		if (sourceBlock.isConnected) {
-			if (sourceNextSibling?.parentNode === sourceBlock) sourceBlock.insertBefore(activeSvg, sourceNextSibling);
-			else sourceBlock.append(activeSvg);
-			sourceBlock.style.minHeight = sourceMinHeight;
-		} else {
-			activeSvg.remove();
-		}
-
-		document.body.style.overflow = previousBodyOverflow;
-		if (dialogTrigger?.isConnected) dialogTrigger.focus({ preventScroll: true });
-		activeSvg = null;
-		sourceBlock = null;
-		sourceNextSibling = null;
-		sourceSvgStyle = null;
-		dialogTrigger = null;
-	}
-
-	function getDialog(): HTMLDialogElement {
-		if (dialog) return dialog;
-
-		dialog = document.createElement("dialog");
-		dialog.className = "mermaid-dialog";
-		dialog.setAttribute("aria-label", "图表全屏预览");
-		dialog.innerHTML = `
-			<div class="mermaid-dialog-shell">
-				<button type="button" class="mermaid-dialog-close" aria-label="关闭图表预览">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-						<path d="M6 6l12 12M18 6L6 18"></path>
-					</svg>
-				</button>
-				<div class="mermaid-dialog-content"></div>
-			</div>`;
-		document.body.append(dialog);
-		dialogContent = dialog.querySelector(".mermaid-dialog-content");
-		dialog.querySelector(".mermaid-dialog-close")?.addEventListener("click", () => dialog?.close());
-		dialog.addEventListener("click", (event) => {
-			if (event.target === dialog) dialog?.close();
-		});
-		dialog.addEventListener("close", restoreFullscreenSvg);
-		return dialog;
-	}
-
-	function openFullscreen(button: HTMLElement): void {
+	async function openFullscreen(button: HTMLElement): Promise<void> {
 		const block = button.closest(".mermaid-wrapper")?.querySelector<HTMLElement>(".mermaid-block");
 		const svg = block?.querySelector<SVGElement>("svg");
-		if (!block || !svg || !dialogContent) {
-			getDialog();
-		}
-		if (!block || !svg || !dialogContent) return;
+		if (!block || !svg) return;
 
-		const fullscreenDialog = getDialog();
-		if (fullscreenDialog.open) fullscreenDialog.close();
-		sourceBlock = block;
-		sourceNextSibling = svg.nextSibling;
-		sourceMinHeight = block.style.minHeight;
-		sourceSvgStyle = svg.getAttribute("style");
-		dialogTrigger = button;
-		previousBodyOverflow = document.body.style.overflow;
-		block.style.minHeight = `${block.getBoundingClientRect().height}px`;
-		activeSvg = svg;
-		svg.classList.add("mermaid-dialog-svg");
-		dialogContent.replaceChildren(svg);
-		document.body.style.overflow = "hidden";
-		fullscreenDialog.showModal();
+		const svgString = svg.outerHTML;
+		await dialog.custom((close) => React.createElement(MermaidDialog, { svgString, close }));
 	}
 
 	document.addEventListener("click", (event) => {
@@ -429,7 +277,6 @@ const { code } = Astro.props;
 		if (swupHookRegistered || !window.swup?.hooks) return;
 		swupHookRegistered = true;
 		window.swup.hooks.on("page:view", () => {
-			if (dialog?.open) dialog.close();
 			renderMermaid();
 		});
 	}

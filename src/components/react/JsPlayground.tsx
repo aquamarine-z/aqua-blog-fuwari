@@ -12,8 +12,9 @@ import {
 } from "lucide-react";
 import Prism from "prismjs";
 import React, { useState } from "react";
-import { createPortal } from "react-dom";
 import _Editor from "react-simple-code-editor";
+import { dialog } from "@/components/ui/surface";
+import JsPlaygroundDialog from "./dialogs/JsPlaygroundDialog";
 import { JsPlaygroundKey } from "@/i18n/partials/js-playground/keys";
 import { i18n } from "@/i18n/translation";
 import "prismjs/components/prism-javascript";
@@ -94,9 +95,6 @@ export default function JsPlayground({
 	const [outputs, setOutputs] = useState<OutputMessage[]>([]);
 	const [isRunning, setIsRunning] = useState(false);
 	const [currentLang, setCurrentLang] = useState<string | undefined>(lang);
-	const [expandedView, setExpandedView] = useState<"code" | "data" | null>(
-		null,
-	);
 
 	React.useEffect(() => {
 		if (!lang && typeof document !== "undefined") {
@@ -116,6 +114,30 @@ export default function JsPlayground({
 	}, [lang]);
 
 	const t = (key: JsPlaygroundKey) => i18n(key, currentLang);
+
+	const openExpandedView = async (viewType: "code" | "data") => {
+		const isCode = viewType === "code";
+		const title = isCode ? t(JsPlaygroundKey.jsCode) : t(JsPlaygroundKey.inputData);
+		const initialValue = isCode ? code : data;
+		const placeholder = isCode ? t(JsPlaygroundKey.jsCodePlaceholder) : t(JsPlaygroundKey.inputDataPlaceholder);
+		const readOnly = isCode ? readOnlyCode : readOnlyData;
+
+		const result = await dialog.custom<string>((close) => (
+			<JsPlaygroundDialog
+				title={title}
+				viewType={viewType}
+				initialValue={initialValue}
+				placeholder={placeholder}
+				readOnly={readOnly}
+				close={close}
+			/>
+		));
+
+		if (result !== null && result !== undefined) {
+			if (isCode) setCode(result);
+			else setData(result);
+		}
+	};
 
 	const handleRun = () => {
 		setIsRunning(true);
@@ -228,7 +250,7 @@ export default function JsPlayground({
 							</div>
 							<button
 								className="hover:text-[var(--primary)] text-50 hover:opacity-100 transition-colors"
-								onClick={() => setExpandedView("code")}
+								onClick={() => openExpandedView("code")}
 								title="Expand"
 							>
 								<Maximize2 size={14} />
@@ -265,7 +287,7 @@ export default function JsPlayground({
 							</div>
 							<button
 								className="hover:text-[var(--primary)] text-50 hover:opacity-100 transition-colors"
-								onClick={() => setExpandedView("data")}
+								onClick={() => openExpandedView("data")}
 								title="Expand"
 							>
 								<Maximize2 size={14} />
@@ -366,68 +388,6 @@ export default function JsPlayground({
 				</div>
 			</div>
 
-			{/* Fullscreen Editor Modal (Using React Portal to escape Swup transform container) */}
-			{expandedView && typeof document !== "undefined" && createPortal(
-				<div className="fixed inset-0 z-[2147483647] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-all duration-300 animate-in fade-in duration-200">
-					<div className="w-full h-full md:w-[95vw] md:h-[95vh] max-w-7xl max-h-none flex flex-col rounded-none md:rounded-2xl bg-[var(--card-bg)] border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden font-sans animate-in zoom-in-95 duration-200">
-						{/* Modal Header */}
-						<div className="flex items-center justify-between border-b border-black/5 dark:border-white/5 bg-[var(--btn-regular-bg)] px-5 py-4 flex-none">
-							<div className="flex items-center gap-2.5">
-								<div className="p-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center">
-									{expandedView === "code" ? (
-										<Code2 size={20} />
-									) : (
-										<Database size={20} />
-									)}
-								</div>
-								<h3 className="font-bold tracking-tight text-90 text-base md:text-lg">
-									{expandedView === "code"
-										? t(JsPlaygroundKey.jsCode)
-										: t(JsPlaygroundKey.inputData)}
-								</h3>
-							</div>
-							<button
-								onClick={() => setExpandedView(null)}
-								className="btn-plain scale-animation flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--btn-regular-bg)] hover:bg-black/5 dark:hover:bg-white/5 transition-all text-75 hover:text-[var(--primary)] active:scale-95"
-							>
-								<X size={18} />
-							</button>
-						</div>
-						{/* Modal Editor */}
-						<div className="playground-editor w-full flex-1 overflow-y-auto bg-[var(--codeblock-bg)] font-mono text-sm leading-relaxed text-white/90">
-							<Editor
-								value={expandedView === "code" ? code || "" : data || ""}
-								onValueChange={(val) =>
-									expandedView === "code" ? setCode(val) : setData(val)
-								}
-								highlight={(val) =>
-									Prism.highlight(
-										val,
-										expandedView === "code"
-											? Prism.languages.javascript
-											: Prism.languages.json,
-										expandedView === "code" ? "javascript" : "json",
-									)
-								}
-								padding={24}
-								style={{
-									fontFamily: "inherit",
-									minHeight: "100%",
-									fontSize: "1.05rem",
-								}}
-								disabled={expandedView === "code" ? readOnlyCode : readOnlyData}
-								placeholder={
-									expandedView === "code"
-										? t(JsPlaygroundKey.jsCodePlaceholder)
-										: t(JsPlaygroundKey.inputDataPlaceholder)
-								}
-								textareaClassName="focus:outline-none"
-							/>
-						</div>
-					</div>
-				</div>,
-				document.body
-			)}
 		</div>
 	);
 }

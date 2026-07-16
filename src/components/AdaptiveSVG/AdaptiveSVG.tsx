@@ -1,7 +1,8 @@
-import { Maximize2, Play, X } from "lucide-react";
+import { Maximize2, Play } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import { createRoot } from "react-dom/client";
+import { dialog, SurfaceDialogContent } from "@/components/ui/surface";
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export interface AdaptiveSVGProps {
 	onInitialize?: (svg?: SVGSVGElement, data?: any) => void;
@@ -18,45 +19,19 @@ export interface AdaptiveSVGProps {
 }
 
 function showMaximumImage(component: React.ReactNode) {
-	if (document.body.getElementsByClassName("svg-modal-open").length !== 0) {
-		return;
-	}
-	const onClose = () => {
-		document.body.style.overflow = "";
-		document.body.removeChild(div);
-	};
-
-	const imageComponent = (
-		<div
-			onClick={(e) => {
-				e.stopPropagation();
-				onClose();
-			}}
-			className="fixed inset-0 z-[2147483647] bg-black/60 flex justify-center items-center p-4 md:p-8"
+	void dialog.custom((close) => (
+		<SurfaceDialogContent
+			className="max-w-[95vw] h-[95vh] w-[95vw] flex flex-col p-4 md:p-6 bg-[var(--card-bg)] border-[var(--line-divider)] rounded-[var(--radius-large)] shadow-2xl overflow-hidden"
+			onPointerDownOutside={() => close()}
 		>
-			<div
-				className="w-full h-full relative flex flex-col p-4 md:p-6 bg-[var(--card-bg)] rounded-[var(--radius-large)] shadow-2xl"
-				onClick={(e) => e.stopPropagation()}
-			>
-				<button
-					onClick={onClose}
-					className="absolute top-4 right-4 z-10 p-2 rounded-xl bg-[var(--btn-regular-bg)] hover:bg-[var(--btn-plain-bg-hover)] text-[var(--btn-content)] hover:text-[var(--primary)] transition flex items-center justify-center"
-				>
-					<X size={24} />
-				</button>
-				<div className="w-full h-full overflow-hidden flex justify-center items-center pt-8">
-					{component}
-				</div>
+			<DialogHeader className="sr-only">
+				<DialogTitle>Full Screen Image Viewer</DialogTitle>
+			</DialogHeader>
+			<div className="w-full h-full overflow-hidden flex justify-center items-center pt-8">
+				{component}
 			</div>
-		</div>
-	);
-
-	const div = document.createElement("div");
-	div.className = "svg-modal-open";
-	document.body.appendChild(div);
-	document.body.style.overflow = "hidden";
-	const root = createRoot(div);
-	root.render(imageComponent);
+		</SurfaceDialogContent>
+	));
 }
 
 function TitleBarButton({
